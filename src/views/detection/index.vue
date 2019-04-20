@@ -8,7 +8,6 @@
               <toolbar/>
             </div>
             <editor/>
-            <!--            <el-button type="primary">加载</el-button>-->
           </el-card>
         </div>
       </el-col>
@@ -17,77 +16,13 @@
           <div slot="header" class="clearfix">
             <span>类别设置</span>
           </div>
-          <div class="component-prop">
-            <el-form ref="form" :model="form" label-width="80px">
-              <el-form-item label="选择类别">
-                <el-select
-                  v-model="value10"
-                  filterable
-                  allow-create
-                  default-first-option
-                  placeholder="请选择标签">
-                  <el-option
-                    v-for="item in options5"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"/>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="覆盖颜色">
-                <el-col :span="8">
-                  <el-color-picker v-model="color1" class="float:right"/>
-                </el-col>
-                <el-col :span="8" class="line" style="text-align: center;font-weight: bold">边框颜色</el-col>
-                <el-col :span="8">
-                  <el-color-picker v-model="color2" show-alpha/>
-                </el-col>
-              </el-form-item>
-            </el-form>
-            <!--            <el-form :inline="true" :model="form" label-width="80px">-->
-            <!--              <el-form-item label="边框颜色">-->
-            <!--                <el-color-picker v-model="color1" class="float:right"/>-->
-            <!--              </el-form-item>-->
-            <!--              <el-form-item label="覆盖颜色">-->
-            <!--                <el-color-picker v-model="color2" show-alpha/>-->
-            <!--              </el-form-item>-->
-            <!--            </el-form>-->
-          </div>
+          <classification/>
         </el-card>
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <span>属性设置</span>
           </div>
-          <div class="component-item">
-            <el-form ref="form" :model="form" label-width="80px">
-              <el-form-item label="输入框">
-                <el-input v-model="form.name"/>
-              </el-form-item>
-              <el-form-item label="选择框">
-                <el-select v-model="form.region" placeholder="请选择活动区域">
-                  <el-option label="区域一" value="shanghai"/>
-                  <el-option label="区域二" value="beijing"/>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="多选框">
-                <el-checkbox-group v-model="form.type">
-                  <el-checkbox label="美食/餐厅线上活动" name="type"/>
-                  <el-checkbox label="地推活动" name="type"/>
-                  <el-checkbox label="线下主题活动" name="type"/>
-                  <el-checkbox label="单纯品牌曝光" name="type"/>
-                </el-checkbox-group>
-              </el-form-item>
-              <el-form-item label="单选框">
-                <el-radio-group v-model="form.resource">
-                  <el-radio label="True"/>
-                  <el-radio label="False"/>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="onSubmit">保存</el-button>
-                <el-button>重置</el-button>
-              </el-form-item>
-            </el-form>
-          </div>
+          <property/>
         </el-card>
       </el-col>
     </el-row>
@@ -98,11 +33,14 @@
 import { getList } from '@/api/table'
 import toolbar from './editor/Toolbar'
 import editor from './editor/Editor'
-
+import classification from './editor/Classification'
+import property from './editor/Property'
 export default {
   components: {
     toolbar,
-    editor
+    editor,
+    classification,
+    property
   },
   filters: {
     statusFilter(status) {
@@ -144,7 +82,7 @@ export default {
     }
   },
   created() {
-    this.fetchData()
+    // this.fetchData()
   },
   methods: {
     fetchData() {
@@ -178,11 +116,5 @@ export default {
   .grid-content {
     border-radius: 4px;
     min-height: 720px;
-  }
-  .component-prop{
-    min-height: 150px;
-  }
-  .component-item{
-    min-height: 450px;
   }
 </style>

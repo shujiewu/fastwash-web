@@ -16,6 +16,8 @@
 <script>
 import { getItem } from '@/api/detection'
 import paper from 'paper'
+
+import { mapState } from 'vuex'
 export default {
   name: 'Editor',
   data() {
@@ -54,9 +56,14 @@ export default {
       ]
     }
   },
+  computed: {
+    ...mapState({
+      selectedItems: state => state.detection.selectedItems
+    })
+  },
   mounted() {
     paper.setup('detection_canvas')
-    // document.getElementById('pan').click()
+    document.getElementById('tool-move').click()
     this.load()
   },
   methods: {
@@ -77,9 +84,7 @@ export default {
       const load = () => {
         paper.view.viewSize.width = this.bg_dom.width
         paper.view.viewSize.height = this.bg_dom.height
-
         this.drawBoxes(data)
-        console.log(data)
       }
       this.bg_dom.onload = load
 
@@ -92,9 +97,8 @@ export default {
       // raster.onLoad = load
 
       const resize = event => {
-        console.log(paper.view.center)
-        console.log(event)
-
+        // console.log(paper.view.center)
+        // console.log(event)
         // 修改所有item
         // raster.position = paper.view.center
         // raster.size = new paper.Size(paper.view.viewSize.width, paper.view.viewSize.height)
@@ -103,8 +107,8 @@ export default {
       paper.view.onResize = resize
     },
     drawBoxes(data) {
+      console.log(data)
       if ('dt_items' in data) {
-        // this.Draw_boxes(ctx, data['dt_items'], "yellow", "dt_items");
         if ('dtboxes' in data['dt_items']) {
           for (const index in data['dt_items']['dtboxes']) {
             // console.log('load dt',index, t_boxes['dtboxes'][index], color, dt_or_gt_items)
@@ -143,19 +147,13 @@ export default {
             y: item['box'][1]
           }
         )
-        // var br = this.Rel2abs(
-        //   {
-        //     x: item['box'][0] + item['box'][2],
-        //     y: item['box'][1] + item['box'][3]
-        //   }
-        // )
         var wh = this.Rel2abs(
           {
             x: item['box'][2],
             y: item['box'][3]
           }
         )
-        const tag = item['tag']
+        // const tag = item['tag']
 
         // this.FrameInfo[type].push({
         //   tl: tl,
@@ -171,12 +169,25 @@ export default {
           data: {
             type: 'rectangle',
             class: item.tag,
-            data: item.data
+            prop: item.prop
           },
           locked: false
         })
-        newPaperItem.strokeWidth = 4
+        newPaperItem.strokeWidth = 2
         this.drawItemColor(newPaperItem, item, type)
+        // var text = new paper.PointText(new paper.Point(30, 30))
+        // text.fillColor = 'black'
+        // text.content = 'Hello world'
+        //
+        // var text2 = new paper.PointText({
+        //   point: [50, 50],
+        //   content: 'The contents of the point text',
+        //   fillColor: 'black',
+        //   strokColor: 'white',
+        //   fontFamily: 'Courier New',
+        //   fontWeight: 'bold',
+        //   fontSize: 25
+        // })
       }
     },
     drawItemColor(paperItem, stateItem, type) {
@@ -221,10 +232,10 @@ export default {
     defaultColors() {
       return [{
         fill: {
-          hue: 82,
-          saturation: 0.64,
-          lightness: 0.64,
-          alpha: 0.7
+          red: 1,
+          green: 0,
+          blue: 0,
+          alpha: 0.3
         },
         stroke: {
           hue: 82,
@@ -237,7 +248,7 @@ export default {
           hue: 329,
           saturation: 0.89,
           lightness: 0.9,
-          alpha: 0.7
+          alpha: 0.3
         },
         stroke: {
           hue: 329,
@@ -248,7 +259,6 @@ export default {
       }]
     },
     Rel2abs(pt) {
-      console.log(pt)
       return {
         x: Math.round(pt.x * this.bg_dom.width),
         y: Math.round(pt.y * this.bg_dom.height)
@@ -266,6 +276,9 @@ export default {
     /*margin: 10px;*/
     height: auto;
     width: 100%;
+  }
+  .pointers-no {
+    pointer-events: none;
   }
   .editor {
     /*box-shadow: 0 3px 3px 0 rgba(0,0,0,.12), 0 3px 3px 0 rgba(0,0,0,.12);*/

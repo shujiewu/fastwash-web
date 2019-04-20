@@ -1,10 +1,10 @@
 <template>
-  <el-button type="success" @click.native="initialiseTool">选择</el-button>
+  <el-button id="move" type="success" @click.native="initialiseTool">选择</el-button>
 </template>
 
 <script>
 import paper from 'paper'
-
+import { mapActions } from 'vuex'
 export default {
   props: {
     active: {
@@ -28,12 +28,12 @@ export default {
 
     const toolDown = event => {
       hitResult = paper.project.hitTest(event.point, this.hitOptions)
-      if (hitResult.type === 'pixel') {
-        return
-      }
+
       this.selectionGroup.bounds.selected = false
       if (hitResult) {
-        if (hitResult.type === 'bounds') {
+        if (hitResult.type === 'pixel') {
+          return
+        } else if (hitResult.type === 'bounds') {
           this.toolMode = 'transform'
         } else if (event.modifiers.shift && !hitResult.item.selected) {
           hitResult.item.selected = true
@@ -180,10 +180,10 @@ export default {
   },
 
   methods: {
+    ...mapActions({
+      setSelectedItems: 'detection/setSelectedItems'
+    }),
     prepareCanvas() {
-
-    },
-    setSelectedItems() {
 
     },
     flagAnnotationEdits() {
@@ -194,7 +194,6 @@ export default {
       this.toolMove.activate()
       this.strokeWidth = 2
       const hitTolerance = this.strokeWidth * 2
-      this.active = true
       this.hitOptions = {
         segments: true,
         stroke: true,
@@ -204,7 +203,6 @@ export default {
         tolerance: hitTolerance,
         match: this.matchFilter
       }
-      console.log(paper.project.selectedItems)
       this.selectionGroup = new paper.Group(paper.project.selectedItems)
     },
 

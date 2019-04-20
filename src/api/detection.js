@@ -7,3 +7,10 @@ export function getItem() {
   })
 }
 
+export function submitItem() {
+  return request({
+    url: '/send_img_items',
+    method: 'post'
+  })
+}
+

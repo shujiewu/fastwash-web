@@ -4,6 +4,7 @@
       <el-form-item label="选择类别">
         <el-select
           v-model="selectedTag"
+          :disabled="!hasSelection"
           filterable
           allow-create
           default-first-option
@@ -12,17 +13,21 @@
           <el-option
             v-for="item in tags"
             :key="item.value"
-            :label="item.label"
+            :label="item.value"
             :value="item.value"/>
         </el-select>
       </el-form-item>
       <el-form-item label="边框颜色">
         <el-col :span="8">
-          <el-color-picker v-model="strokeColor" show-alpha @change="handleStrokeColorChange"/>
+          <el-color-picker
+            :disabled="!hasSelection"
+            v-model="strokeColor"
+            show-alpha
+            @change="handleStrokeColorChange"/>
         </el-col>
         <el-col :span="8" class="line" style="text-align: center;font-weight: bold">覆盖颜色</el-col>
         <el-col :span="8">
-          <el-color-picker v-model="fillColor" show-alpha @change="handleFillColorChange"/>
+          <el-color-picker :disabled="!hasSelection" v-model="fillColor" show-alpha @change="handleFillColorChange"/>
         </el-col>
       </el-form-item>
     </el-form>
@@ -38,7 +43,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
+import paper from 'paper'
 export default {
   name: 'Classification',
   data() {
@@ -49,38 +55,52 @@ export default {
       },
       tags: [{
         value: 'vehicle',
-        label: 'vehicle'
+        label: 'vehicle121'
       }, {
         value: 'vehicle2',
-        label: 'vehicle2'
+        label: 'vehicle21212'
       },
       {
         value: 'vehicle3',
-        label: 'vehicle3'
+        label: 'vehicle31212'
       }],
-      selectedTag: [],
+      selectedTag: '',
+      hasSelection: false,
       strokeColor: 'rgba(19, 206, 102, 1)',
       fillColor: 'rgba(19, 206, 102, 0.5)'
     }
   },
   computed: {
     ...mapState({
-      selectedItems: state => state.detection.selectedItems
+      selectedItems: state => state.detection.selectedItems,
+      classification: state => state.detection.classification
     })
   },
   watch: {
     selectedItems: function(val) {
       if (this.selectedItems.length > 0) {
+        this.hasSelection = true
         this.selectedTag = this.selectedItems[0].data.class
         this.strokeColor = `rgba(${this.selectedItems[0].strokeColor.red * 255},${this.selectedItems[0].strokeColor.green * 255},${this.selectedItems[0].strokeColor.blue * 255},${this.selectedItems[0].strokeColor.alpha})`// this.selectedItems[0].fillColor
         this.fillColor = `rgba(${this.selectedItems[0].fillColor.red * 255},${this.selectedItems[0].fillColor.green * 255},${this.selectedItems[0].fillColor.blue * 255},${this.selectedItems[0].fillColor.alpha})`// this.selectedItems[0].fillColor
+      } else {
+        this.hasSelection = false
+        // this.selectedTag = []
       }
     }
   },
   methods: {
+    ...mapActions({
+      setClassificationFillColor: 'detection/setClassificationFillColor',
+      setClassificationStrokeColor: 'detection/setClassificationStrokeColor'
+    }),
     handleChange(value) {
       if (this.selectedItems.length > 0) {
         this.selectedItems[0].data.class = value
+        this.fillColor = (this.classification.filter(item => item.value === value))[0].fillColor
+        this.strokeColor = (this.classification.filter(item => item.value === value))[0].strokeColor
+        this.selectedItems[0].fillColor = this.colorToRGBA(this.fillColor)
+        this.selectedItems[0].strokeColor = this.colorToRGBA(this.strokeColor)
       }
     },
 
@@ -96,28 +116,54 @@ export default {
     },
 
     handleStrokeColorChange(color) {
+      this.setClassificationStrokeColor({ tag: this.selectedTag, strokeColor: color })
       color = this.colorToRGBA(color)
-      if (this.selectedItems.length > 0) {
-        this.selectedItems.every(
-          (value, index, array) => {
-            value.strokeColor.red = color.red
-            value.strokeColor.green = color.green
-            value.strokeColor.blue = color.blue
-            value.strokeColor.alpha = color.alpha
-          })
+      // if (this.selectedItems.length > 0) {
+      //   this.selectedItems.every(
+      //     (value, index, array) => {
+      //       value.strokeColor.red = color.red
+      //       value.strokeColor.green = color.green
+      //       value.strokeColor.blue = color.blue
+      //       value.strokeColor.alpha = color.alpha
+      //     })
+      // }
+      const items = paper.project.getItems({
+        className: function(className) {
+          return (className === 'Path')
+        }
+      })
+      for (const item of items) {
+        if (item.data.class === this.selectedTag) {
+          item.strokeColor.red = color.red
+          item.strokeColor.green = color.green
+          item.strokeColor.blue = color.blue
+          item.strokeColor.alpha = color.alpha
+        }
       }
     },
     handleFillColorChange(color) {
+      this.setClassificationFillColor({ tag: this.selectedTag, fillColor: color })
       color = this.colorToRGBA(color)
-      if (this.selectedItems.length > 0) {
-        if (this.selectedItems.length > 0) {
-          this.selectedItems.every(
-            (value, index, array) => {
-              value.fillColor.red = color.red
-              value.fillColor.green = color.green
-              value.fillColor.blue = color.blue
-              value.fillColor.alpha = color.alpha
-            })
+      // if (this.selectedItems.length > 0) {
+      //   this.selectedItems.every(
+      //     (value, index, array) => {
+      //       value.fillColor.red = color.red
+      //       value.fillColor.green = color.green
+      //       value.fillColor.blue = color.blue
+      //       value.fillColor.alpha = color.alpha
+      //     })
+      // }
+      const items = paper.project.getItems({
+        className: function(className) {
+          return (className === 'Path')
+        }
+      })
+      for (const item of items) {
+        if (item.data.class === this.selectedTag) {
+          item.fillColor.red = color.red
+          item.fillColor.green = color.green
+          item.fillColor.blue = color.blue
+          item.fillColor.alpha = color.alpha
         }
       }
     }
@@ -126,7 +172,7 @@ export default {
 </script>
 
 <style scoped>
-  .component-item{
+  .component-item {
     min-height: 150px;
   }
 </style>

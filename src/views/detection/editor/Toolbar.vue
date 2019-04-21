@@ -21,7 +21,7 @@
     <!--    </el-select>-->
     <el-button-group style="float: right">
       <tool-submit/>
-      <el-button type="primary">下一张<i class="el-icon-arrow-right el-icon--right"/></el-button>
+      <el-button type="primary" @click="nextItem">下一张<i class="el-icon-arrow-right el-icon--right"/></el-button>
     </el-button-group>
   </div>
 <!--  </el-container>-->
@@ -41,6 +41,11 @@ export default {
   data() {
     return {
       activeTool: 'move'
+    }
+  },
+  methods: {
+    nextItem() {
+      this.$emit('nextItem')
     }
   }
 }

@@ -56,15 +56,15 @@ export default {
     getColor() {
       return {
         fill: {
-          hue: 329,
-          saturation: 0.89,
-          lightness: 0.9,
-          alpha: 0.7
+          red: 30 / 255,
+          green: 195 / 255,
+          blue: 201 / 255,
+          alpha: 0.4
         },
         stroke: {
-          hue: 329,
-          saturation: 0.89,
-          lightness: 0.9,
+          red: 30 / 255,
+          green: 195 / 255,
+          blue: 201 / 255,
           alpha: 1
         }
       }

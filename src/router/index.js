@@ -42,14 +42,14 @@ export const constantRouterMap = [
     path: '/detection',
     component: Layout,
     redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    name: 'Detection',
+    meta: { title: 'Detection', icon: 'example' },
     children: [
       {
-        path: 'detection',
-        name: 'Detection',
+        path: 'annotation',
+        name: 'Annotation',
         component: () => import('@/views/detection/index'),
-        meta: { title: 'Table', icon: 'table' }
+        meta: { title: 'Annotation', icon: 'table' }
       },
       {
         path: 'table',

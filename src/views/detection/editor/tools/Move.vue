@@ -62,15 +62,11 @@ export default {
         selectionRect.fillColor = '#A3C5E8'
         selectionRect.opacity = 0.3
         selectionRect.strokeWidth = this.strokeWidth
-
-        // Constantly update tracking rect by removing it and re-drawing.
         selectionRect.removeOn({
           drag: true,
           down: true,
           up: true
         })
-
-        // Select items inside the selection rectangle.
         paper.project.deselectAll()
         paper.project.getItems({
           class: 'Path',
@@ -152,19 +148,14 @@ export default {
     const toolKeyUp = event => {
       if (this.active) {
         if (event.key === 'backspace' || event.key === 'delete') {
-          // Check for current selection
           if (paper.project.selectedItems) {
-          // Remove current selection group bounds
             this.selectionGroup.bounds.selected = false
-
-            // For each item selected remove if item is not a layer
             paper.project.selectedItems.forEach(item => {
               if (item.className !== 'Layer') {
                 item.remove()
               }
             })
 
-            // Flag the annotation has been edited and the changes are not saved
             this.flagAnnotationEdits()
           }
         }

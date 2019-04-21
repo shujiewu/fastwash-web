@@ -5,9 +5,9 @@
         <div class="grid-content">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <toolbar/>
+              <toolbar @nextItem="getItem"/>
             </div>
-            <editor/>
+            <editor ref="editor"/>
           </el-card>
         </div>
       </el-col>
@@ -30,11 +30,12 @@
 </template>
 
 <script>
-import { getList } from '@/api/table'
+import { getConfig } from '@/api/detection'
 import toolbar from './editor/Toolbar'
 import editor from './editor/Editor'
 import classification from './editor/Classification'
 import property from './editor/Property'
+import { mapActions } from 'vuex'
 export default {
   components: {
     toolbar,
@@ -54,43 +55,26 @@ export default {
   },
   data() {
     return {
-      list: null,
-      listLoading: true,
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
-      options5: [{
-        value: 'HTML',
-        label: 'HTML'
-      }, {
-        value: 'CSS',
-        label: 'CSS'
-      }, {
-        value: 'JavaScript',
-        label: 'JavaScript'
-      }],
-      value10: [],
-      color1: '#409EFF',
-      color2: 'rgba(19, 206, 102, 0.8)'
     }
   },
+  mounted() {
+  },
   created() {
-    // this.fetchData()
+    this.fetchData()
   },
   methods: {
+    ...mapActions({
+      setClassification: 'detection/setClassification',
+      setProperty: 'detection/setProperty'
+    }),
     fetchData() {
-      this.listLoading = true
-      getList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.listLoading = false
+      getConfig().then(response => {
+        this.setClassification(response.data.classification)
+        this.setProperty(response.data.property)
       })
+    },
+    getItem() {
+      this.$refs.editor.load()
     }
   }
 }

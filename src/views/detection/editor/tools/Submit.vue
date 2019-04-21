@@ -25,15 +25,17 @@ export default {
         }
       })
       for (const item of items) {
-        const re_tl = this.Abs2rel(item.point)
-        const re_wh = this.Abs2rel(item.size)
+        const re_tl = this.Abs2rel([item.bounds.x, item.bounds.y])
+        const re_wh = this.Abs2rel([item.bounds.width, item.bounds.height])
         this.frameData.gt_items.gtboxes.push({
           box: [re_tl.x, re_tl.y, re_wh.x, re_wh.y],
           labeled: 'GT',
-          tag: item.data.class
+          tag: item.data.class,
+          prop: item.data.prop
         })
       }
       console.log(this.frameData)
+      this.frameData = []
       // paper.project.layers.forEach(layer => {
       //   console.log(layer)
       //   layer.children.forEach(

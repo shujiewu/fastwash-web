@@ -58,17 +58,18 @@ export default {
   },
   computed: {
     ...mapState({
-      selectedItems: state => state.detection.selectedItems
+      selectedItems: state => state.detection.selectedItems,
+      classification: state => state.detection.classification
     })
   },
   mounted() {
-    paper.setup('detection_canvas')
-    document.getElementById('tool-move').click()
     this.load()
   },
   methods: {
     load() {
       if (this.flag) {
+        paper.setup('detection_canvas')
+        document.getElementById('tool-move').click()
         this.resetCanvas()
       }
     },
@@ -107,7 +108,7 @@ export default {
       paper.view.onResize = resize
     },
     drawBoxes(data) {
-      console.log(data)
+      // console.log(data)
       if ('dt_items' in data) {
         if ('dtboxes' in data['dt_items']) {
           for (const index in data['dt_items']['dtboxes']) {
@@ -191,7 +192,6 @@ export default {
       }
     },
     drawItemColor(paperItem, stateItem, type) {
-      const defaultColors = this.defaultColors()
       if (paperItem.closed) {
         if (stateItem.color && stateItem.color.fill) {
           if (typeof stateItem.color.fill === 'string') {
@@ -220,30 +220,43 @@ export default {
           })
         }
       } else {
-        if (type === 'dt_items') {
-          paperItem.fillColor = defaultColors[0].fill
-          paperItem.strokeColor = defaultColors[0].stroke
-        } else {
-          paperItem.fillColor = defaultColors[1].fill
-          paperItem.strokeColor = defaultColors[1].stroke
-        }
+        const defaultColors = this.classColors(paperItem.data.class)
+        paperItem.fillColor = defaultColors[0].fill
+        paperItem.strokeColor = defaultColors[0].stroke
+        // if (type === 'dt_items') {
+        //   paperItem.fillColor = defaultColors[0].fill
+        //   paperItem.strokeColor = defaultColors[0].stroke
+        // } else {
+        //   paperItem.fillColor = defaultColors[1].fill
+        //   paperItem.strokeColor = defaultColors[1].stroke
+        // }
+      }
+    },
+    classColors(tag) {
+      if (this.classification.length > 0) {
+        const item = this.classification.filter(i => i.value === tag)
+        const fillColor = item[0].fillColor.replace(/rgba|rgb|\(|\)/gm, '')
+          .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
+        const strokeColor = item[0].strokeColor.replace(/rgba|rgb|\(|\)/gm, '')
+          .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
+        return [{
+          fill: {
+            red: fillColor[0],
+            green: fillColor[1],
+            blue: fillColor[2],
+            alpha: fillColor[3]
+          },
+          stroke: {
+            red: strokeColor[0],
+            green: strokeColor[1],
+            blue: strokeColor[2],
+            alpha: strokeColor[3]
+          }
+        }]
       }
     },
     defaultColors() {
       return [{
-        fill: {
-          red: 1,
-          green: 0,
-          blue: 0,
-          alpha: 0.3
-        },
-        stroke: {
-          hue: 82,
-          saturation: 0.64,
-          lightness: 0.64,
-          alpha: 1
-        }
-      }, {
         fill: {
           hue: 329,
           saturation: 0.89,
@@ -264,7 +277,6 @@ export default {
         y: Math.round(pt.y * this.bg_dom.height)
       }
     }
-
   }
 }
 </script>

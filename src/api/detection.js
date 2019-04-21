@@ -14,3 +14,10 @@ export function submitItem() {
   })
 }
 
+export function getConfig() {
+  return request({
+    url: '/detection/config',
+    method: 'get'
+  })
+}
+

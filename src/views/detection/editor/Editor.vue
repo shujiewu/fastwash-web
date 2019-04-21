@@ -17,7 +17,7 @@
 import { getItem } from '@/api/detection'
 import paper from 'paper'
 
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'Editor',
   data() {
@@ -66,11 +66,15 @@ export default {
     this.load()
   },
   methods: {
+    ...mapActions({
+      setSelectedItems: 'detection/setSelectedItems'
+    }),
     load() {
       if (this.flag) {
         paper.setup('detection_canvas')
         document.getElementById('tool-move').click()
         this.resetCanvas()
+        this.setSelectedItems([])
       }
     },
     resetCanvas() {

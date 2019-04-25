@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+enum RawImageFormat {
+  RIF_BGR = 0;
+  RIF_YUV = 1;
+}
+
+message Image {
+  int32 h = 1;
+  int32 w = 2;
+  int32 c = 3; // If c=3, should be BGR. Meaningless for YUV.
+  bytes data = 4;
+  RawImageFormat format = 5; 
+}
+
+enum ImageEncodeFormat {
+  IEF_UNKNOWN = 0;
+  IEF_PNG = 1;
+  IEF_JPG = 2;
+  IEF_BMP = 3;
+}
+
+message EncodedImage {
+  bytes blob = 1;
+  ImageEncodeFormat encode_format = 2;
+  string description = 3;
+}

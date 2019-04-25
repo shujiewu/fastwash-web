@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+// Will stop further recognition threshold if one of conditions satisifed:
+message StopRecognitionCondition {
+  int32 score_threshold = 1; // If a match has score higher than this.
+}
+
+message BuildGroup {
+  int32 group_id = 1;
+  repeated int32 tokens = 2;
+  int32 top_k = 3;
+  StopRecognitionCondition stop_recog_cond = 4;
+}
+
+message BuildGroupRequest {
+  repeated BuildGroup build_groups = 1;
+}
+

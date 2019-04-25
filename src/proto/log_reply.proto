@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "log_request.proto";
+
+message LogLine {
+  string log = 1;
+  int64 timestamp_millis = 2;
+  int64 since_reboot_millis = 3;
+  LogLevel level = 4;
+}
+
+message LogStream {
+  repeated LogLine lines = 2;
+}
+
+message LogReply {
+  LogLevel level = 1; //return Zynq’s current log level
+  LogStream log_stream = 2;
+}

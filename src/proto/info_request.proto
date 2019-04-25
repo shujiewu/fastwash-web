@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+message InfoRequest {
+  bool get_face_feature_version = 1;
+  bool get_version = 2;
+  bool get_feature_checksum = 3;
+  bool get_capability = 4;
+  bool get_detector_version = 5;
+}
+

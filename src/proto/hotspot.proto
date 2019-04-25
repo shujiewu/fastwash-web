@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+message Hotspot {
+    // timestamp & timestampMills correspond to tv_sec and tv_usec in timeval struct of C
+    int64 timestamp=1;
+    int64 timestampUsec=2;
+    int32 posx = 3;
+    int32 posy = 4;
+    int32 width = 5;
+    int32 height = 6;
+}
+
+message HotSpotData {
+    repeated Hotspot hotspot = 1;
+}

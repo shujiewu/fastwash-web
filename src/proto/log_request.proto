@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+enum LogLevel {
+  LL_UNCHANGED = 0; // keep current settings unchanged
+  LL_DEBUG = 1;
+  LL_INFO = 2;
+  LL_WARNING = 3;
+  LL_ERROR = 4;
+  LL_FATAL = 5;
+}
+
+message LogRequest {
+  LogLevel level = 1;
+}
+

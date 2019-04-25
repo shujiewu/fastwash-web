@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+enum BuildGroupReplyStatus {
+  BGRS_UNKNOWN = 0;
+  BGRS_SUCCESS = 1;
+  BGRS_FAILED = 2;
+}
+
+message BuildGroupReply {
+  BuildGroupReplyStatus status = 1;
+}
+

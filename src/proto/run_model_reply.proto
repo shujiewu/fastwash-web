@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+enum RunModelReplyStatus {
+  RMRS_UNKNOWN = 0;
+  RMRS_SUCCESS = 1;
+  RMRS_FAILED = 2;
+}
+
+message OutputMap {
+  repeated KVPair kvs = 1;
+}
+
+message KVPair {
+  string key = 1;
+  bytes value  = 2;
+}
+
+message RunModelReply {
+  RunModelReplyStatus status = 1;
+  OutputMap output_map = 2;
+}
+

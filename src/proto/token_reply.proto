@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+enum TokenActivationReplyStatus {
+  TAR_UNKNOWN = 0;
+  TAR_SUCCESS = 1;
+  TAR_FAILED = 2;
+}
+
+message TokenActivationReply {
+  TokenActivationReplyStatus status = 1;
+  repeated int32 active_tokens = 2; // Tokens that are active.
+}
+
+enum DeleteTokenReplyStatus {
+  DFT_UNKNOWN = 0;
+  DFT_SUCCESS = 1;
+  DFT_FAILED = 2;
+}
+
+message DeleteTokenReply {
+  DeleteTokenReplyStatus status = 1;
+  repeated int32 present_tokens = 2; // Tokens that are still present.
+}
+
+enum AddFeatureReplyStatus {
+  AFT_UNKNOWN = 0;
+  AFT_SUCCESS = 1; // All operations successful.
+  AFT_FAILED = 2; // Some operations fail. Can query the `tokens` field in reply to determine which ones fail.
+}
+
+message AddFeatureReply {
+  AddFeatureReplyStatus status = 1;
+  repeated int32 tokens = 2; // Tokens that are alloced to input features. 0 for invalid token.
+}

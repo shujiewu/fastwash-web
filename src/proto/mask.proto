@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+message Mask {
+
+  int32 x = 1;
+  int32 y = 2;
+  int32 w = 3;
+  int32 h = 4;
+  // resolution of pix_conf, e.g. resolution=2 means one pix_confidence associate to 2x2 pixels
+  int32 resolution = 5;
+  // [0, 100]. 100 means belonging to instance.
+  repeated int32 pix_confidence = 6;
+};

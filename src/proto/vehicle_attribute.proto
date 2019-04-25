@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+import "box.proto";
+import "plate_attribute.proto";
+import "direction.proto";
+
+package sputnik.pb;
+
+enum VehicleType {
+  CAR = 0;
+  SUV = 1;
+  MICROBUS = 2;
+  MINIBUS = 3;
+  BUS = 4;
+  PICKUP = 5;
+  TRUCK = 6;
+}
+
+enum VehicleColor {
+  BLUE   = 0;
+  YELLOW = 1;
+  BLACK  = 2;
+  WHITE  = 3;
+  GREEN  = 4;
+  RED    = 5;
+  GRAY   = 6;
+  PURPLE = 7;
+  PINK   = 8;
+  BROWN  = 9;
+  CYAN   = 10;
+  COLORFUL = 11;
+}
+
+
+// Next field 17
+message VehicleAttribute {
+  message PlatePredict {
+    Box plate_relative_box = 1;
+    PlateAttribute plate_attribute = 2;
+  }
+  // A vehicle can have multiple plates.
+  repeated PlatePredict plate_predicts = 2;
+
+  message VehicleTypePredict {
+    VehicleType vehicle_type = 1;
+    // [0, 100]. 100 means very confident.
+    int32 type_confidence = 2;
+  }
+  repeated VehicleTypePredict type_predicts = 3;
+
+  message VehicleColorPredict {
+    VehicleColor vehicle_color = 1;
+    // [0, 100]. 100 means very confident.
+    int32 color_confidence = 2;
+  }
+  repeated VehicleColorPredict color_predicts = 4;
+
+  string trademark_utf8 = 5;
+  int32 trademark_utf8_confidence = 11;
+
+  // [0, 100]. 100 means likely to be plateless .
+  int32 vehicle_plateless = 6;
+
+  // [0, 100]. 100 means likely to be moving.
+  int32 vehicle_moving = 7;
+
+  Direction move_direction = 8;
+  int32 move_direction_confidence = 10;
+
+  Direction pointing_direction = 14;
+  int32 pointing_direction_confidence = 15;
+
+  Facing vehicle_facing = 12;
+  int32 vehicle_facing_confidence = 13;
+
+  // [0, 100]. 0 means likely a vehicle.
+  int32 post_filter_score = 16;
+};

@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "face_attribute.proto";
+
+message TokenScore {
+  int32 token = 1;
+  double score = 2;
+}
+
+enum FaceAttributeReplyStatus {
+  ARS_UNKNOWN = 0;
+  ARS_SUCCESS = 1;
+  ARS_NO_FACE = 2;
+  ARS_NO_MODEL = 3;  // No model loaded for the task.
+}
+
+message FaceAttributeReply {
+  FaceAttributeReplyStatus status = 1;
+  FaceAttribute attribute = 2;
+}
+
+enum FaceQuality {
+  FQ_UNKNOWN = 0;
+  FQ_GOOD = 1;
+  FQ_TOO_SMALL = 2;
+  FQ_TOO_LARGE_PITCH = 3;
+  FQ_TOO_LARGE_YAW = 4;
+  FQ_TOO_LARGE_ROLL = 5;
+  FQ_TOO_BLUR = 6;
+  FQ_NO_FACE = 7;
+}
+
+enum FaceTokenReplyStatus {
+  FTRS_UNKNOWN = 0;
+  FTRS_SUCCESS = 1;
+  FTRS_NO_FACE = 2;
+  FTRS_MULTIPLE_FACES = 3;
+  FTRS_LOW_QUALITY_FACE = 4;
+  FTRS_TIMEOUT = 5;  // Wait for too long.
+  FTRS_NO_MODEL = 6;  // No model loaded for the task.
+}
+
+message FaceFeatureVersion {
+  string model_version = 1;
+  string method = 2;
+  bool encrypt_feature = 3;
+}
+
+message FaceTokenReply {
+  FaceTokenReplyStatus status = 1;
+  FaceQuality face_quality = 2;
+  int32 token = 3;  // only when `add_new_token` is true
+  bytes blob = 4; // feature file (only when `add_new_token` is true)
+}
+
+message GroupTokenScore {
+  int32 group_id = 1;
+  repeated TokenScore scores = 2;
+}
+
+message FaceRecognitionReply {
+  FaceTokenReply token_reply = 1;
+  repeated TokenScore scores = 2;
+  FaceFeatureVersion feature_version = 3;
+  repeated GroupTokenScore group_scores = 4;
+}
+
+message FaceReply {
+  FaceAttributeReply face_attribute_reply = 1;
+  FaceRecognitionReply face_recognition_reply = 2;
+}
+
+enum DetectReplyStatus {
+  DRS_UNKNOWN = 0;
+  DRS_SUCCESS = 1;
+  DRS_FAILED = 2;
+}
+
+message DetectReply {
+  DetectReplyStatus status = 1;
+}

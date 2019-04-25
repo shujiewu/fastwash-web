@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "item.proto";
+import "image.proto";
+
+message FrameResult {
+  int32 frame_id = 1;  // only meaningful if there's only one video channel
+  repeated Item items = 2; // items should be sorted by `video_channel_id`
+  bool DEPRECATED_end = 3;
+  string version = 4;
+  repeated int32 panes_frame_id = 5;  // separated frame id for every video channel
+  repeated int32 nr_items_per_pane = 6;  // for every `video_channel_id`, how many items are there
+  repeated int32 keep_frame_ids = 7;
+  repeated uint64 panes_frame_ts = 8;  // separated frame timestamp for every video channel
+  EncodedImage det_img = 9; // detect image
+}

@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+enum PlateColorType {
+  // text:white background:blue 
+  PLATE_BLUE = 0;
+
+  // text:black background:yellow 
+  PLATE_YELLOW = 1;
+
+  // text:white background:black
+  PLATE_BLACK = 2;
+
+  // text:balck background:white
+  PLATE_WHITE = 3;
+
+  // text:white background:green
+  PLATE_GREEN = 4;
+
+  // small_new_energy
+  PLATE_SMALL_NEW_ENERGY = 5;
+
+  // large_new_energy
+  PLATE_LARGE_NEW_ENERGY = 6;
+
+  // absence
+  PLATE_ABSENCE = 7;
+}
+
+message PlateToken {
+  string str_utf8 = 1;
+  // [0, 100]. 100 means very confident.
+  int32 confidence = 2;
+}
+
+message PlateAttribute {
+  // 100 * radian.
+  sint32 roll = 1;
+
+  message PlateTextPredict {
+    string str_utf8 = 1;
+    // [0, 100]. 100 means very confident.
+    int32 confidence = 2;
+
+    repeated PlateToken tokens = 3;
+  }
+  repeated PlateTextPredict plate_numbers = 9;
+  int32 quality = 3;
+
+  message PlateColorPredict {
+    PlateColorType color_type = 1;
+    // [0, 100]. 100 means very confident.
+    int32 color_confidence = 2;
+  }
+  repeated PlateColorPredict color_predicts = 5;
+
+  message FourPoints {
+    int32 left_top_x = 1;
+    int32 left_top_y = 2;
+
+    int32 right_top_x = 3;
+    int32 right_top_y = 4;
+
+    int32 right_bottom_x = 5;
+    int32 right_bottom_y = 6;
+
+    int32 left_bottom_x = 7;
+    int32 left_bottom_y = 8;
+  }
+  FourPoints fout_points = 6;
+
+  // [0, 100]. 100 for two line, 0 for one line.
+  int32 plate_style = 7;
+
+  // [0, 100]. 100 means likely to be adversary-occlusion .
+  int32 adversary_occlusion = 8;
+
+  // [0, 100]. 0 means likely a plate.
+  int32 post_filter_score = 10;
+}

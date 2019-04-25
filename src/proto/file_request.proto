@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+message VerifyFileRequest {
+  string path = 1;
+  string checksum = 2;
+  string checksum_method = 3;
+}
+
+message WriteFileRequest {
+  string path = 1;
+  bytes content = 2;
+}
+
+message FileRequest {
+  int32 request_id = 1;
+  oneof request {
+    VerifyFileRequest verify_file_request = 2;
+    WriteFileRequest write_file_request = 3;
+  }
+  int64 timestamp_millis = 4;
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+message TracePoint {
+  int32 x = 1;
+  int32 y = 2;
+  int64 timestamp_millis = 3;
+}

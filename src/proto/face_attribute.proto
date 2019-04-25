@@ -1,0 +1,227 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+enum FaceLandMarkType {
+  FLT_FACE_LANDMARK_9P = 0;
+  FLT_FACE_LANDMARK_81P = 1;
+}
+
+// Code compatible of FaceLandMark which will be replaced by FaceLandMark81P 
+message FaceLandMark81P {
+  FaceLandMarkType landmark_type = 1;
+  float contour_chin_x = 16;
+  float contour_chin_y = 17;
+  float contour_left1_x = 18;
+  float contour_left1_y = 19;
+  float contour_left2_x = 20;
+  float contour_left2_y = 21;
+  float contour_left3_x = 22;
+  float contour_left3_y = 23;
+  float contour_left4_x = 24;
+  float contour_left4_y = 25;
+  float contour_left5_x = 26;
+  float contour_left5_y = 27;
+  float contour_left6_x = 28;
+  float contour_left6_y = 29;
+  float contour_left7_x = 30;
+  float contour_left7_y = 31;
+  float contour_left8_x = 32;
+  float contour_left8_y = 33;
+  float contour_left9_x = 34;
+  float contour_left9_y = 35;
+  float contour_right1_x = 36;
+  float contour_right1_y = 37;
+  float contour_right2_x = 38;
+  float contour_right2_y = 39;
+  float contour_right3_x = 40;
+  float contour_right3_y = 41;
+  float contour_right4_x = 42;
+  float contour_right4_y = 43;
+  float contour_right5_x = 44;
+  float contour_right5_y = 45;
+  float contour_right6_x = 46;
+  float contour_right6_y = 47;
+  float contour_right7_x = 48;
+  float contour_right7_y = 49;
+  float contour_right8_x = 50;
+  float contour_right8_y = 51;
+  float contour_right9_x = 52;
+  float contour_right9_y = 53;
+  float left_eye_bottom_x = 54;
+  float left_eye_bottom_y = 55;
+  float left_eye_left_corner_x = 56;
+  float left_eye_left_corner_y = 57;
+  float left_eye_lower_left_quarter_x = 58;
+  float left_eye_lower_left_quarter_y = 59;
+  float left_eye_lower_right_quarter_x = 60;
+  float left_eye_lower_right_quarter_y = 61;
+  float lefteye_pupil_x = 2;//left_eye_pupil_x
+  float lefteye_pupil_y = 3;//left_eye_pupil_y
+  float lefteye_right_corner_x = 12;//left_eye_right_corner_x
+  float lefteye_right_corner_y = 13;//left_eye_right_corner_y
+  float left_eye_top_x = 62;
+  float left_eye_top_y = 63;
+  float left_eye_upper_left_quarter_x = 64;
+  float left_eye_upper_left_quarter_y = 65;
+  float left_eye_upper_right_quarter_x = 66;
+  float left_eye_upper_right_quarter_y = 67;
+  float left_eyebrow_left_corner_x = 68;
+  float left_eyebrow_left_corner_y = 69;
+  float left_eyebrow_lower_left_quarter_x = 70;
+  float left_eyebrow_lower_left_quarter_y = 71;
+  float left_eyebrow_lower_middle_x = 72;
+  float left_eyebrow_lower_middle_y = 73;
+  float left_eyebrow_lower_right_quarter_x = 74;
+  float left_eyebrow_lower_right_quarter_y = 75;
+  float left_eyebrow_right_corner_x = 76;
+  float left_eyebrow_right_corner_y = 77;
+  float left_eyebrow_upper_left_quarter_x = 78;
+  float left_eyebrow_upper_left_quarter_y = 79;
+  float left_eyebrow_upper_middle_x = 80;
+  float left_eyebrow_upper_middle_y = 81;
+  float left_eyebrow_upper_right_quarter_x = 82;
+  float left_eyebrow_upper_right_quarter_y = 83;
+  float left_mouth_corner_x = 8;//mouth_left_corner_x
+  float left_mouth_corner_y = 9;//mouth_left_corner_y
+  float mouth_lower_lip_bottom_x = 84;
+  float mouth_lower_lip_bottom_y = 85;
+  float mouth_lower_lip_left_contour1_x = 86;
+  float mouth_lower_lip_left_contour1_y = 87;
+  float mouth_lower_lip_left_contour2_x = 88;
+  float mouth_lower_lip_left_contour2_y = 89;
+  float mouth_lower_lip_left_contour3_x = 90;
+  float mouth_lower_lip_left_contour3_y = 91;
+  float mouth_lower_lip_right_contour1_x = 92;
+  float mouth_lower_lip_right_contour1_y = 93;
+  float mouth_lower_lip_right_contour2_x = 94;
+  float mouth_lower_lip_right_contour2_y = 95;
+  float mouth_lower_lip_right_contour3_x = 96;
+  float mouth_lower_lip_right_contour3_y = 97;
+  float mouth_lower_lip_top_x = 98;
+  float mouth_lower_lip_top_y = 99;
+  float right_mouth_corner_x = 10;//mouth_right_corner_x
+  float right_mouth_corner_y = 11;//mouth_right_corner_y
+  float mouth_upper_lip_bottom_x = 100;
+  float mouth_upper_lip_bottom_y = 101;
+  float mouth_upper_lip_left_contour1_x = 102;
+  float mouth_upper_lip_left_contour1_y = 103;
+  float mouth_upper_lip_left_contour2_x = 104;
+  float mouth_upper_lip_left_contour2_y = 105;
+  float mouth_upper_lip_left_contour3_x = 106;
+  float mouth_upper_lip_left_contour3_y = 107;
+  float mouth_upper_lip_right_contour1_x = 108;
+  float mouth_upper_lip_right_contour1_y = 109;
+  float mouth_upper_lip_right_contour2_x = 110;
+  float mouth_upper_lip_right_contour2_y = 111;
+  float mouth_upper_lip_right_contour3_x = 112;
+  float mouth_upper_lip_right_contour3_y = 113;
+  float mouth_upper_lip_top_x = 114;
+  float mouth_upper_lip_top_y = 115;
+  float nose_contour_left1_x = 116;
+  float nose_contour_left1_y = 117;
+  float nose_contour_left2_x = 118;
+  float nose_contour_left2_y = 119;
+  float nose_contour_left3_x = 120;
+  float nose_contour_left3_y = 121;
+  float nose_contour_lower_middle_x = 122;
+  float nose_contour_lower_middle_y = 123;
+  float nose_contour_right1_x = 124;
+  float nose_contour_right1_y = 125;
+  float nose_contour_right2_x = 126;
+  float nose_contour_right2_y = 127;
+  float nose_contour_right3_x = 128;
+  float nose_contour_right3_y = 129;
+  float nose_left_x = 130;
+  float nose_left_y = 131;
+  float nose_right_x = 132;
+  float nose_right_y = 133;
+  float nose_tip_x = 6;//nose_tip_x
+  float nose_tip_y = 7;//nose_tip_y
+  float right_eye_bottom_x = 134;
+  float right_eye_bottom_y = 135;
+  float righteye_left_corner_x = 14;//right_eye_left_corner_x
+  float righteye_left_corner_y = 15;//right_eye_left_corner_y
+  float right_eye_lower_left_quarter_x = 136;
+  float right_eye_lower_left_quarter_y = 137;
+  float right_eye_lower_right_quarter_x = 138;
+  float right_eye_lower_right_quarter_y = 139;
+  float righteye_pupil_x = 4;//right_eye_pupil_x
+  float righteye_pupil_y = 5;//right_eye_pupil_y
+  float right_eye_right_corner_x = 140;
+  float right_eye_right_corner_y = 141;
+  float right_eye_top_x = 142;
+  float right_eye_top_y = 143;
+  float right_eye_upper_left_quarter_x = 144;
+  float right_eye_upper_left_quarter_y = 145;
+  float right_eye_upper_right_quarter_x = 146;
+  float right_eye_upper_right_quarter_y = 147;
+  float right_eyebrow_left_corner_x = 148;
+  float right_eyebrow_left_corner_y = 149;
+  float right_eyebrow_lower_left_quarter_x = 150;
+  float right_eyebrow_lower_left_quarter_y = 151;
+  float right_eyebrow_lower_middle_x = 152;
+  float right_eyebrow_lower_middle_y = 153;
+  float right_eyebrow_lower_right_quarter_x = 154;
+  float right_eyebrow_lower_right_quarter_y = 155;
+  float right_eyebrow_right_corner_x = 156;
+  float right_eyebrow_right_corner_y = 157;
+  float right_eyebrow_upper_left_quarter_x = 158;
+  float right_eyebrow_upper_left_quarter_y = 159;
+  float right_eyebrow_upper_middle_x = 160;
+  float right_eyebrow_upper_middle_y = 161;
+  float right_eyebrow_upper_right_quarter_x = 162;
+  float right_eyebrow_upper_right_quarter_y = 163;
+}
+
+message FaceLandMark {
+  string landmark_description = 1;
+  int32 lefteye_pupil_x = 2;
+  int32 lefteye_pupil_y = 3;
+  int32 righteye_pupil_x = 4;
+  int32 righteye_pupil_y = 5;
+  int32 nose_tip_x = 6;
+  int32 nose_tip_y = 7;
+  int32 left_mouth_corner_x = 8;
+  int32 left_mouth_corner_y = 9;
+  int32 right_mouth_corner_x = 10;
+  int32 right_mouth_corner_y = 11;
+  int32 lefteye_right_corner_x = 12;
+  int32 lefteye_right_corner_y = 13;
+  int32 righteye_left_corner_x = 14;
+  int32 righteye_left_corner_y = 15;
+}
+
+message FaceAttribute {
+  // [0, 100]. 100 means very blur, 0 means very clear.
+  int32 blur = 1;
+
+  // Age in years.
+  int32 age = 2;
+
+  // [0, 100]. 100 for female, 0 for male.
+  int32 gender = 3;
+
+  // 100 * radian.
+  sint32 pitch = 4;
+
+  // 100 * radian.
+  sint32 yaw = 5;
+
+  // 100 * radian.
+  sint32 roll = 6;
+
+  // [0, 100]. 100 means unlikely to be a face. 0 means likely to be a face.
+  int32 post_filter_score = 7;
+
+  // [0, 100]. Relative position in pixels.
+  FaceLandMark landmark = 8;
+
+  FaceLandMark81P landmark_81p = 11;
+
+  // [0, 100]. 100 means very likely being a minority.
+  int32 minority = 9;
+
+  // [0, 100]. 100 means unlikely to be a genuine face. 0 means likely to be one.
+  int32 liveness_score = 10;
+}

@@ -16,7 +16,7 @@
 <script>
 import { getItem } from '@/api/detection'
 import paper from 'paper'
-
+import { transformResponse } from '@/utils/proto'
 import { mapState, mapActions } from 'vuex'
 export default {
   name: 'Editor',
@@ -59,15 +59,29 @@ export default {
   computed: {
     ...mapState({
       selectedItems: state => state.detection.selectedItems,
-      classification: state => state.detection.classification
+      classification: state => state.detection.classification,
+      originalAnnotation: state => state.detection.originalAnnotation,
+      state: state => state.detection.state
     })
+  },
+  watch: {
+    state: function(val) {
+      if (this.state === 'original') {
+        this.drawOriginAnnotation()
+        // console.log(this.multiChoice)
+      } else {
+        this.drawSaveAnnotation()
+      }
+    }
   },
   mounted() {
     this.load()
   },
   methods: {
     ...mapActions({
-      setSelectedItems: 'detection/setSelectedItems'
+      setSelectedItems: 'detection/setSelectedItems',
+      setOriginalAnnotation: 'detection/setOriginalAnnotation',
+      saveAnnotation: 'detection/saveAnnotation'
     }),
     load() {
       if (this.flag) {
@@ -75,14 +89,28 @@ export default {
         document.getElementById('tool-move').click()
         this.resetCanvas()
         this.setSelectedItems([])
+        this.setOriginalAnnotation(null)
       }
     },
     resetCanvas() {
       this.bg_dom = document.getElementById('bg_img')
       this.cvs_dom = document.getElementById('detection_canvas')
       getItem().then(response => {
+        this.setOriginalAnnotation(response)
         this.drawBackground(response)
       })
+    },
+    drawOriginAnnotation() {
+      if (this.originalAnnotation != null) {
+        console.log(this.originalAnnotation)
+        // 保存当前
+        this.saveAnnotation()
+        paper.project.clear()
+        this.drawBoxes(this.originalAnnotation)
+      }
+    },
+    drawSaveAnnotation() {
+      paper.project.clear()
     },
     drawBackground(data) {
       this.bg_dom.src = 'data:image/png;base64,' + data.img
@@ -111,51 +139,56 @@ export default {
       }
       paper.view.onResize = resize
     },
-    drawBoxes(data) {
-      // console.log(data)
-      if ('dt_items' in data) {
-        if ('dtboxes' in data['dt_items']) {
-          for (const index in data['dt_items']['dtboxes']) {
-            // console.log('load dt',index, t_boxes['dtboxes'][index], color, dt_or_gt_items)
-            // this.Draw_rect(ctx, data['dt_items']['dtboxes'][index], index, 'yellow', 'dt_items')
-            this.drawItem(data['dt_items']['dtboxes'][index], 'dt_items')
-            // if (!('labeled' in this.FrameData['dt_items']['dtboxes'][index])) {
-            //   this.FrameData['dt_items']['dtboxes'][index]['labeled'] = 'GT'
-            // }
-            // this.FrameInfo['dt_nums'] += 1
-          }
+    drawBoxes(box) {
+      // console.log(box.data.substring(2, box.data.length - 1))
+      // substring(2, box.data.length - 1)
+      const frameResult = transformResponse(box.data)
+      const shape = box.shape
+      if ('items' in frameResult) {
+        // if ('dtboxes' in data['dt_items']) {
+        for (const index in frameResult['items']) {
+          // console.log('load dt',index, t_boxes['dtboxes'][index], color, dt_or_gt_items)
+          // this.Draw_rect(ctx, data['dt_items']['dtboxes'][index], index, 'yellow', 'dt_items')
+          // console.log(frameResult['items'][index])
+          this.drawItem(frameResult['items'][index], shape)
+          // if (!('labeled' in this.FrameData['dt_items']['dtboxes'][index])) {
+          //   this.FrameData['dt_items']['dtboxes'][index]['labeled'] = 'GT'
+          // }
+          // this.FrameInfo['dt_nums'] += 1
         }
+        // }
       }
 
       // draw gt boxes
-      if ('gt_items' in data) {
-        // this.Draw_boxes(ctx, data['gt_items'], "green", "gt_items");
-        if ('gtboxes' in data['gt_items']) {
-          for (const index in data['gt_items']['gtboxes']) {
-            // console.log('load gt',index, t_boxes['gtboxes'][index], color, dt_or_gt_items)
-            // this.Draw_rect(ctx, data['gt_items']['gtboxes'][index], Number(index) + Number(this.FrameInfo['dt_nums']), 'green', 'gt_items')
-            this.drawItem(data['gt_items']['gtboxes'][index], 'gt_items')
-            // if (!('labeled' in this.FrameData['gt_items']['gtboxes'][index])) {
-            //   this.FrameData['gt_items']['gtboxes'][index]['labeled'] = 'GT'
-            // }
-            // this.FrameInfo['gt_nums'] += 1
-          }
-        }
-      }
+      // if ('gt_items' in data) {
+      //   // this.Draw_boxes(ctx, data['gt_items'], "green", "gt_items");
+      //   if ('gtboxes' in data['gt_items']) {
+      //     for (const index in data['gt_items']['gtboxes']) {
+      //       // console.log('load gt',index, t_boxes['gtboxes'][index], color, dt_or_gt_items)
+      //       // this.Draw_rect(ctx, data['gt_items']['gtboxes'][index], Number(index) + Number(this.FrameInfo['dt_nums']), 'green', 'gt_items')
+      //       this.drawItem(data['gt_items']['gtboxes'][index], 'gt_items', shape)
+      //       // if (!('labeled' in this.FrameData['gt_items']['gtboxes'][index])) {
+      //       //   this.FrameData['gt_items']['gtboxes'][index]['labeled'] = 'GT'
+      //       // }
+      //       // this.FrameInfo['gt_nums'] += 1
+      //     }
+      //   }
+      // }
     },
 
-    drawItem(item, type) {
+    drawItem(item, shape) {
+      // console.log(shape)
       if (item) {
         var tl = this.Rel2abs(
           {
-            x: item['box'][0],
-            y: item['box'][1]
+            x: item['box'].x / shape[1],
+            y: item['box'].y / shape[0]
           }
         )
         var wh = this.Rel2abs(
           {
-            x: item['box'][2],
-            y: item['box'][3]
+            x: item['box'].w / shape[1],
+            y: item['box'].h / shape[0]
           }
         )
         // const tag = item['tag']
@@ -173,13 +206,13 @@ export default {
           size: [wh.x, wh.y],
           data: {
             type: 'rectangle',
-            class: item.tag,
+            class: item.itemTextUtf8,
             prop: item.prop
           },
           locked: false
         })
         newPaperItem.strokeWidth = 2
-        this.drawItemColor(newPaperItem, item, type)
+        this.drawItemColor(newPaperItem, item)
         // var text = new paper.PointText(new paper.Point(30, 30))
         // text.fillColor = 'black'
         // text.content = 'Hello world'
@@ -195,7 +228,7 @@ export default {
         // })
       }
     },
-    drawItemColor(paperItem, stateItem, type) {
+    drawItemColor(paperItem, stateItem) {
       if (paperItem.closed) {
         if (stateItem.color && stateItem.color.fill) {
           if (typeof stateItem.color.fill === 'string') {

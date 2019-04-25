@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "face_reply.proto";
+
+enum InfoReplyStatus {
+  IRS_UNKNOWN = 0;
+  IRS_SUCCESS = 1;
+  IRS_FAILED = 2;
+}
+
+message InfoReply {
+  InfoReplyStatus status = 1;
+  FaceFeatureVersion feature_version = 2;
+  string version = 3;  // refers to `models.sha1sum`
+  string checksum = 4;
+  int32 max_size_face_library = 5;
+  string capability_string = 6;
+  string detector = 7;
+}
+

@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "image.proto";
+import "box.proto";
+import "face_attribute.proto";
+
+message FaceAttributeRequest {
+  bool predict_blur = 1;
+  bool predict_age_gender = 2;
+  bool predict_pose = 3;
+  bool predict_landmark = 4;
+  bool predict_postfilter = 5;
+  bool predict_liveness = 6;
+  bool predict_aabb = 7; // Do AABB before computing other attributes.
+}
+
+message FacePoseRequirement {
+  int32 min_pitch_deg = 1; // Face with pitch smaller than this will not be recognized.
+  int32 max_pitch_deg = 2; // Face with pitch larger than this will not be recognized.
+  int32 min_yaw_deg = 3; // Face with yaw smaller than this will not be recognized.
+  int32 max_yaw_deg = 4; // Face with yaw larger than this will not be recognized.
+  int32 min_roll_deg = 5; // Face with roll smaller than this will not be recognized.
+  int32 max_roll_deg = 6; // Face with roll larger than this will not be recognized.
+}
+
+message FaceBlurRequirement {
+  int32 max_blur = 1; // Face with blur value larger than this will not be recognized.
+}
+
+message FaceTokenRequest {
+  bool add_new_token = 1;
+  string model = 2;
+  string strategy = 3;
+  bool already_aligned = 4;
+  int32 min_face_pixels = 5; // Face smaller than this will not be recognized.
+  FacePoseRequirement pose_requirement = 6;
+  FaceBlurRequirement blur_requirement = 7;
+  bool disable_match = 8;
+  bool force_get_feature = 9; // Always get feature.
+}
+
+message FaceRecognitionRequest {
+  int32 max_num_scores = 1; // DEPRECATED: Only return this number of top matching tokens. 0 to skip global matching.
+  int32 precision = 2; // A number in [0, 100], indicating desired precision. 100 for high precision.
+  FaceTokenRequest token_request = 3;
+  repeated int32 exclude_match_group_ids = 4; // the group ids that not do match
+}
+
+message FaceRequest {
+  oneof image {
+    Image raw_image = 1;
+    EncodedImage encoded_image = 2;
+  }
+  Box box_in_image = 3; // Optional, the face box in the image.
+  FaceLandMark landmark = 4; // Optional, landmark of the face.
+  FaceLandMark81P landmark_81p = 9; // FaceLandMark will be replaced by FaceLandMark81P
+  FaceAttributeRequest attribute_request = 5;
+  FaceRecognitionRequest recognition_request = 6;
+  int32 priority = 8;  // A number in [0, 100]. A higher priority request can interrupt a lower priority request. The interrupted lower priority request will be discarded.
+  int32 track_id = 7; // The track the image originates from.
+}
+
+message DetectRequest {
+  oneof image {
+    Image raw_image = 1;
+    EncodedImage encoded_image = 2;
+  }
+}

@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "box.proto";
+import "face_attribute.proto";
+import "face_reply.proto";
+import "face_feature.proto";
+import "plate_attribute.proto";
+import "vehicle_attribute.proto";
+import "human_attribute.proto";
+import "mask.proto";
+import "image.proto";
+import "trace_point.proto";
+
+enum ItemType {
+  // Human face
+  FACE = 0;
+
+  // License plate
+  PLATE = 1;
+
+  // Vehicle
+  VEHICLE = 2;
+
+  // Human
+  HUMAN = 3;
+
+  // Head
+  HEAD = 4;
+
+  // Animals: such as dog and cat
+  ANIMAL = 5;
+
+  THING = 6;
+}
+
+message Item {
+  ItemType type = 1;
+  Box box = 2;
+
+  // ID of the Video Channels this track belongs to.
+  int32 video_channel_id = 19;
+
+  // ID of the frame this track belongs to.
+  int32 frame_id = 3;
+
+  // ID of the track.
+  int32 track_id = 4;
+
+  // ID of cluster.
+  repeated int32 cluster_id = 26;
+
+  // Client may crop the image at the track box and assume the cropped to be the current best.
+  bool track_update = 5;
+
+  // Box for cropping a track.
+  Box update_box = 20;
+
+  // On when a track dies and the client can safely wrap-up the track, like discarding the current best. Does not imply track_push.
+  // This Item may not have a Box.
+  bool track_die = 6;
+
+  // Client may show the track box.
+  bool track_show = 7;
+
+  // Client may push the current best crop image to downstream. The best crop was indicated by last track_update.
+  bool track_push = 8;
+
+  int32 track_length = 29;
+
+  oneof attribute {
+    FaceAttribute face_attribute = 9;
+    PlateAttribute plate_attribute = 10;
+    VehicleAttribute vehicle_attribute = 11;
+    HumanAttribute human_attribute = 13;
+  }
+
+  Image item_image = 12;
+  EncodedImage encoded_item_image = 25;
+
+  Mask mask = 14;
+
+  int64 timestamp_millis = 15;
+
+  repeated TracePoint trace = 16;
+
+  string item_text_utf8 = 17;
+
+  bytes blob = 18;
+
+  // Higher the better. Not consistent between different models.
+  double goodness = 21;
+
+  FaceFeature feature = 22;
+  FaceFeatureVersion feature_version = 23;
+  repeated TokenScore scores = 24;  // recognition results
+  repeated GroupTokenScore group_scores = 27;
+  string algorithm_version = 28;
+}
+

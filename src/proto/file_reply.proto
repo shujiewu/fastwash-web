@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+enum VerifyFileReplyStatus {
+  VFRS_UNKNOWN = 0;
+  VFRS_SUCCESS = 1;
+  VFRS_MISMATCH = 2;
+  VFRS_NO_FILE = 3;
+}
+
+message VerifyFileReply {
+  VerifyFileReplyStatus status = 1;
+}
+
+enum WriteFileReplyStatus {
+  WFRS_UNKNOWN = 0;
+  WFRS_SUCCESS = 1;
+  WFRS_NO_SPACE_LEFT = 2;
+  WFRS_WRITE_FAILED = 3;
+  WFRS_CANNOT_OVERWRITE = 4;
+}
+
+message WriteFileReply {
+  WriteFileReplyStatus status = 1;
+}
+
+message FileReply {
+  int32 request_id = 1;
+  string error_message = 2;
+  oneof content {
+    VerifyFileReply verify_file_reply = 3;
+    WriteFileReply write_file_reply = 4;
+  }
+}

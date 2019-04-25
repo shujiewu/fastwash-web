@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "image.proto";
+
+message RunModelRequest {
+  string model_path = 1;
+  repeated string input_names = 2; //refers to the input names of tensor_map
+  repeated string output_names = 3; //refers to the output names of output_var_map
+  repeated string reserve_names = 4; //refers to the reserve names of output_var_map
+  repeated TransferImage images = 5;
+  message TransferImage {
+    oneof image {
+      Image raw_image = 6;
+      EncodedImage encoded_image = 7;
+    }
+  }
+}
+

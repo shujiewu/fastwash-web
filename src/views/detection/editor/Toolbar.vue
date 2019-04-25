@@ -12,13 +12,13 @@
         @click.native="activeTool = 'rectangle'"/>
       <el-button type="success">删除</el-button>
     </el-button-group>
-    <!--    <el-select v-model="value" placeholder="显示选择">-->
-    <!--      <el-option-->
-    <!--        v-for="item in options"-->
-    <!--        :key="item.value"-->
-    <!--        :label="item.label"-->
-    <!--        :value="item.value"/>-->
-    <!--    </el-select>-->
+    <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
+      <el-option
+        v-for="item in options"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"/>
+    </el-select>
     <el-button-group style="float: right">
       <tool-submit/>
       <el-button type="primary" @click="nextItem">下一张<i class="el-icon-arrow-right el-icon--right"/></el-button>
@@ -31,6 +31,7 @@
 import toolRectangle from './tools/Rectangle.vue'
 import toolMove from './tools/Move.vue'
 import toolSubmit from './tools/Submit.vue'
+import { mapActions } from 'vuex'
 export default {
   name: 'Toolbar',
   components: {
@@ -40,12 +41,27 @@ export default {
   },
   data() {
     return {
-      activeTool: 'move'
+      activeTool: 'move',
+      options: [{
+        value: 'original',
+        label: '原始标注'
+      }, {
+        value: 'edit',
+        label: '当前标注'
+      }],
+      state: 'edit'
     }
   },
   methods: {
+    ...mapActions({
+      setState: 'detection/setState'
+    }),
     nextItem() {
       this.$emit('nextItem')
+    },
+    onStateChange(value) {
+      this.$emit('changeState')
+      this.setState(value)
     }
   }
 }

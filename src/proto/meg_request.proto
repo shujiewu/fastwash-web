@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "face_request.proto";
+import "token_request.proto";
+import "group_request.proto";
+import "info_request.proto";
+import "run_model_request.proto";
+
+message BatchFaceRequest {
+  repeated FaceRequest face_requests = 1;
+}
+
+message MegRequest {
+  int32 request_id = 1;
+  oneof request {
+    TokenActivationRequest token_activation_request = 2;
+    DeleteTokenRequest delete_token_request = 3;
+    FaceRequest face_request = 4;
+    BuildGroupRequest build_group_request = 5;
+    InfoRequest info_request = 6;
+    BatchFaceRequest batch_face_request = 7;
+    AddFeatureRequest add_feature_request = 9;
+    RunModelRequest run_model_request = 10;
+    DetectRequest detect_request = 12;
+  }
+  int64 timestamp_millis = 8;
+  bool enable_regression_info = 11;
+}

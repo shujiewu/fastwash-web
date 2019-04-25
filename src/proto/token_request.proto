@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "face_feature.proto";
+import "face_reply.proto";
+
+message TokenActivation {
+  int32 token = 1;
+  bool active = 2; // The new status of the token.
+}
+
+message TokenActivationRequest {
+  repeated TokenActivation token_activations = 1;
+}
+
+message DeleteTokenRequest {
+  repeated int32 delete_tokens = 1;
+}
+
+message AddFeatureRequest {
+  repeated FaceFeature features = 1;
+  FaceFeatureVersion version = 2;
+}

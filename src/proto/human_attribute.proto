@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "direction.proto";
+
+message HumanAttribute {
+  // [0, 100]. 100 for female, 0 for male.
+  int32 gender = 1;
+
+  // Age in years
+  int32 age = 2;
+
+  // [0, 100]. 100 means with backpack
+  int32 backpack = 3;
+
+  // [0, 100]. 100 means likely to move, 0 means likely to stop.
+  int32 human_move = 4;
+  Direction move_direction = 5;
+
+  // [0, 100]. 100 means riding bike
+  int32 ride_bike = 6;
+
+  // [0, 100]. 100 means riding motorbike
+  int32 ride_motorbike = 7;
+
+  // [0, 100]. 100 means face is visible
+  int32 human_face_visible = 8;
+
+  Facing human_facing = 9;
+  // [0, 100]. 100 means very confident.
+  int32 human_facing_confidence = 10;
+
+  // [0, 100]. 100 means good quality.
+  int32 quality = 11;
+
+  // [0, 100]. 0 means likely a human.
+  int32 post_filter_score = 12;
+}

@@ -5,7 +5,7 @@
         <div class="grid-content">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <toolbar @nextItem="getItem"/>
+              <toolbar @nextItem="getItem" @changeState="onStateChange"/>
             </div>
             <editor ref="editor"/>
           </el-card>
@@ -75,6 +75,8 @@ export default {
     },
     getItem() {
       this.$refs.editor.load()
+    },
+    onStateChange() {
     }
   }
 }

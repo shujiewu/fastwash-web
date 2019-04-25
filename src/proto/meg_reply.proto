@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+import "face_reply.proto";
+import "token_reply.proto";
+import "group_reply.proto";
+import "info_reply.proto";
+import "run_model_reply.proto";
+
+message BatchFaceReply {
+   repeated FaceReply face_replies = 1;
+}
+
+message RegressionInfo {
+  map<string, double> elapsed_ms = 1;
+}
+
+message MegReply {
+  int32 request_id = 1;
+  string error_message = 2;
+  oneof content {
+    FaceReply face_reply  = 3;
+    TokenActivationReply token_activation_replay = 4;
+    DeleteTokenReply delete_token_reply = 5;
+    BuildGroupReply group_reply = 6;
+    InfoReply info_reply = 7;
+    BatchFaceReply batch_face_reply = 8;
+    AddFeatureReply add_feature_reply = 10;
+    RunModelReply run_model_reply = 11;
+    DetectReply detect_reply = 13;
+  }
+  int64 timestamp_millis = 9;
+  RegressionInfo regression_info = 12;
+}

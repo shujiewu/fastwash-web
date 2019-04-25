@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "face_reply.proto";
+
+package sputnik.pb;
+
+message FaceRecord {
+  int32 token = 1;
+  bool activation = 2;
+  bytes blob = 3;
+  FaceFeatureVersion feature_version = 4;
+  uint64 checksum = 5;
+}
+
+message FaceLibrary {
+  repeated FaceRecord records = 1;
+}
+
+message FaceFile {
+  oneof file {
+    FaceLibrary library = 1;
+    bytes model = 2;
+  };
+  uint64 checksum = 3;
+}

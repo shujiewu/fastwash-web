@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package sputnik.pb;
+
+message FaceFeature {
+  int32 feature_id = 2;
+  bytes blob = 1;
+}
+

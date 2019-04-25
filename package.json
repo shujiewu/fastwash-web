@@ -8,7 +8,8 @@
     "build:report": "npm_config_report=true npm run build",
     "lint": "eslint --ext .js,.vue src",
     "test": "npm run lint",
-    "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml"
+    "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml",
+    "proto": "pbjs -t json-module -w commonjs -o src/proto/proto.js  src/proto/*.proto"
   },
   "dependencies": {
     "axios": "0.18.0",
@@ -20,7 +21,8 @@
     "nprogress": "0.2.0",
     "vue": "2.5.17",
     "vue-router": "3.0.1",
-    "vuex": "3.0.1"
+    "vuex": "3.0.1",
+    "protobufjs": "^6.8.8"
   },
   "devDependencies": {
     "autoprefixer": "8.5.0",

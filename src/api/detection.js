@@ -7,10 +7,11 @@ export function getItem() {
   })
 }
 
-export function submitItem() {
+export function submitItem(data) {
   return request({
-    url: '/send_img_items',
-    method: 'post'
+    url: '/Post_Front_End_Framedata',
+    method: 'post',
+    data: data
   })
 }
 

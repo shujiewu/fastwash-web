@@ -58,6 +58,8 @@ export default {
     }),
     nextItem() {
       this.$emit('nextItem')
+      this.setState('edit')
+      this.state = 'edit'
     },
     onStateChange(value) {
       this.$emit('changeState')

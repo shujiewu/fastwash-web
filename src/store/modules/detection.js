@@ -10,7 +10,7 @@ const detection = {
     projectName: '',
     originalAnnotation: null,
     state: 'edit',
-    saveAnnotation: null
+    currentAnnotation: null
   },
   mutations: {
     setSelectedItems: (state, selectedItems) => {
@@ -31,30 +31,34 @@ const detection = {
     setOriginalAnnotation: (state, payload) => {
       state.originalAnnotation = payload
     },
-    saveAnnotation: (state, payload) => {
+    saveAnnotation: (state) => {
       const items = paper.project.getItems({
         className: function(className) {
           return (className === 'Path')
         }
       })
       const frameData = []
+      const shape = state.originalAnnotation.shape
+      // console.log(shape)
+      // console.log(shape[1])
+      // console.log(paper.view.viewSize.width)
       for (const item of items) {
         const re_tl = {
-          x: 1.0 * item.bounds.x / paper.view.viewSize.width,
-          y: 1.0 * item.bounds.y / paper.view.viewSize.height
+          x: Math.round(shape[1] * item.bounds.x / paper.view.viewSize.width),
+          y: Math.round(shape[0] * item.bounds.y / paper.view.viewSize.height)
         }
         const re_wh = {
-          x: 1.0 * item.bounds.width / paper.view.viewSize.width,
-          y: 1.0 * item.bounds.height / paper.view.viewSize.height
+          x: Math.round(shape[1] * item.bounds.width / paper.view.viewSize.width),
+          y: Math.round(shape[0] * item.bounds.height / paper.view.viewSize.height)
         }
         frameData.push({
-          box: [re_tl.x, re_tl.y, re_wh.x, re_wh.y],
+          box: { x: re_tl.x, y: re_tl.y, w: re_wh.x, h: re_wh.y },
           labeled: 'GT',
-          tag: item.data.class,
+          itemTextUtf8: item.data.class,
           prop: item.data.prop
         })
       }
-      state.saveAnnotation = frameData
+      state.currentAnnotation = frameData
     },
     setState: (state, payload) => {
       state.state = payload
@@ -79,8 +83,8 @@ const detection = {
     setOriginalAnnotation: ({ commit }, payload) => {
       commit('setOriginalAnnotation', payload)
     },
-    saveAnnotation: ({ commit }, payload) => {
-      commit('saveAnnotation', payload)
+    saveAnnotation: ({ commit }) => {
+      commit('saveAnnotation')
     },
     setState: ({ commit }, payload) => {
       commit('setState', payload)

@@ -8,14 +8,14 @@ export function isArrayBuffer(obj) {
   return Object.prototype.toString.call(obj) === '[object ArrayBuffer]'
 }
 
-// function utf2buffer(utfstr) {
-//   var buf = new ArrayBuffer(utfstr.length)
-//   var bufView = new Uint8Array(buf)
-//   for (var i = 0, strlen = utfstr.length; i < strlen; i++) {
-//     bufView[i] = utfstr.charCodeAt(i)
-//   }
-//   return buf
-// }
+function utf2buffer(utfstr) {
+  var buf = new ArrayBuffer(utfstr.length)
+  var bufView = new Uint8Array(buf)
+  for (var i = 0, strlen = utfstr.length; i < strlen; i++) {
+    bufView[i] = utfstr.charCodeAt(i)
+  }
+  return buf
+}
 
 function set_item_box(item) {
   const box = {}
@@ -57,7 +57,37 @@ export function transformRequest(gt_item) {
   // item = set_item_box(item, gt['box'], -1 if extra is None else int(extra['ignore']))
 }
 
+export function transformSubmit(rawRequest, boxes) {
+  try {
+    var errMsg = MessageResponse.verify(rawRequest)
+    if (errMsg) { throw Error(errMsg) }
+    const encodeRequest = MessageResponse.encode(MessageResponse.create(rawRequest)).finish()
+
+    // const infoUnSerialized = MessageResponse.decode(encodeRequest)
+    // console.log('unserialized info message:')
+    // console.log(infoUnSerialized)
+
+    return encodeRequest
+  } catch (err) {
+    return err
+  }
+}
+
+
+function base64toBlob(base64, type) {
+  // 将base64转为Unicode规则编码
+  const bstr = atob(base64, type)
+  let n = bstr.length
+  const u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n) // 转换编码后才可以使用charCodeAt 找到Unicode编码
+  }
+  return u8arr
+}
+
 export function transformResponse(rawResponse) {
+  rawResponse = base64toBlob(rawResponse)
+  // console.log(rawResponse)
   // 判断response是否是arrayBuffer
   // if (rawResponse == null || !isArrayBuffer(rawResponse)) {
   //   return rawResponse
@@ -91,7 +121,7 @@ export function transformResponse(rawResponse) {
     var errMsg = MessageResponse.verify(buf)
     if (errMsg) { throw Error(errMsg) }
     const decodedResponse = MessageResponse.decode(buf)
-    console.log(decodedResponse)
+    // console.log(decodedResponse)
     return decodedResponse
   } catch (err) {
     return err

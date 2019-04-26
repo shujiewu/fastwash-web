@@ -99,7 +99,7 @@ export default {
       if (this.selectedItems.length > 0) {
         this.selectedItems[0].data.prop = this.form
       }
-      console.log(this.selectedItems[0].data)
+      // console.log(this.selectedItems[0].data)
       // this.propertyList.forEach(property =>
     }
   }

@@ -4,6 +4,9 @@
 </template>
 <script>
 import paper from 'paper'
+import { mapState, mapActions } from 'vuex'
+import { transformResponse, transformSubmit } from '@/utils/proto'
+import { submitItem } from '@/api/detection'
 export default {
   name: 'Submit',
   data() {
@@ -11,31 +14,68 @@ export default {
       frameData: {}
     }
   },
+  computed: {
+    ...mapState({
+      originalAnnotation: state => state.detection.originalAnnotation,
+      currentAnnotation: state => state.detection.currentAnnotation
+    })
+  },
   methods: {
+    ...mapActions({
+      saveAnnotation: 'detection/saveAnnotation'
+    }),
     onSubmit() {
-      if (!('gt_items' in this.frameData)) {
-        this.frameData.gt_items = {}
-      }
-      if (!('gtboxes' in this.frameData.gt_items)) {
-        this.frameData.gt_items.gtboxes = []
-      }
-      const items = paper.project.getItems({
-        className: function(className) {
-          return (className === 'Path')
-        }
-      })
-      for (const item of items) {
-        const re_tl = this.Abs2rel([item.bounds.x, item.bounds.y])
-        const re_wh = this.Abs2rel([item.bounds.width, item.bounds.height])
-        this.frameData.gt_items.gtboxes.push({
-          box: [re_tl.x, re_tl.y, re_wh.x, re_wh.y],
-          labeled: 'GT',
-          tag: item.data.class,
-          prop: item.data.prop
+      this.saveAnnotation()
+      let frameResult = transformResponse(this.originalAnnotation.data)
+      frameResult.items = []
+      for (const index in this.currentAnnotation) {
+        const item = this.currentAnnotation[index]
+        // console.log(item.prop)
+        frameResult.items.push({
+          box: item.box,
+          itemTextUtf8: item.itemTextUtf8 + ';' + JSON.stringify(item.prop)
         })
       }
-      console.log(this.frameData)
-      this.frameData = []
+      frameResult = transformSubmit(frameResult)
+      // console.log(frameResult)
+      var b64encoded = btoa(String.fromCharCode.apply(null, frameResult))
+
+      var u8_2 = new Uint8Array(atob(b64encoded).split('').map(function(c) {
+        return c.charCodeAt(0)
+      }))
+      // console.log(u8_2)
+
+      const data = {
+        data: b64encoded,
+        test: 'ddd'
+      }
+      console.log(data)
+      submitItem(data).then(response => {
+        console.log(response)
+      })
+      // if (!('gt_items' in this.frameData)) {
+      //   this.frameData.gt_items = {}
+      // }
+      // if (!('gtboxes' in this.frameData.gt_items)) {
+      //   this.frameData.gt_items.gtboxes = []
+      // }
+      // const items = paper.project.getItems({
+      //   className: function(className) {
+      //     return (className === 'Path')
+      //   }
+      // })
+      // for (const item of items) {
+      //   const re_tl = this.Abs2rel([item.bounds.x, item.bounds.y])
+      //   const re_wh = this.Abs2rel([item.bounds.width, item.bounds.height])
+      //   this.frameData.gt_items.gtboxes.push({
+      //     box: [re_tl.x, re_tl.y, re_wh.x, re_wh.y],
+      //     labeled: 'GT',
+      //     tag: item.data.class,
+      //     prop: item.data.prop
+      //   })
+      // }
+      // console.log(this.frameData)
+      // this.frameData = []
       // paper.project.layers.forEach(layer => {
       //   console.log(layer)
       //   layer.children.forEach(

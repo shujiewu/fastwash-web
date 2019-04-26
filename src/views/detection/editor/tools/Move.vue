@@ -147,7 +147,7 @@ export default {
 
     const toolKeyUp = event => {
       if (this.active) {
-        if (event.key === 'backspace' || event.key === 'delete') {
+        if (event.key === 'delete') {
           if (paper.project.selectedItems) {
             this.selectionGroup.bounds.selected = false
             paper.project.selectedItems.forEach(item => {

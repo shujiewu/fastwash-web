@@ -4,7 +4,7 @@
 
 <script>
 import paper from 'paper'
-
+import { getDefaultColor } from '@/utils/color'
 export default {
   props: {
     active: {
@@ -33,8 +33,8 @@ export default {
     }
     const toolUp = event => {
       const newRect = new paper.Path.Rectangle(event.downPoint, event.point)
-      newRect.strokeColor = new paper.Color(this.getColor().stroke)
-      newRect.fillColor = new paper.Color(this.getColor().fill)
+      newRect.strokeColor = new paper.Color(getDefaultColor().stroke)
+      newRect.fillColor = new paper.Color(getDefaultColor().fill)
       newRect.strokeWidth = this.strokeWidth
       newRect.data.type = 'rectangle'
       newRect.data.class = ''
@@ -52,22 +52,6 @@ export default {
     },
     flagAnnotationEdits() {
 
-    },
-    getColor() {
-      return {
-        fill: {
-          red: 30 / 255,
-          green: 195 / 255,
-          blue: 201 / 255,
-          alpha: 0.4
-        },
-        stroke: {
-          red: 30 / 255,
-          green: 195 / 255,
-          blue: 201 / 255,
-          alpha: 1
-        }
-      }
     },
     initialiseTool() {
       this.prepareCanvas()

@@ -5,7 +5,7 @@
         <div class="grid-content">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <toolbar @nextItem="getItem" @changeState="onStateChange"/>
+              <toolbar @nextItem="getItem" @resetItem="resetItem"/>
             </div>
             <editor ref="editor"/>
           </el-card>
@@ -76,7 +76,8 @@ export default {
     getItem() {
       this.$refs.editor.load()
     },
-    onStateChange() {
+    resetItem() {
+      this.$refs.editor.resetAnnotation()
     }
   }
 }

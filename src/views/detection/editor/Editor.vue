@@ -1,6 +1,6 @@
 <template>
   <div class="editor">
-    <div class="editor_container">
+    <div v-loading="loading" class="editor_container">
       <img
         id="bg_img"
         src=" "
@@ -16,6 +16,7 @@
 <script>
 import { getItem } from '@/api/detection'
 import paper from 'paper'
+import { getDefaultColor } from '@/utils/color'
 import { transformResponse } from '@/utils/proto'
 import { mapState, mapActions } from 'vuex'
 export default {
@@ -23,37 +24,11 @@ export default {
   data() {
     return {
       flag: true,
-      // canvas对象
-      context: {},
-      // 是否处于绘制状态
-      canvasMoveUse: false,
-      // 前后端交互 接受/发送的数据
-      FrameData: null,
-      // 前端接受到的数据
-      ReceiveData: null,
+      loading: true,
       // 背景图片缓存
       img: new Image(),
-      container_dom: null,
       bg_dom: null,
-      cvs_dom: null,
-      ctx: null,
-      // 每个框的标注属性显示 GT/FP/IGNORE, 需要被选择
-      box_type: 'GT',
-      // box 的选项
-      options: [
-        {
-          value: 'GT',
-          label: 'GT'
-        },
-        {
-          value: 'FP',
-          label: 'FP'
-        },
-        {
-          value: 'IGNORE',
-          label: 'IGNORE'
-        }
-      ]
+      cvs_dom: null
     }
   },
   computed: {
@@ -69,7 +44,6 @@ export default {
     state: function(val) {
       if (val === 'original') {
         this.drawOriginAnnotation()
-        // console.log(this.multiChoice)
       } else {
         this.drawSaveAnnotation()
       }
@@ -86,6 +60,7 @@ export default {
     }),
     load() {
       if (this.flag) {
+        this.loading = true
         paper.setup('detection_canvas')
         document.getElementById('tool-move').click()
         this.setSelectedItems([])
@@ -103,11 +78,17 @@ export default {
     },
     drawOriginAnnotation() {
       if (this.originalAnnotation != null) {
-        // console.log(this.originalAnnotation)
         // 保存当前
         this.saveAnnotation()
         paper.project.clear()
         this.drawBoxes(this.originalAnnotation)
+      }
+    },
+    resetAnnotation() {
+      if (this.originalAnnotation != null) {
+        paper.project.clear()
+        this.drawBoxes(this.originalAnnotation)
+        // this.saveAnnotation()
       }
     },
     drawSaveAnnotation() {
@@ -125,20 +106,10 @@ export default {
         paper.view.viewSize.width = this.bg_dom.width
         paper.view.viewSize.height = this.bg_dom.height
         this.drawBoxes(data)
+        this.loading = false
       }
       this.bg_dom.onload = load
-
-      // const raster = new paper.Raster('data:image/png;base64,' + data.img)
-      // raster.position = paper.view.center
-      // const load = () => {
-      //   raster.size = new paper.Size(paper.view.viewSize.width, paper.view.viewSize.height)
-      //   console.log(raster)
-      // }
-      // raster.onLoad = load
-
       const resize = event => {
-        // console.log(paper.view.center)
-        // console.log(event)
         // 修改所有item
         // raster.position = paper.view.center
         // raster.size = new paper.Size(paper.view.viewSize.width, paper.view.viewSize.height)
@@ -154,22 +125,6 @@ export default {
           this.drawItem(frameResult['items'][index], shape)
         }
       }
-
-      // draw gt boxes
-      // if ('gt_items' in data) {
-      //   // this.Draw_boxes(ctx, data['gt_items'], "green", "gt_items");
-      //   if ('gtboxes' in data['gt_items']) {
-      //     for (const index in data['gt_items']['gtboxes']) {
-      //       // console.log('load gt',index, t_boxes['gtboxes'][index], color, dt_or_gt_items)
-      //       // this.Draw_rect(ctx, data['gt_items']['gtboxes'][index], Number(index) + Number(this.FrameInfo['dt_nums']), 'green', 'gt_items')
-      //       this.drawItem(data['gt_items']['gtboxes'][index], 'gt_items', shape)
-      //       // if (!('labeled' in this.FrameData['gt_items']['gtboxes'][index])) {
-      //       //   this.FrameData['gt_items']['gtboxes'][index]['labeled'] = 'GT'
-      //       // }
-      //       // this.FrameInfo['gt_nums'] += 1
-      //     }
-      //   }
-      // }
     },
 
     drawItem(item, shape) {
@@ -186,23 +141,13 @@ export default {
             y: item.box.h / shape[0]
           }
         )
-        // console.log(item.box.x)
-        // console.log(tl)
-        // const tag = item['tag']
-
-        // this.FrameInfo[type].push({
-        //   tl: tl,
-        //   br: br,
-        //   type: tag,
-        //   color: 'yellow',
-        //   box_type: 'true_box'
-        // })
 
         const newPaperItem = new paper.Path.Rectangle({
           point: [tl.x, tl.y],
           size: [wh.x, wh.y],
           data: {
             type: 'rectangle',
+            // 这里需要修改
             class: item.itemTextUtf8,
             prop: item.prop
           },
@@ -210,38 +155,9 @@ export default {
         })
         newPaperItem.strokeWidth = 2
         this.drawItemColor(newPaperItem, item)
-        // var text = new paper.PointText(new paper.Point(30, 30))
-        // text.fillColor = 'black'
-        // text.content = 'Hello world'
-        //
-        // var text2 = new paper.PointText({
-        //   point: [50, 50],
-        //   content: 'The contents of the point text',
-        //   fillColor: 'black',
-        //   strokColor: 'white',
-        //   fontFamily: 'Courier New',
-        //   fontWeight: 'bold',
-        //   fontSize: 25
-        // })
       }
     },
     drawItemColor(paperItem, stateItem) {
-      if (paperItem.closed) {
-        if (stateItem.color && stateItem.color.fill) {
-          if (typeof stateItem.color.fill === 'string') {
-            paperItem.fillColor = stateItem.color.fill
-            paperItem.fillColor.alpha = 0.2
-          } else {
-            paperItem.fillColor = new paper.Color({
-              hue: stateItem.color.fill.hue,
-              saturation: stateItem.color.fill.saturation,
-              lightness: stateItem.color.fill.lightness,
-              alpha: stateItem.color.fill.alpha
-            })
-          }
-        }
-      }
-
       if (stateItem.color && stateItem.color.stroke) {
         if (typeof stateItem.color.stroke === 'string') {
           paperItem.strokeColor = stateItem.color.stroke
@@ -255,55 +171,36 @@ export default {
         }
       } else {
         const defaultColors = this.classColors(paperItem.data.class)
-        paperItem.fillColor = defaultColors[0].fill
-        paperItem.strokeColor = defaultColors[0].stroke
-        // if (type === 'dt_items') {
-        //   paperItem.fillColor = defaultColors[0].fill
-        //   paperItem.strokeColor = defaultColors[0].stroke
-        // } else {
-        //   paperItem.fillColor = defaultColors[1].fill
-        //   paperItem.strokeColor = defaultColors[1].stroke
-        // }
+        paperItem.fillColor = defaultColors.fill
+        paperItem.strokeColor = defaultColors.stroke
       }
     },
     classColors(tag) {
       if (this.classification.length > 0) {
         const item = this.classification.filter(i => i.value === tag)
-        const fillColor = item[0].fillColor.replace(/rgba|rgb|\(|\)/gm, '')
-          .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
-        const strokeColor = item[0].strokeColor.replace(/rgba|rgb|\(|\)/gm, '')
-          .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
-        return [{
-          fill: {
-            red: fillColor[0],
-            green: fillColor[1],
-            blue: fillColor[2],
-            alpha: fillColor[3]
-          },
-          stroke: {
-            red: strokeColor[0],
-            green: strokeColor[1],
-            blue: strokeColor[2],
-            alpha: strokeColor[3]
+        if (item.length > 0) {
+          const fillColor = item[0].fillColor.replace(/rgba|rgb|\(|\)/gm, '')
+            .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
+          const strokeColor = item[0].strokeColor.replace(/rgba|rgb|\(|\)/gm, '')
+            .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
+          return {
+            fill: {
+              red: fillColor[0],
+              green: fillColor[1],
+              blue: fillColor[2],
+              alpha: fillColor[3]
+            },
+            stroke: {
+              red: strokeColor[0],
+              green: strokeColor[1],
+              blue: strokeColor[2],
+              alpha: strokeColor[3]
+            }
           }
-        }]
-      }
-    },
-    defaultColors() {
-      return [{
-        fill: {
-          hue: 329,
-          saturation: 0.89,
-          lightness: 0.9,
-          alpha: 0.3
-        },
-        stroke: {
-          hue: 329,
-          saturation: 0.89,
-          lightness: 0.9,
-          alpha: 1
+        } else {
+          return getDefaultColor()
         }
-      }]
+      }
     },
     Rel2abs(pt) {
       return {
@@ -311,6 +208,27 @@ export default {
         y: Math.round(pt.y * this.bg_dom.height)
       }
     }
+    // var text = new paper.PointText(new paper.Point(30, 30))
+    // text.fillColor = 'black'
+    // text.content = 'Hello world'
+    //
+    // var text2 = new paper.PointText({
+    //   point: [50, 50],
+    //   content: 'The contents of the point text',
+    //   fillColor: 'black',
+    //   strokColor: 'white',
+    //   fontFamily: 'Courier New',
+    //   fontWeight: 'bold',
+    //   fontSize: 25
+    // })
+
+    // const raster = new paper.Raster('data:image/png;base64,' + data.img)
+    // raster.position = paper.view.center
+    // const load = () => {
+    //   raster.size = new paper.Size(paper.view.viewSize.width, paper.view.viewSize.height)
+    //   console.log(raster)
+    // }
+    // raster.onLoad = load
   }
 }
 </script>

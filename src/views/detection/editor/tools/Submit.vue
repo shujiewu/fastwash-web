@@ -4,6 +4,7 @@
 </template>
 <script>
 import paper from 'paper'
+import protoRoot from '@/proto/proto'
 import { mapState, mapActions } from 'vuex'
 import { transformResponse, transformSubmit } from '@/utils/proto'
 import { submitItem } from '@/api/detection'
@@ -25,29 +26,33 @@ export default {
       saveAnnotation: 'detection/saveAnnotation'
     }),
     onSubmit() {
+      // 先保存当前再提交
       this.saveAnnotation()
       let frameResult = transformResponse(this.originalAnnotation.data)
       frameResult.items = []
       for (const index in this.currentAnnotation) {
         const item = this.currentAnnotation[index]
-        // console.log(item.prop)
         frameResult.items.push({
           box: item.box,
-          itemTextUtf8: item.itemTextUtf8 + ';' + JSON.stringify(item.prop)
+          itemTextUtf8: JSON.stringify({
+            class: item.itemTextUtf8,
+            prop: item.prop
+          })
         })
       }
       frameResult = transformSubmit(frameResult)
-      // console.log(frameResult)
-      var b64encoded = btoa(String.fromCharCode.apply(null, frameResult))
 
+      // 测试反序列化是否可以
+      var b64encoded = btoa(String.fromCharCode.apply(null, frameResult))
       var u8_2 = new Uint8Array(atob(b64encoded).split('').map(function(c) {
         return c.charCodeAt(0)
       }))
-      // console.log(u8_2)
+      const MessageResponse = protoRoot.lookup('sputnik.pb.FrameResult')
+      const decodedResponse = MessageResponse.decode(u8_2)
+      console.log(decodedResponse)
 
       const data = {
-        data: b64encoded,
-        test: 'ddd'
+        data: b64encoded
       }
       console.log(data)
       submitItem(data).then(response => {

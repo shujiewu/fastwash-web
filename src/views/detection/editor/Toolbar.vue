@@ -10,7 +10,6 @@
         id="tool-rectangle"
         :active="(activeTool === 'rectangle')"
         @click.native="activeTool = 'rectangle'"/>
-      <el-button type="success">删除</el-button>
     </el-button-group>
     <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
       <el-option
@@ -20,6 +19,7 @@
         :value="item.value"/>
     </el-select>
     <el-button-group style="float: right">
+      <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
       <tool-submit/>
       <el-button type="primary" @click="nextItem">下一张<i class="el-icon-arrow-right el-icon--right"/></el-button>
     </el-button-group>
@@ -62,8 +62,25 @@ export default {
       this.state = 'edit'
     },
     onStateChange(value) {
-      this.$emit('changeState')
       this.setState(value)
+    },
+    resetItem() {
+      this.$confirm('此操作将重置当前标注, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // this.$message({
+        //   type: 'success',
+        //   message: '删除成功!'
+        // });
+        this.$emit('resetItem')
+      }).catch(() => {
+        // this.$message({
+        //   type: 'info',
+        //   message: '已取消删除'
+        // });
+      })
     }
   }
 }

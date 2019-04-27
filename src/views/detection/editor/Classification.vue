@@ -11,7 +11,7 @@
           placeholder="请选择标签"
           @change="handleChange">
           <el-option
-            v-for="item in tags"
+            v-for="item in classification"
             :key="item.value"
             :label="item.value"
             :value="item.value"/>
@@ -30,15 +30,14 @@
           <el-color-picker :disabled="!hasSelection" v-model="fillColor" show-alpha @change="handleFillColorChange"/>
         </el-col>
       </el-form-item>
+      <!--      <el-form-item label="显示">-->
+      <!--        <el-col :span="20">-->
+      <!--          <div class="block">-->
+      <!--            <el-slider v-model="alpha" :show-tooltip="false" @change="handleAlpha"/>-->
+      <!--          </div>-->
+      <!--        </el-col>-->
+      <!--      </el-form-item>-->
     </el-form>
-    <!--            <el-form :inline="true" :model="form" label-width="80px">-->
-    <!--              <el-form-item label="边框颜色">-->
-    <!--                <el-color-picker v-model="color1" class="float:right"/>-->
-    <!--              </el-form-item>-->
-    <!--              <el-form-item label="覆盖颜色">-->
-    <!--                <el-color-picker v-model="color2" show-alpha/>-->
-    <!--              </el-form-item>-->
-    <!--            </el-form>-->
   </div>
 </template>
 
@@ -50,24 +49,12 @@ export default {
   data() {
     return {
       form: {
-        name: '',
-        region: ''
       },
-      tags: [{
-        value: 'vehicle',
-        label: 'vehicle121'
-      }, {
-        value: 'vehicle2',
-        label: 'vehicle21212'
-      },
-      {
-        value: 'vehicle3',
-        label: 'vehicle31212'
-      }],
       selectedTag: '',
       hasSelection: false,
       strokeColor: 'rgba(19, 206, 102, 1)',
-      fillColor: 'rgba(19, 206, 102, 0.5)'
+      fillColor: 'rgba(19, 206, 102, 0.5)',
+      alpha: 50
     }
   },
   computed: {
@@ -118,15 +105,6 @@ export default {
     handleStrokeColorChange(color) {
       this.setClassificationStrokeColor({ tag: this.selectedTag, strokeColor: color })
       color = this.colorToRGBA(color)
-      // if (this.selectedItems.length > 0) {
-      //   this.selectedItems.every(
-      //     (value, index, array) => {
-      //       value.strokeColor.red = color.red
-      //       value.strokeColor.green = color.green
-      //       value.strokeColor.blue = color.blue
-      //       value.strokeColor.alpha = color.alpha
-      //     })
-      // }
       const items = paper.project.getItems({
         className: function(className) {
           return (className === 'Path')
@@ -144,15 +122,6 @@ export default {
     handleFillColorChange(color) {
       this.setClassificationFillColor({ tag: this.selectedTag, fillColor: color })
       color = this.colorToRGBA(color)
-      // if (this.selectedItems.length > 0) {
-      //   this.selectedItems.every(
-      //     (value, index, array) => {
-      //       value.fillColor.red = color.red
-      //       value.fillColor.green = color.green
-      //       value.fillColor.blue = color.blue
-      //       value.fillColor.alpha = color.alpha
-      //     })
-      // }
       const items = paper.project.getItems({
         className: function(className) {
           return (className === 'Path')
@@ -166,6 +135,19 @@ export default {
           item.fillColor.alpha = color.alpha
         }
       }
+    },
+    handleAlpha() {
+      const items = paper.project.getItems({
+        className: function(className) {
+          return (className === 'Path')
+        }
+      })
+      for (const item of items) {
+        if (item.data.class === this.selectedTag) {
+          item.fillColor.alpha = 0
+          item.strokeColor.alpha = 0
+        }
+      }
     }
   }
 }
@@ -173,6 +155,6 @@ export default {
 
 <style scoped>
   .component-item {
-    min-height: 150px;
+    min-height: 100px;
   }
 </style>

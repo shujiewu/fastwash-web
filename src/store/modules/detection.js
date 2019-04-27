@@ -61,6 +61,8 @@ const detection = {
       state.currentAnnotation = frameData
     },
     setState: (state, payload) => {
+      state.selectedItems = []
+      paper.project.deselectAll()
       state.state = payload
     }
   },

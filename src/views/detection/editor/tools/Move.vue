@@ -4,7 +4,7 @@
 
 <script>
 import paper from 'paper'
-import { mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 export default {
   props: {
     active: {
@@ -12,7 +12,6 @@ export default {
       default: false
     }
   },
-
   data() {
     return {
       toolMove: null,
@@ -22,29 +21,30 @@ export default {
       toolMode: ''
     }
   },
-
+  computed: {
+    ...mapState({
+      state: state => state.detection.state
+    })
+  },
   created() {
     let hitResult = null
 
     const toolDown = event => {
       hitResult = paper.project.hitTest(event.point, this.hitOptions)
-
       this.selectionGroup.bounds.selected = false
       if (hitResult) {
-        if (hitResult.type === 'pixel') {
-          return
-        } else if (hitResult.type === 'bounds') {
-          this.toolMode = 'transform'
-        } else if (event.modifiers.shift && !hitResult.item.selected) {
-          hitResult.item.selected = true
-        } else if (event.modifiers.shift && hitResult.item.selected) {
-          hitResult.item.selected = false
-        } else if (hitResult.item.selected) {
-          this.toolMode = 'move'
+        if (this.state === 'edit') {
+          if (hitResult.type === 'bounds') {
+            this.toolMode = 'transform'
+          } else {
+            paper.project.deselectAll()
+            hitResult.item.selected = true
+            this.toolMode = 'move'
+          }
         } else {
           paper.project.deselectAll()
           hitResult.item.selected = true
-          this.toolMode = 'move'
+          this.toolMode = 'select'
         }
       } else {
         paper.project.deselectAll()
@@ -52,39 +52,14 @@ export default {
       }
     }
 
+    // 鼠标拖动事件
     const toolDrag = event => {
-      if (this.toolMode === 'select') {
-        const selectionRect = new paper.Shape.Rectangle(
-          event.downPoint,
-          event.point
-        )
-        selectionRect.strokeColor = '#4D88D4'
-        selectionRect.fillColor = '#A3C5E8'
-        selectionRect.opacity = 0.3
-        selectionRect.strokeWidth = this.strokeWidth
-        selectionRect.removeOn({
-          drag: true,
-          down: true,
-          up: true
-        })
-        paper.project.deselectAll()
-        paper.project.getItems({
-          class: 'Path',
-          inside: selectionRect.bounds,
-          match: this.matchFilter
-        }).forEach((item) => {
-          item.selected = true
-        })
-      } else if (this.toolMode === 'move') {
+      if (this.toolMode === 'move') {
         if (this.selectionGroup.children.length > 0) {
           this.selectionGroup.position = this.selectionGroup.position.add(event.delta)
         } else {
           hitResult.item.position = hitResult.item.position.add(event.delta)
         }
-
-        // if (this.saveState.changesSaved) {
-        //   this.flagAnnotationEdits()
-        // }
       } else if (this.toolMode === 'transform') {
         let newWidth = null
         let newHeight = null
@@ -111,13 +86,10 @@ export default {
         const vertScaleFactor = Math.abs(newHeight / this.selectionGroup.bounds.height)
 
         this.selectionGroup.scale(horizScaleFactor, vertScaleFactor, transfromCenter)
-
-        // if (this.saveState.changesSaved) {
-        //   this.flagAnnotationEdits()
-        // }
       }
     }
 
+    // 鼠标抬起事件
     const toolUp = event => {
       this.selectionGroup = new paper.Group(paper.project.selectedItems)
       if (!this.selectionGroup.isEmpty()) {
@@ -126,15 +98,15 @@ export default {
       this.setSelectedItems(paper.project.selectedItems)
     }
 
+    // 鼠标移动事件
     const toolMove = event => {
-      if (
-        this.selectionGroup &&
-        this.selectionGroup.hitTest(event.point, this.hitOptions)
-      ) {
+      if (this.selectionGroup && this.selectionGroup.hitTest(event.point, this.hitOptions) && this.state === 'edit') {
         const hit = this.selectionGroup.hitTest(event.point, this.hitOptions)
         if (hit.name === 'bottom-right' || hit.name === 'top-left') {
           paper.view.element.style.cursor = 'nwse-resize'
         } else if (hit.name === 'bottom-left' || hit.name === 'top-right') {
+          paper.view.element.style.cursor = 'nesw-resize'
+        } else if (hit.name === 'bottom' || hit.name === 'top') {
           paper.view.element.style.cursor = 'nesw-resize'
         } else if (hit.type === 'fill') {
           paper.view.element.style.cursor = 'move'
@@ -145,6 +117,7 @@ export default {
       }
     }
 
+    // 删除事件
     const toolKeyUp = event => {
       if (this.active) {
         if (event.key === 'delete') {
@@ -155,7 +128,6 @@ export default {
                 item.remove()
               }
             })
-
             this.flagAnnotationEdits()
           }
         }
@@ -184,10 +156,8 @@ export default {
       this.prepareCanvas()
       this.toolMove.activate()
       this.strokeWidth = 2
-      const hitTolerance = this.strokeWidth * 2
+      const hitTolerance = 4
       this.hitOptions = {
-        segments: true,
-        stroke: true,
         bounds: true,
         handles: true,
         fill: true,
@@ -198,11 +168,7 @@ export default {
     },
 
     matchFilter(itemToCheck) {
-      if (itemToCheck.item && itemToCheck.item.layer.name === 'guide') {
-        return false
-      } else if (itemToCheck.layer && itemToCheck.layer.name === 'guide') {
-        return false
-      } else if (!itemToCheck.locked) {
+      if (!itemToCheck.locked) {
         return true
       }
     }

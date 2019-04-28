@@ -1,5 +1,5 @@
 <template>
-  <el-button id="rectangle" type="success" @click.native="initialiseTool">绘制</el-button>
+  <el-radio-button id="rectangle" label="rectangle" @click.native="initialiseTool">绘制</el-radio-button>
 </template>
 
 <script>

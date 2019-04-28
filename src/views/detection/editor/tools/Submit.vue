@@ -65,7 +65,6 @@ export default {
       console.log(data)
       submitItem(data).then(response => {
         if (response.success) {
-          console.log(response)
           this.$notify({
             title: '成功',
             message: '提交成功',

@@ -5,9 +5,16 @@
         <div class="grid-content">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <toolbar @nextItem="getItem" @resetItem="resetItem"/>
+              <toolbar @nextItem="getItem" @resetItem="resetItem" @setProgress="setProgress"/>
             </div>
             <editor ref="editor"/>
+            <div style="margin-top: 20px" >
+              <span>标注进度：</span>
+              <span>{{ total-remain }}</span>
+              <span>/</span>
+              <span>{{ total }}</span>
+              <el-progress :percentage="percentage" :show-text="false" :stroke-width="14" style="margin-top: 10px"/>
+            </div>
           </el-card>
         </div>
       </el-col>
@@ -65,6 +72,9 @@ export default {
   },
   data() {
     return {
+      remain: 0,
+      total: 0,
+      percentage: 0
     }
   },
   mounted() {
@@ -88,6 +98,13 @@ export default {
     },
     resetItem() {
       this.$refs.editor.resetAnnotation()
+    },
+    setProgress(remain, total) {
+      this.remain = remain
+      this.total = total
+      if (remain !== undefined && total !== undefined && remain > 0 && total > 0) {
+        this.percentage = Math.round((total - remain) / total * 100)
+      }
     }
   }
 }

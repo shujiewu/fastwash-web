@@ -1,7 +1,7 @@
 <template>
   <!--  <el-container>-->
   <div class="header">
-    <el-button-group>
+    <el-radio-group v-model="activeTool" fill="#67C23A">
       <tool-move
         id="tool-move"
         :active="(activeTool === 'move')"
@@ -10,7 +10,7 @@
         id="tool-rectangle"
         :active="(activeTool === 'rectangle')"
         @click.native="activeTool = 'rectangle'"/>
-    </el-button-group>
+    </el-radio-group>
     <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
       <el-option
         v-for="item in options"
@@ -22,6 +22,7 @@
       <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
       <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
     </el-button-group>
+
   </div>
 <!--  </el-container>-->
 </template>
@@ -84,6 +85,9 @@ export default {
       }).catch(() => {
       })
     },
+    setProgress(remain, total) {
+      this.$emit('setProgress', remain, total)
+    },
     onSubmit() {
       // 先保存当前再提交
       this.saveAnnotation()
@@ -118,7 +122,7 @@ export default {
       const data = {
         data: btoa(uint8ToString(frameResult))
       }
-      console.log(data)
+      // console.log(data)
       submitItem(data).then(response => {
         if (response.success) {
           this.$notify({
@@ -127,6 +131,7 @@ export default {
             type: 'success'
           })
           this.nextItem()
+          this.setProgress(response.unannotated_nums, response.all_nums)
         } else {
           this.$notify.error({
             title: '错误',

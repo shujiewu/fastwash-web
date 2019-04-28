@@ -40,10 +40,7 @@ const detection = {
         }
       })
       const frameData = []
-      const shape = state.originalAnnotation.shape
-      // console.log(shape)
-      // console.log(shape[1])
-      // console.log(paper.view.viewSize.width)
+      const shape = state.shape
       for (const item of items) {
         const re_tl = {
           x: Math.round(shape[1] * item.bounds.x / paper.view.viewSize.width),
@@ -56,7 +53,7 @@ const detection = {
         frameData.push({
           box: { x: re_tl.x, y: re_tl.y, w: re_wh.x, h: re_wh.y },
           labeled: 'GT',
-          itemTextUtf8: item.data.class,
+          class: item.data.class,
           prop: item.data.prop,
           status: item.data.status
         })

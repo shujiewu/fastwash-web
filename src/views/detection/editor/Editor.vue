@@ -19,6 +19,7 @@ import paper from 'paper'
 import { getDefaultColor } from '@/utils/color'
 import { transformResponse } from '@/utils/proto'
 import { mapState, mapActions } from 'vuex'
+import { uint8ToString } from '@/utils/utils'
 export default {
   name: 'Editor',
   data() {
@@ -37,7 +38,8 @@ export default {
       classification: state => state.detection.classification,
       originalAnnotation: state => state.detection.originalAnnotation,
       state: state => state.detection.state,
-      currentAnnotation: state => state.detection.currentAnnotation
+      currentAnnotation: state => state.detection.currentAnnotation,
+      shape: state => state.detection.shape
     })
   },
   watch: {
@@ -67,6 +69,7 @@ export default {
         document.getElementById('tool-move').click()
         this.setSelectedItems([])
         this.setOriginalAnnotation(null)
+        this.setShape([])
         this.resetCanvas()
       }
     },
@@ -74,9 +77,8 @@ export default {
       this.bg_dom = document.getElementById('bg_img')
       this.cvs_dom = document.getElementById('detection_canvas')
       getItem().then(response => {
-        this.setOriginalAnnotation(response)
-        this.setShape(response.shape)
-        this.drawBackground(response)
+        const frameResult = transformResponse(response.data)
+        this.drawBackground(frameResult)
       })
     },
     drawOriginAnnotation() {
@@ -99,19 +101,25 @@ export default {
     drawSaveAnnotation() {
       if (this.currentAnnotation != null) {
         paper.project.clear()
-        const shape = this.originalAnnotation.shape
         for (const index in this.currentAnnotation) {
-          this.drawItem(this.currentAnnotation[index], shape, 'current')
+          this.drawItem(this.currentAnnotation[index], 'current')
         }
         this.setAnnotationEditsFlag(true)
       }
     },
-    drawBackground(data) {
-      this.bg_dom.src = 'data:image/png;base64,' + data.img
+    drawBackground(frameResult) {
+      this.bg_dom.src = 'data:image/png;base64,' + btoa(uint8ToString(frameResult.detImg.blob)) // 'data:image/png;base64,' + data.img
       const load = () => {
         paper.view.viewSize.width = this.bg_dom.width
         paper.view.viewSize.height = this.bg_dom.height
-        this.drawBoxes(data)
+
+        var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
+        this.setShape(shape)
+
+        this.drawBoxes(frameResult)
+
+        frameResult.detImg = {}
+        this.setOriginalAnnotation(frameResult)
         this.saveAnnotation()
         this.setAnnotationEditsFlag(true)
         this.loading = false
@@ -125,43 +133,45 @@ export default {
       }
       paper.view.onResize = resize
     },
-    drawBoxes(box) {
-      const frameResult = transformResponse(box.data)
-      const shape = box.shape
+    drawBoxes(frameResult) {
       if ('items' in frameResult) {
         for (const index in frameResult['items']) {
-          this.drawItem(frameResult['items'][index], shape, 'original')
+          this.drawItem(frameResult['items'][index], 'original')
         }
       }
     },
 
-    drawItem(item, shape, type) {
+    drawItem(item, type) {
       if (item) {
         var tl = this.Rel2abs(
           {
-            x: item.box.x / shape[1],
-            y: item.box.y / shape[0]
+            x: item.box.x / this.shape[1],
+            y: item.box.y / this.shape[0]
           }
         )
         var wh = this.Rel2abs(
           {
-            x: item.box.w / shape[1],
-            y: item.box.h / shape[0]
+            x: item.box.w / this.shape[1],
+            y: item.box.h / this.shape[0]
           }
         )
         var status = ''
+        var iclass = ''
         if (type === 'original') {
           status = 'originalAnnotation'
+          iclass = 'vehicle'
         } else {
           status = item.status === undefined ? 'originalAnnotation' : item.status
+          iclass = item.class
         }
+
         const newPaperItem = new paper.Path.Rectangle({
           point: [tl.x, tl.y],
           size: [wh.x, wh.y],
           data: {
             status: status,
             // 这里需要修改
-            class: item.itemTextUtf8,
+            class: iclass,
             prop: item.prop
           },
           locked: false

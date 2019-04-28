@@ -143,6 +143,7 @@ export default {
                 item.remove()
               }
             })
+            this.setSelectedItems(paper.project.selectedItems)
             this.setAnnotationEditsFlag(true)
           }
         }

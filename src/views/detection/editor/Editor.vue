@@ -78,6 +78,7 @@ export default {
       this.cvs_dom = document.getElementById('detection_canvas')
       getItem().then(response => {
         const frameResult = transformResponse(response.data)
+        console.log(frameResult)
         this.drawBackground(frameResult)
       })
     },
@@ -102,7 +103,7 @@ export default {
       if (this.currentAnnotation != null) {
         paper.project.clear()
         for (const index in this.currentAnnotation) {
-          this.drawItem(this.currentAnnotation[index], 'current')
+          this.drawItem(this.currentAnnotation[index], 'current', index)
         }
         this.setAnnotationEditsFlag(true)
       }
@@ -136,12 +137,12 @@ export default {
     drawBoxes(frameResult) {
       if ('items' in frameResult) {
         for (const index in frameResult['items']) {
-          this.drawItem(frameResult['items'][index], 'original')
+          this.drawItem(frameResult['items'][index], 'original', index)
         }
       }
     },
 
-    drawItem(item, type) {
+    drawItem(item, type, index) {
       if (item) {
         var tl = this.Rel2abs(
           {
@@ -169,6 +170,7 @@ export default {
           point: [tl.x, tl.y],
           size: [wh.x, wh.y],
           data: {
+            id: index,
             status: status,
             // 这里需要修改
             class: iclass,

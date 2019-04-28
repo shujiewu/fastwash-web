@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
+    <el-table v-loading="listLoading" ref="annotationTable" :data="list" border fit highlight-current-row style="width: 100%" @current-change="handleCurrentChange">
       <el-table-column align="center" label="Position" >
         <template slot-scope="scope">
           <span>{{ scope.row.box }}</span>
@@ -76,14 +76,16 @@ export default {
       listQuery: {
         page: 1,
         limit: 10
-      }
+      },
+      currentRow: null
     }
   },
   computed: {
     ...mapState({
       annotationEditsFlag: state => state.detection.annotationEditsFlag,
       currentAnnotation: state => state.detection.currentAnnotation,
-      shape: state => state.detection.shape
+      shape: state => state.detection.shape,
+      selectedItems: state => state.detection.selectedItems
     })
   },
   watch: {
@@ -101,11 +103,20 @@ export default {
           const re_wh = this.Abs2rel([item.bounds.width, item.bounds.height])
           // console.log(item)
           this.list.push({
+            id: item.data.id,
             box: [re_tl.x, re_tl.y, re_wh.x, re_wh.y],
             status: item.data.status,
             tag: item.data.class,
             prop: item.data.prop
           })
+        }
+      }
+    },
+    selectedItems: function(val) {
+      if (this.selectedItems.length > 0) {
+        if (this.selectedItems[0].data.id !== undefined) {
+          var select = this.list.filter(item => item.id === this.selectedItems[0].data.id)
+          this.$refs.annotationTable.setCurrentRow(select[0])
         }
       }
     }
@@ -117,20 +128,23 @@ export default {
     ...mapActions({
       setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
     }),
+    setCurrent(row) {
+      this.$refs.annotationTable.setCurrentRow(row)
+    },
+    handleCurrentChange(val) {
+      if (val !== null) {
+        this.currentRow = val
+        // const items = paper.project.getItems({
+        //   className: function(className) {
+        //     return (className === 'Path')
+        //   }
+        // })
+        // paper.project.selectedItems = items.filter(item => item.data.id === val.id)
+        // console.log(paper.project.selectedItems)
+      }
+    },
     async getList() {
       this.listLoading = true
-      // const { data } = await fetchList(this.listQuery)
-      // const items = data.items
-      // this.list = items.map(v => {
-      //   this.$set(v, 'edit', false) // https://vuejs.org/v2/guide/reactivity.html
-      //   v.originalTitle = v.title //  will be used when user click the cancel botton
-      //   return v
-      // })
-      // const items = paper.project.getItems({
-      //   className: function(className) {
-      //     return (className === 'Path')
-      //   }
-      // })
       this.listLoading = false
     },
     Abs2rel(pt) {

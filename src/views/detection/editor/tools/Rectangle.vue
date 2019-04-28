@@ -43,12 +43,20 @@ export default {
     const toolUp = event => {
       if (this.state === 'edit') {
         if (Math.abs(event.delta.x) > 10 && Math.abs(event.delta.y) > 10) {
+
+          const items = paper.project.getItems({
+            className: function(className) {
+              return (className === 'Path')
+            }
+          })
+
           const newRect = new paper.Path.Rectangle(event.downPoint, event.point)
           newRect.strokeColor = new paper.Color(getDefaultColor().stroke)
           newRect.fillColor = new paper.Color(getDefaultColor().fill)
           newRect.strokeWidth = this.strokeWidth
           newRect.data.status = 'newAnnotation'
           newRect.data.class = ''
+          newRect.data.id = items.length + 1
           this.setAnnotationEditsFlag(true)
         }
       }

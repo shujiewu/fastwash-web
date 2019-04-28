@@ -9,7 +9,7 @@ export default {
   props: {
     active: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   data() {
@@ -28,7 +28,6 @@ export default {
   },
   created() {
     let hitResult = null
-
     const toolDown = event => {
       hitResult = paper.project.hitTest(event.point, this.hitOptions)
       this.selectionGroup.bounds.selected = false
@@ -60,6 +59,10 @@ export default {
         } else {
           hitResult.item.position = hitResult.item.position.add(event.delta)
         }
+        if (hitResult.item.data.status === 'originalAnnotation') {
+          hitResult.item.data.status = 'editAnnotation'
+        }
+        this.setAnnotationEditsFlag(true)
       } else if (this.toolMode === 'transform') {
         let newWidth = null
         let newHeight = null
@@ -85,7 +88,19 @@ export default {
         const horizScaleFactor = Math.abs(newWidth / this.selectionGroup.bounds.width)
         const vertScaleFactor = Math.abs(newHeight / this.selectionGroup.bounds.height)
 
+        // hitResult.item.position = hitResult.item.position.add(event.delta)
+        // if (hitResult.item.data.status === 'originalAnnotation') {
+        //   hitResult.item.data.status = 'editAnnotation'
+        // }
+
+        if (paper.project.selectedItems.length > 0) {
+          if (paper.project.selectedItems[0].data.status === 'originalAnnotation') {
+            paper.project.selectedItems[0].data.status = 'editAnnotation'
+          }
+        }
+
         this.selectionGroup.scale(horizScaleFactor, vertScaleFactor, transfromCenter)
+        this.setAnnotationEditsFlag(true)
       }
     }
 
@@ -128,7 +143,7 @@ export default {
                 item.remove()
               }
             })
-            this.flagAnnotationEdits()
+            this.setAnnotationEditsFlag(true)
           }
         }
       }
@@ -144,12 +159,10 @@ export default {
 
   methods: {
     ...mapActions({
-      setSelectedItems: 'detection/setSelectedItems'
+      setSelectedItems: 'detection/setSelectedItems',
+      setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
     }),
     prepareCanvas() {
-
-    },
-    flagAnnotationEdits() {
 
     },
     initialiseTool() {

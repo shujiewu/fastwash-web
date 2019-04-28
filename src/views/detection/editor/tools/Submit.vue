@@ -43,7 +43,15 @@ export default {
       frameResult = transformSubmit(frameResult)
 
       // 测试反序列化是否可以
-      var b64encoded = btoa(String.fromCharCode.apply(null, frameResult))
+      // var b64encoded = btoa(String.fromCharCode.apply(null, frameResult))
+
+      var b64encoded = ''
+      var len = frameResult.byteLength
+      for (var i = 0; i < len; i++) {
+        b64encoded += String.fromCharCode(frameResult[i])
+      }
+      b64encoded = window.btoa(b64encoded)
+
       var u8_2 = new Uint8Array(atob(b64encoded).split('').map(function(c) {
         return c.charCodeAt(0)
       }))

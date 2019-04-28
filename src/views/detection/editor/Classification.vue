@@ -79,7 +79,8 @@ export default {
   methods: {
     ...mapActions({
       setClassificationFillColor: 'detection/setClassificationFillColor',
-      setClassificationStrokeColor: 'detection/setClassificationStrokeColor'
+      setClassificationStrokeColor: 'detection/setClassificationStrokeColor',
+      setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
     }),
     handleChange(value) {
       if (this.selectedItems.length > 0) {
@@ -88,6 +89,7 @@ export default {
         this.strokeColor = (this.classification.filter(item => item.value === value))[0].strokeColor
         this.selectedItems[0].fillColor = this.colorToRGBA(this.fillColor)
         this.selectedItems[0].strokeColor = this.colorToRGBA(this.strokeColor)
+        this.setAnnotationEditsFlag(true)
       }
     },
 

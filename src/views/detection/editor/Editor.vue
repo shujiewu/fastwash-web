@@ -56,7 +56,9 @@ export default {
     ...mapActions({
       setSelectedItems: 'detection/setSelectedItems',
       setOriginalAnnotation: 'detection/setOriginalAnnotation',
-      saveAnnotation: 'detection/saveAnnotation'
+      saveAnnotation: 'detection/saveAnnotation',
+      setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag',
+      setShape: 'detection/setShape'
     }),
     load() {
       if (this.flag) {
@@ -73,6 +75,7 @@ export default {
       this.cvs_dom = document.getElementById('detection_canvas')
       getItem().then(response => {
         this.setOriginalAnnotation(response)
+        this.setShape(response.shape)
         this.drawBackground(response)
       })
     },
@@ -82,13 +85,15 @@ export default {
         this.saveAnnotation()
         paper.project.clear()
         this.drawBoxes(this.originalAnnotation)
+        this.setAnnotationEditsFlag(true)
       }
     },
     resetAnnotation() {
       if (this.originalAnnotation != null) {
         paper.project.clear()
         this.drawBoxes(this.originalAnnotation)
-        // this.saveAnnotation()
+        this.saveAnnotation()
+        this.setAnnotationEditsFlag(true)
       }
     },
     drawSaveAnnotation() {
@@ -96,8 +101,9 @@ export default {
         paper.project.clear()
         const shape = this.originalAnnotation.shape
         for (const index in this.currentAnnotation) {
-          this.drawItem(this.currentAnnotation[index], shape)
+          this.drawItem(this.currentAnnotation[index], shape, 'current')
         }
+        this.setAnnotationEditsFlag(true)
       }
     },
     drawBackground(data) {
@@ -106,6 +112,8 @@ export default {
         paper.view.viewSize.width = this.bg_dom.width
         paper.view.viewSize.height = this.bg_dom.height
         this.drawBoxes(data)
+        this.saveAnnotation()
+        this.setAnnotationEditsFlag(true)
         this.loading = false
       }
       this.bg_dom.onload = load
@@ -122,12 +130,12 @@ export default {
       const shape = box.shape
       if ('items' in frameResult) {
         for (const index in frameResult['items']) {
-          this.drawItem(frameResult['items'][index], shape)
+          this.drawItem(frameResult['items'][index], shape, 'original')
         }
       }
     },
 
-    drawItem(item, shape) {
+    drawItem(item, shape, type) {
       if (item) {
         var tl = this.Rel2abs(
           {
@@ -141,12 +149,17 @@ export default {
             y: item.box.h / shape[0]
           }
         )
-
+        var status = ''
+        if (type === 'original') {
+          status = 'originalAnnotation'
+        } else {
+          status = item.status === undefined ? 'originalAnnotation' : item.status
+        }
         const newPaperItem = new paper.Path.Rectangle({
           point: [tl.x, tl.y],
           size: [wh.x, wh.y],
           data: {
-            type: 'rectangle',
+            status: status,
             // 这里需要修改
             class: item.itemTextUtf8,
             prop: item.prop

@@ -36,7 +36,7 @@
   </div>
 </template>
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 export default {
   name: 'Property',
   data() {
@@ -66,35 +66,24 @@ export default {
       }
     },
     selectedItems: function(val) {
-      // /bug
-      if (this.selectedItems.length > 0 && this.selectedItems[0].data.prop !== undefined) {
-        // this.form = this.selectedItems[0].data.prop
-      } else {
-        this.initForm()
-        // console.log(this.form)
-        // if (this.multiChoice.length !== 0) {
-        //   this.form = {}
-        //   this.multiChoice.forEach(item => {
-        //     this.form[item.id] = []
-        //   })
-        // } else {
-        //   this.form = {}
-        // }
+      // bug
+      if (this.selectedItems.length > 0) {
+        // console.log(this.selectedItems[0])
+        if (this.selectedItems[0].data.prop !== undefined) {
+          this.form = this.selectedItems[0].data.prop
+        } else {
+          this.initForm()
+        }
       }
     }
   },
   mounted() {
   },
   methods: {
+    ...mapActions({
+      setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
+    }),
     initForm() {
-      // this.form = {
-      //   '1': '1',
-      //   '2': '2',
-      //   '3': '3',
-      //   '4': '4'
-      // }
-
-      // console.log(1111)
       if (this.input.length !== 0) {
         this.input.forEach(item => {
           this.$set(this.form, item.id, item.default)
@@ -119,7 +108,8 @@ export default {
     },
     onSubmit() {
       if (this.selectedItems.length > 0) {
-        this.selectedItems[0].data.prop = this.form
+        this.selectedItems[0].data.prop = JSON.parse(JSON.stringify(this.form))
+        this.setAnnotationEditsFlag(true)
       }
     },
     onReset() {
@@ -127,14 +117,6 @@ export default {
         this.form = this.selectedItems[0].data.prop
       } else {
         this.initForm()
-        // if (this.multiChoice.length !== 0) {
-        //   this.form = {}
-        //   this.multiChoice.forEach(item => {
-        //     this.form[item.id] = []
-        //   })
-        // } else {
-        //   this.form = {}
-        // }
       }
     }
   }

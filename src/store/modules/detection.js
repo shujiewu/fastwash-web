@@ -10,7 +10,9 @@ const detection = {
     projectName: '',
     originalAnnotation: null,
     state: 'edit',
-    currentAnnotation: null
+    currentAnnotation: null,
+    annotationEditsFlag: false,
+    shape: []
   },
   mutations: {
     setSelectedItems: (state, selectedItems) => {
@@ -19,17 +21,17 @@ const detection = {
     setClassification: (state, classification) => {
       state.classification = classification
     },
-    setClassificationFillColor: (state, payload) => {
-      (state.classification.filter(item => item.value === payload.tag))[0].fillColor = payload.fillColor
+    setClassificationFillColor: (state, playload) => {
+      (state.classification.filter(item => item.value === playload.tag))[0].fillColor = playload.fillColor
     },
-    setClassificationStrokeColor: (state, payload) => {
-      (state.classification.filter(item => item.value === payload.tag))[0].strokeColor = payload.strokeColor
+    setClassificationStrokeColor: (state, playload) => {
+      (state.classification.filter(item => item.value === playload.tag))[0].strokeColor = playload.strokeColor
     },
     setProperty: (state, property) => {
       state.property = property
     },
-    setOriginalAnnotation: (state, payload) => {
-      state.originalAnnotation = payload
+    setOriginalAnnotation: (state, playload) => {
+      state.originalAnnotation = playload
     },
     saveAnnotation: (state) => {
       const items = paper.project.getItems({
@@ -55,41 +57,54 @@ const detection = {
           box: { x: re_tl.x, y: re_tl.y, w: re_wh.x, h: re_wh.y },
           labeled: 'GT',
           itemTextUtf8: item.data.class,
-          prop: item.data.prop
+          prop: item.data.prop,
+          status: item.data.status
         })
       }
       state.currentAnnotation = frameData
     },
-    setState: (state, payload) => {
+    setState: (state, playload) => {
       state.selectedItems = []
       paper.project.deselectAll()
-      state.state = payload
+      state.state = playload
+    },
+    setAnnotationEditsFlag: (state, playload) => {
+      state.annotationEditsFlag = playload
+    },
+    setShape: (state, playload) => {
+      state.shape = playload
     }
   },
   actions: {
-    setSelectedItems: ({ commit }, payload) => {
-      commit('setSelectedItems', payload)
+    setSelectedItems: ({ commit }, playload) => {
+      commit('setSelectedItems', playload)
     },
-    setClassification: ({ commit }, payload) => {
-      commit('setClassification', payload)
+    setClassification: ({ commit }, playload) => {
+      commit('setClassification', playload)
     },
-    setClassificationFillColor: ({ commit }, payload) => {
-      commit('setClassificationFillColor', payload)
+    setClassificationFillColor: ({ commit }, playload) => {
+      commit('setClassificationFillColor', playload)
     },
-    setClassificationStrokeColor: ({ commit }, payload) => {
-      commit('setClassificationStrokeColor', payload)
+    setClassificationStrokeColor: ({ commit }, playload) => {
+      commit('setClassificationStrokeColor', playload)
     },
-    setProperty: ({ commit }, payload) => {
-      commit('setProperty', payload)
+    setProperty: ({ commit }, playload) => {
+      commit('setProperty', playload)
     },
-    setOriginalAnnotation: ({ commit }, payload) => {
-      commit('setOriginalAnnotation', payload)
+    setOriginalAnnotation: ({ commit }, playload) => {
+      commit('setOriginalAnnotation', playload)
     },
     saveAnnotation: ({ commit }) => {
       commit('saveAnnotation')
     },
-    setState: ({ commit }, payload) => {
-      commit('setState', payload)
+    setState: ({ commit }, playload) => {
+      commit('setState', playload)
+    },
+    setAnnotationEditsFlag: ({ commit }, playload) => {
+      commit('setAnnotationEditsFlag', playload)
+    },
+    setShape: ({ commit }, playload) => {
+      commit('setShape', playload)
     }
   }
 }

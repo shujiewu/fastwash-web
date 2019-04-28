@@ -26,6 +26,14 @@
         </el-card>
       </el-col>
     </el-row>
+    <el-row>
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span>当前标注</span>
+        </div>
+        <annotationTable/>
+      </el-card>
+    </el-row>
   </div>
 </template>
 
@@ -35,13 +43,15 @@ import toolbar from './editor/Toolbar'
 import editor from './editor/Editor'
 import classification from './editor/Classification'
 import property from './editor/Property'
+import annotationTable from './editor/AnnotationTable'
 import { mapActions } from 'vuex'
 export default {
   components: {
     toolbar,
     editor,
     classification,
-    property
+    property,
+    annotationTable
   },
   filters: {
     statusFilter(status) {

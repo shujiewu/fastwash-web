@@ -4,6 +4,7 @@
 
 <script>
 import paper from 'paper'
+import { mapState, mapActions } from 'vuex'
 import { getDefaultColor } from '@/utils/color'
 export default {
   props: {
@@ -20,25 +21,37 @@ export default {
     }
   },
 
+  computed: {
+    ...mapState({
+      state: state => state.detection.state
+    })
+  },
+
   created() {
     const toolDrag = event => {
-      const trackingRect = new paper.Path.Rectangle(event.downPoint, event.point)
-      trackingRect.strokeColor = new paper.Color('#2661D8')
-      trackingRect.strokeColor.alpha = 0.7
-      trackingRect.strokeWidth = this.strokeWidth
-      trackingRect.removeOn({
-        drag: true,
-        up: true
-      })
+      if (this.state === 'edit') {
+        const trackingRect = new paper.Path.Rectangle(event.downPoint, event.point)
+        trackingRect.strokeColor = new paper.Color('#2661D8')
+        trackingRect.strokeColor.alpha = 0.7
+        trackingRect.strokeWidth = this.strokeWidth
+        trackingRect.removeOn({
+          drag: true,
+          up: true
+        })
+      }
     }
     const toolUp = event => {
-      const newRect = new paper.Path.Rectangle(event.downPoint, event.point)
-      newRect.strokeColor = new paper.Color(getDefaultColor().stroke)
-      newRect.fillColor = new paper.Color(getDefaultColor().fill)
-      newRect.strokeWidth = this.strokeWidth
-      newRect.data.type = 'rectangle'
-      newRect.data.class = ''
-      this.flagAnnotationEdits()
+      if (this.state === 'edit') {
+        if (Math.abs(event.delta.x) > 10 && Math.abs(event.delta.y) > 10) {
+          const newRect = new paper.Path.Rectangle(event.downPoint, event.point)
+          newRect.strokeColor = new paper.Color(getDefaultColor().stroke)
+          newRect.fillColor = new paper.Color(getDefaultColor().fill)
+          newRect.strokeWidth = this.strokeWidth
+          newRect.data.status = 'newAnnotation'
+          newRect.data.class = ''
+          this.setAnnotationEditsFlag(true)
+        }
+      }
     }
 
     this.toolRect = new paper.Tool()
@@ -47,11 +60,11 @@ export default {
   },
 
   methods: {
+    ...mapActions({
+      setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
+    }),
     prepareCanvas() {
       paper.project.layers[0].activate()
-    },
-    flagAnnotationEdits() {
-
     },
     initialiseTool() {
       this.prepareCanvas()

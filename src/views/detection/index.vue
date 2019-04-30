@@ -5,9 +5,9 @@
         <div class="grid-content">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <toolbar @nextItem="getItem" @resetItem="resetItem" @setProgress="setProgress"/>
+              <toolbar @nextItem="getItem" @resetItem="resetItem"/>
             </div>
-            <editor ref="editor"/>
+            <editor ref="editor" @setProgress="setProgress"/>
             <div style="margin-top: 20px" >
               <span>标注进度：</span>
               <span>{{ total-remain }}</span>

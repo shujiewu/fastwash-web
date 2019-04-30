@@ -85,9 +85,6 @@ export default {
       }).catch(() => {
       })
     },
-    setProgress(remain, total) {
-      this.$emit('setProgress', remain, total)
-    },
     onSubmit() {
       // 先保存当前再提交
       this.saveAnnotation()
@@ -131,7 +128,6 @@ export default {
             type: 'success'
           })
           this.nextItem()
-          this.setProgress(response.unannotated_nums, response.all_nums)
         } else {
           this.$notify.error({
             title: '错误',

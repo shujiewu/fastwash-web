@@ -43,7 +43,6 @@ export default {
     const toolUp = event => {
       if (this.state === 'edit') {
         if (Math.abs(event.delta.x) > 10 && Math.abs(event.delta.y) > 10) {
-
           const items = paper.project.getItems({
             className: function(className) {
               return (className === 'Path')

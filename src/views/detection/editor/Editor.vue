@@ -73,10 +73,14 @@ export default {
         this.resetCanvas()
       }
     },
+    setProgress(remain, total) {
+      this.$emit('setProgress', remain, total)
+    },
     resetCanvas() {
       this.bg_dom = document.getElementById('bg_img')
       this.cvs_dom = document.getElementById('detection_canvas')
       getItem().then(response => {
+        this.setProgress(response.unannotated_nums, response.all_nums)
         const frameResult = transformResponse(response.data)
         console.log(frameResult)
         this.drawBackground(frameResult)

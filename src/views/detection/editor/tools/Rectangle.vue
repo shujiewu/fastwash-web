@@ -71,7 +71,7 @@ export default {
       setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
     }),
     prepareCanvas() {
-      paper.project.layers[0].activate()
+      // paper.project.layers[0].activate()
     },
     initialiseTool() {
       this.prepareCanvas()

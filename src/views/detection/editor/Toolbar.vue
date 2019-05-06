@@ -19,6 +19,7 @@
         :value="item.value"/>
     </el-select>
     <el-button-group style="float: right">
+      <el-button type="primary" icon="el-icon-delete-solid" @click="deleteItem">清空</el-button>
       <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
       <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
     </el-button-group>
@@ -71,6 +72,16 @@ export default {
       this.$emit('nextItem')
       this.setState('edit')
       this.state = 'edit'
+    },
+    deleteItem() {
+      this.$confirm('此操作将清空当前标注, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$emit('deleteItem')
+      }).catch(() => {
+      })
     },
     onStateChange(value) {
       this.setState(value)

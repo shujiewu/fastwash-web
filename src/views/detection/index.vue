@@ -5,7 +5,7 @@
         <div class="grid-content">
           <el-card class="box-card">
             <div slot="header" class="clearfix">
-              <toolbar @nextItem="getItem" @resetItem="resetItem"/>
+              <toolbar @nextItem="getItem" @resetItem="resetItem" @deleteItem="deleteItem"/>
             </div>
             <editor ref="editor" @setProgress="setProgress"/>
             <div style="margin-top: 20px" >
@@ -98,6 +98,9 @@ export default {
     },
     resetItem() {
       this.$refs.editor.resetAnnotation()
+    },
+    deleteItem() {
+      this.$refs.editor.deleteAnnotation()
     },
     setProgress(remain, total) {
       this.remain = remain

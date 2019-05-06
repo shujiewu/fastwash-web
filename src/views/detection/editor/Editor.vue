@@ -95,6 +95,13 @@ export default {
         this.setAnnotationEditsFlag(true)
       }
     },
+    deleteAnnotation() {
+      if (this.currentAnnotation != null) {
+        paper.project.clear()
+        this.saveAnnotation()
+        this.setAnnotationEditsFlag(true)
+      }
+    },
     resetAnnotation() {
       if (this.originalAnnotation != null) {
         paper.project.clear()

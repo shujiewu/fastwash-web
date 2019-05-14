@@ -6,17 +6,13 @@ export default {
       'projectID': '1',
       'projectName': 'test',
       'classification': [{
-        value: 'vehicle',
+        value: 'target',
         fillColor: 'rgba(19, 206, 102, 0.2)',
         strokeColor: 'rgba(19, 206, 102, 1)'
       }, {
-        value: 'vehicle2',
+        value: 'ignore',
         fillColor: 'rgba(30, 195, 201, 0.2)',
         strokeColor: 'rgba(30, 195, 201, 1)'
-      }, {
-        value: 'vehicle3',
-        fillColor: 'rgba(221, 221, 42, 0.2)',
-        strokeColor: 'rgba(221, 221, 42, 1)'
       }],
       'property': [{
         id: '1',

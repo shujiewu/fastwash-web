@@ -171,7 +171,7 @@ export default {
         var iclass = ''
         if (type === 'original') {
           status = 'originalAnnotation'
-          iclass = 'vehicle'
+          iclass = 'target'
         } else {
           status = item.status === undefined ? 'originalAnnotation' : item.status
           iclass = item.class

@@ -185,7 +185,8 @@ export default {
             status: status,
             // 这里需要修改
             class: iclass,
-            prop: item.prop
+            prop: item.prop,
+            type: 'box'
           },
           locked: false
         })

@@ -10,6 +10,11 @@
         id="tool-rectangle"
         :active="(activeTool === 'rectangle')"
         @click.native="activeTool = 'rectangle'"/>
+<!--      <el-radio-button label="深圳"></el-radio-button>-->
+      <extreme-click
+        id="extreme-click"
+        :active="(activeTool === 'extreme-click')"
+        @click.native="activeTool = 'extreme-click'"/>
     </el-radio-group>
     <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
       <el-option
@@ -30,6 +35,7 @@
 
 <script>
 import toolRectangle from './tools/Rectangle.vue'
+import extremeClick from './tools/ExtremeClick.vue'
 import toolMove from './tools/Move.vue'
 import toolSubmit from './tools/Submit.vue'
 
@@ -42,7 +48,8 @@ export default {
   components: {
     'toolRectangle': toolRectangle,
     'toolMove': toolMove,
-    'toolSubmit': toolSubmit
+    'toolSubmit': toolSubmit,
+    'extremeClick': extremeClick
   },
   data() {
     return {

@@ -5,7 +5,7 @@
 <script>
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
-import { getDefaultColor } from '@/utils/color'
+import { colorToRGBA } from '@/utils/color'
 export default {
   props: {
     active: {
@@ -23,7 +23,8 @@ export default {
 
   computed: {
     ...mapState({
-      state: state => state.detection.state
+      state: state => state.detection.state,
+      classification: state => state.detection.classification
     })
   },
 
@@ -44,18 +45,22 @@ export default {
       if (this.state === 'edit') {
         if (Math.abs(event.delta.x) > 10 && Math.abs(event.delta.y) > 10) {
           const items = paper.project.getItems({
-            className: function(className) {
-              return (className === 'Path')
+            // className: function(className) {
+            //   return (className === 'Path')
+            // }
+            data: {
+              type: 'box'
             }
           })
-
+          console.log(items)
           const newRect = new paper.Path.Rectangle(event.downPoint, event.point)
-          newRect.strokeColor = new paper.Color(getDefaultColor().stroke)
-          newRect.fillColor = new paper.Color(getDefaultColor().fill)
+          newRect.strokeColor = colorToRGBA(this.classification[0].strokeColor)// new paper.Color(getDefaultColor().stroke)
+          newRect.fillColor = colorToRGBA(this.classification[0].fillColor) // new paper.Color(getDefaultColor().fill)
           newRect.strokeWidth = this.strokeWidth
           newRect.data.status = 'newAnnotation'
-          newRect.data.class = ''
+          newRect.data.class = this.classification[0].value
           newRect.data.id = items.length + 1
+          newRect.data.type = 'box'
           this.setAnnotationEditsFlag(true)
         }
       }

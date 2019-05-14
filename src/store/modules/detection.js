@@ -35,8 +35,11 @@ const detection = {
     },
     saveAnnotation: (state) => {
       const items = paper.project.getItems({
-        className: function(className) {
-          return (className === 'Path')
+        // className: function(className) {
+        //   return (className === 'Path')
+        // }
+        data: {
+          type: 'box'
         }
       })
       const frameData = []
@@ -56,7 +59,8 @@ const detection = {
           id: item.data.id,
           class: item.data.class,
           prop: item.data.prop,
-          status: item.data.status
+          status: item.data.status,
+          type: 'box'
         })
       }
       state.currentAnnotation = frameData

@@ -93,8 +93,11 @@ export default {
       if (val === true) {
         this.setAnnotationEditsFlag(false)
         const items = paper.project.getItems({
-          className: function(className) {
-            return (className === 'Path')
+          // className: function(className) {
+          //   return (className === 'Path')
+          // }
+          data: {
+            type: 'box'
           }
         })
         this.list = []

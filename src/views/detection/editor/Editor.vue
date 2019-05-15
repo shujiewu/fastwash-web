@@ -7,8 +7,11 @@
         class="img2">
       <canvas
         id="detection_canvas"
-        resize="true"
         class="annotation_canvas"/>
+    </div>
+    <div style="margin-top: 10px">
+      <span>画布大小</span>
+      <el-slider v-model="zoom" @change="onZoomChange"/>
     </div>
   </div>
 </template>
@@ -16,14 +19,17 @@
 <script>
 import { getItem } from '@/api/detection'
 import paper from 'paper'
-import { getDefaultColor } from '@/utils/color'
+// import { getDefaultColor } from '@/utils/color'
 import { transformResponse } from '@/utils/proto'
 import { mapState, mapActions } from 'vuex'
 import { uint8ToString } from '@/utils/utils'
+import { addBox } from '@/utils/detection'
+
 export default {
   name: 'Editor',
   data() {
     return {
+      zoom: 0,
       flag: true,
       loading: true,
       // 背景图片缓存
@@ -49,6 +55,9 @@ export default {
       } else {
         this.drawSaveAnnotation()
       }
+    },
+    zoom: function(val) {
+      console.log(val)
     }
   },
   mounted() {
@@ -76,13 +85,16 @@ export default {
     setProgress(remain, total) {
       this.$emit('setProgress', remain, total)
     },
+    onZoomChange(val) {
+      console.log(val)
+    },
     resetCanvas() {
       this.bg_dom = document.getElementById('bg_img')
       this.cvs_dom = document.getElementById('detection_canvas')
       getItem().then(response => {
         this.setProgress(response.unannotated_nums, response.all_nums)
         const frameResult = transformResponse(response.data)
-        console.log(frameResult)
+
         this.drawBackground(frameResult)
       })
     },
@@ -127,7 +139,7 @@ export default {
 
         var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
         this.setShape(shape)
-
+        console.log(shape)
         this.drawBoxes(frameResult)
 
         frameResult.detImg = {}
@@ -152,7 +164,6 @@ export default {
         }
       }
     },
-
     drawItem(item, type, index) {
       if (item) {
         var tl = this.Rel2abs(
@@ -163,82 +174,125 @@ export default {
         )
         var wh = this.Rel2abs(
           {
-            x: item.box.w / this.shape[1],
-            y: item.box.h / this.shape[0]
+            x: (item.box.w) / this.shape[1],
+            y: (item.box.h) / this.shape[0]
           }
         )
         var status = ''
-        var iclass = ''
+        var iclass = {}
         if (type === 'original') {
           status = 'originalAnnotation'
-          iclass = 'target'
+          iclass = this.classification[0]
         } else {
           status = item.status === undefined ? 'originalAnnotation' : item.status
-          iclass = item.class
+          iclass = this.classification.filter(c => c.value === item.class)[0]
         }
+        addBox([tl.x, tl.y], [wh.x, wh.y], iclass, item.prop, status, 2)
 
-        const newPaperItem = new paper.Path.Rectangle({
-          point: [tl.x, tl.y],
-          size: [wh.x, wh.y],
-          data: {
-            id: index,
-            status: status,
-            // 这里需要修改
-            class: iclass,
-            prop: item.prop,
-            type: 'box'
-          },
-          locked: false
-        })
-        newPaperItem.strokeWidth = 2
-        this.drawItemColor(newPaperItem, item)
+        //
+        // const newPaperItem = new paper.Path.Rectangle({
+        //   point: [tl.x, tl.y],
+        //   size: [wh.x, wh.y],
+        //   data: {
+        //     id: index,
+        //     status: status,
+        //     // 这里需要修改
+        //     class: iclass,
+        //     prop: item.prop,
+        //     type: 'box'
+        //   },
+        //   locked: false
+        // })
+        // newPaperItem.strokeWidth = 2
+        // this.drawItemColor(newPaperItem, item)
       }
     },
-    drawItemColor(paperItem, stateItem) {
-      if (stateItem.color && stateItem.color.stroke) {
-        if (typeof stateItem.color.stroke === 'string') {
-          paperItem.strokeColor = stateItem.color.stroke
-        } else {
-          paperItem.strokeColor = new paper.Color({
-            hue: stateItem.color.stroke.hue,
-            saturation: stateItem.color.stroke.saturation,
-            lightness: stateItem.color.stroke.lightness,
-            alpha: stateItem.color.stroke.alpha
-          })
-        }
-      } else {
-        const defaultColors = this.classColors(paperItem.data.class)
-        paperItem.fillColor = defaultColors.fill
-        paperItem.strokeColor = defaultColors.stroke
-      }
-    },
-    classColors(tag) {
-      if (this.classification.length > 0) {
-        const item = this.classification.filter(i => i.value === tag)
-        if (item.length > 0) {
-          const fillColor = item[0].fillColor.replace(/rgba|rgb|\(|\)/gm, '')
-            .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
-          const strokeColor = item[0].strokeColor.replace(/rgba|rgb|\(|\)/gm, '')
-            .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
-          return {
-            fill: {
-              red: fillColor[0],
-              green: fillColor[1],
-              blue: fillColor[2],
-              alpha: fillColor[3]
-            },
-            stroke: {
-              red: strokeColor[0],
-              green: strokeColor[1],
-              blue: strokeColor[2],
-              alpha: strokeColor[3]
-            }
-          }
-        } else {
-          return getDefaultColor()
-        }
-      }
-    },
+    // drawItem(item, type, index) {
+    //   if (item) {
+    //     var tl = this.Rel2abs(
+    //       {
+    //         x: item.box.x / this.shape[1],
+    //         y: item.box.y / this.shape[0]
+    //       }
+    //     )
+    //     var wh = this.Rel2abs(
+    //       {
+    //         x: item.box.w / this.shape[1],
+    //         y: item.box.h / this.shape[0]
+    //       }
+    //     )
+    //     var status = ''
+    //     var iclass = ''
+    //     if (type === 'original') {
+    //       status = 'originalAnnotation'
+    //       iclass = 'target'
+    //     } else {
+    //       status = item.status === undefined ? 'originalAnnotation' : item.status
+    //       iclass = item.class
+    //     }
+    //
+    //     const newPaperItem = new paper.Path.Rectangle({
+    //       point: [tl.x, tl.y],
+    //       size: [wh.x, wh.y],
+    //       data: {
+    //         id: index,
+    //         status: status,
+    //         // 这里需要修改
+    //         class: iclass,
+    //         prop: item.prop,
+    //         type: 'box'
+    //       },
+    //       locked: false
+    //     })
+    //     newPaperItem.strokeWidth = 2
+    //     this.drawItemColor(newPaperItem, item)
+    //   }
+    // },
+    // drawItemColor(paperItem, stateItem) {
+    //   if (stateItem.color && stateItem.color.stroke) {
+    //     if (typeof stateItem.color.stroke === 'string') {
+    //       paperItem.strokeColor = stateItem.color.stroke
+    //     } else {
+    //       paperItem.strokeColor = new paper.Color({
+    //         hue: stateItem.color.stroke.hue,
+    //         saturation: stateItem.color.stroke.saturation,
+    //         lightness: stateItem.color.stroke.lightness,
+    //         alpha: stateItem.color.stroke.alpha
+    //       })
+    //     }
+    //   } else {
+    //     const defaultColors = this.classColors(paperItem.data.class)
+    //     paperItem.fillColor = defaultColors.fill
+    //     paperItem.strokeColor = defaultColors.stroke
+    //   }
+    // },
+    // classColors(tag) {
+    //   if (this.classification.length > 0) {
+    //     const item = this.classification.filter(i => i.value === tag)
+    //     if (item.length > 0) {
+    //       const fillColor = item[0].fillColor.replace(/rgba|rgb|\(|\)/gm, '')
+    //         .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
+    //       const strokeColor = item[0].strokeColor.replace(/rgba|rgb|\(|\)/gm, '')
+    //         .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
+    //       return {
+    //         fill: {
+    //           red: fillColor[0],
+    //           green: fillColor[1],
+    //           blue: fillColor[2],
+    //           alpha: fillColor[3]
+    //         },
+    //         stroke: {
+    //           red: strokeColor[0],
+    //           green: strokeColor[1],
+    //           blue: strokeColor[2],
+    //           alpha: strokeColor[3]
+    //         }
+    //       }
+    //     } else {
+    //       return getDefaultColor()
+    //     }
+    //   }
+    // },
     Rel2abs(pt) {
       return {
         x: Math.round(pt.x * this.bg_dom.width),

@@ -1,5 +1,12 @@
 <template>
   <div class="app-container">
+    <div style="margin-bottom: 10px" >
+      <span>标注进度：</span>
+      <span>{{ total-remain }}</span>
+      <span>/</span>
+      <span>{{ total }}</span>
+      <el-progress :percentage="percentage" :show-text="false" :stroke-width="14" style="margin-top: 10px"/>
+    </div>
     <el-row :gutter="5">
       <el-col :lg="18">
         <div class="grid-content">
@@ -8,13 +15,6 @@
               <toolbar @nextItem="getItem" @resetItem="resetItem" @deleteItem="deleteItem"/>
             </div>
             <editor ref="editor" @setProgress="setProgress"/>
-            <div style="margin-top: 20px" >
-              <span>标注进度：</span>
-              <span>{{ total-remain }}</span>
-              <span>/</span>
-              <span>{{ total }}</span>
-              <el-progress :percentage="percentage" :show-text="false" :stroke-width="14" style="margin-top: 10px"/>
-            </div>
           </el-card>
         </div>
       </el-col>

@@ -1,6 +1,13 @@
 <template>
   <div class="app-container">
     <el-table v-loading="listLoading" ref="annotationTable" :data="list" border fit highlight-current-row style="width: 100%" @current-change="handleCurrentChange">
+
+      <el-table-column align="center" label="Id" >
+        <template slot-scope="scope">
+          <span>{{ scope.row.id }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column align="center" label="Position" >
         <template slot-scope="scope">
           <span>{{ scope.row.box }}</span>
@@ -26,29 +33,6 @@
           </el-tag>
         </template>
       </el-table-column>
-
-      <!--      <el-table-column min-width="300px" label="Title">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <template v-if="row.edit">-->
-      <!--            <el-input v-model="row.title" class="edit-input" size="small" />-->
-      <!--            <el-button class="cancel-btn" size="small" icon="el-icon-refresh" type="warning" @click="cancelEdit(row)">-->
-      <!--              cancel-->
-      <!--            </el-button>-->
-      <!--          </template>-->
-      <!--          <span v-else>{{ row.title }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-
-      <!--      <el-table-column align="center" label="Actions" width="120">-->
-      <!--        <template slot-scope="{row}">-->
-      <!--          <el-button v-if="row.edit" type="success" size="small" icon="el-icon-circle-check-outline" @click="confirmEdit(row)">-->
-      <!--            Ok-->
-      <!--          </el-button>-->
-      <!--          <el-button v-else type="primary" size="small" icon="el-icon-edit" @click="row.edit=!row.edit">-->
-      <!--            Edit-->
-      <!--          </el-button>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
     </el-table>
   </div>
 </template>
@@ -93,9 +77,6 @@ export default {
       if (val === true) {
         this.setAnnotationEditsFlag(false)
         const items = paper.project.getItems({
-          // className: function(className) {
-          //   return (className === 'Path')
-          // }
           data: {
             type: 'box'
           }

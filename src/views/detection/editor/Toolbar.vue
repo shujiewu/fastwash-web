@@ -4,30 +4,40 @@
     <el-radio-group v-model="activeTool" fill="#67C23A">
       <tool-move
         id="tool-move"
+        ref="toolMove"
         :active="(activeTool === 'move')"
         @click.native="activeTool = 'move'"/>
       <tool-rectangle
         id="tool-rectangle"
         :active="(activeTool === 'rectangle')"
         @click.native="activeTool = 'rectangle'"/>
-<!--      <el-radio-button label="深圳"></el-radio-button>-->
       <extreme-click
         id="extreme-click"
         :active="(activeTool === 'extreme-click')"
         @click.native="activeTool = 'extreme-click'"/>
     </el-radio-group>
-    <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
+    <el-select v-model="selectBox" :disabled="(activeTool !== 'move')" placeholder="选择框" @change="onSelectBoxChange">
       <el-option
-        v-for="item in options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"/>
+        v-for="item in boxCount"
+        :key="item"
+        :label="item"
+        :value="item"/>
     </el-select>
-    <el-button-group style="float: right">
-      <el-button type="primary" icon="el-icon-delete-solid" @click="deleteItem">清空</el-button>
-      <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
-      <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
-    </el-button-group>
+
+    <div style="float: right">
+      <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"/>
+      </el-select>
+      <el-button-group >
+        <el-button type="primary" icon="el-icon-delete-solid" @click="deleteItem">清空</el-button>
+        <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
+        <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
+      </el-button-group>
+    </div>
 
   </div>
 <!--  </el-container>-->
@@ -38,7 +48,7 @@ import toolRectangle from './tools/Rectangle.vue'
 import extremeClick from './tools/ExtremeClick.vue'
 import toolMove from './tools/Move.vue'
 import toolSubmit from './tools/Submit.vue'
-
+import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
 import { transformSubmit } from '@/utils/proto'
 import { submitItem } from '@/api/detection'
@@ -61,20 +71,50 @@ export default {
         value: 'edit',
         label: '当前标注'
       }],
-      state: 'edit'
+      state: 'edit',
+      selectBox: ''
+      // boxList: []
     }
   },
   computed: {
     ...mapState({
       originalAnnotation: state => state.detection.originalAnnotation,
-      currentAnnotation: state => state.detection.currentAnnotation
+      currentAnnotation: state => state.detection.currentAnnotation,
+      boxCount: state => state.detection.boxCount,
+      selectedItems: state => state.detection.selectedItems
     })
+  },
+  watch: {
+    selectedItems: function(val) {
+      if (this.selectedItems.length > 0) {
+        if (this.selectedItems[0].data.id !== undefined && this.selectedItems[0].data.id !== this.selectBox) {
+          this.selectBox = this.selectedItems[0].data.id
+        }
+      }
+    }
   },
   methods: {
     ...mapActions({
       setState: 'detection/setState',
-      saveAnnotation: 'detection/saveAnnotation'
+      saveAnnotation: 'detection/saveAnnotation',
+      setSelectedItems: 'detection/setSelectedItems'
     }),
+
+    onSelectBoxChange() {
+      const items = paper.project.getItems({
+        data: {
+          type: 'box',
+          id: this.selectBox
+        }
+      })
+      if (items.length > 0) {
+        paper.project.deselectAll()
+        this.$refs.toolMove.resetSelection()
+        items[0].selected = true
+        this.setSelectedItems(paper.project.selectedItems)
+      }
+    },
+
     nextItem() {
       this.$emit('nextItem')
       this.setState('edit')

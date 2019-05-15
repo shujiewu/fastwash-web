@@ -5,7 +5,9 @@
 <script>
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
-import { colorToRGBA, getDefaultColor } from '@/utils/color'
+import { getDefaultColor } from '@/utils/color'
+import { addBox } from '@/utils/detection'
+
 export default {
   props: {
     active: {
@@ -57,25 +59,26 @@ export default {
           })
           this.circleList = []
 
-          const items = paper.project.getItems({
-            // className: function(className) {
-            //   return (className === 'Path')
-            // }
-            data: {
-              type: 'box'
-            }
-          })
           var ltPoint = new paper.Point(left, top)
           var rbPoint = new paper.Point(right, bottom)
+          addBox(ltPoint, rbPoint, this.classification[0], undefined, 'newAnnotation', this.strokeWidth)
 
-          const newRect = new paper.Path.Rectangle(ltPoint, rbPoint)
-          newRect.strokeColor = colorToRGBA(this.classification[0].strokeColor)
-          newRect.fillColor = colorToRGBA(this.classification[0].fillColor)
-          newRect.strokeWidth = 2
-          newRect.data.status = 'newAnnotation'
-          newRect.data.class = this.classification[0].value
-          newRect.data.id = items.length + 1
-          newRect.data.type = 'box'
+          // const items = paper.project.getItems({
+          //   data: {
+          //     type: 'box'
+          //   }
+          // })
+          // var ltPoint = new paper.Point(left, top)
+          // var rbPoint = new paper.Point(right, bottom)
+          //
+          // const newRect = new paper.Path.Rectangle(ltPoint, rbPoint)
+          // newRect.strokeColor = colorToRGBA(this.classification[0].strokeColor)
+          // newRect.fillColor = colorToRGBA(this.classification[0].fillColor)
+          // newRect.strokeWidth = 2
+          // newRect.data.status = 'newAnnotation'
+          // newRect.data.class = this.classification[0].value
+          // newRect.data.id = items.length + 1
+          // newRect.data.type = 'box'
           this.setAnnotationEditsFlag(true)
           // newRect.data.id = items.length + 1
         }

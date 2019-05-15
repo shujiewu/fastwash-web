@@ -12,7 +12,8 @@ const detection = {
     state: 'edit',
     currentAnnotation: null,
     annotationEditsFlag: false,
-    shape: []
+    shape: [],
+    boxCount: 0
   },
   mutations: {
     setSelectedItems: (state, selectedItems) => {
@@ -35,9 +36,6 @@ const detection = {
     },
     saveAnnotation: (state) => {
       const items = paper.project.getItems({
-        // className: function(className) {
-        //   return (className === 'Path')
-        // }
         data: {
           type: 'box'
         }
@@ -71,6 +69,12 @@ const detection = {
       state.state = playload
     },
     setAnnotationEditsFlag: (state, playload) => {
+      const items = paper.project.getItems({
+        data: {
+          type: 'box'
+        }
+      })
+      state.boxCount = items.length
       state.annotationEditsFlag = playload
     },
     setShape: (state, playload) => {

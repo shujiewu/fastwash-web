@@ -5,7 +5,9 @@
 <script>
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
-import { colorToRGBA } from '@/utils/color'
+// import { colorToRGBA } from '@/utils/color'
+import { addBox } from '@/utils/detection'
+
 export default {
   props: {
     active: {
@@ -44,23 +46,49 @@ export default {
     const toolUp = event => {
       if (this.state === 'edit') {
         if (Math.abs(event.delta.x) > 10 && Math.abs(event.delta.y) > 10) {
-          const items = paper.project.getItems({
-            // className: function(className) {
-            //   return (className === 'Path')
-            // }
-            data: {
-              type: 'box'
-            }
-          })
-          console.log(items)
-          const newRect = new paper.Path.Rectangle(event.downPoint, event.point)
-          newRect.strokeColor = colorToRGBA(this.classification[0].strokeColor)// new paper.Color(getDefaultColor().stroke)
-          newRect.fillColor = colorToRGBA(this.classification[0].fillColor) // new paper.Color(getDefaultColor().fill)
-          newRect.strokeWidth = this.strokeWidth
-          newRect.data.status = 'newAnnotation'
-          newRect.data.class = this.classification[0].value
-          newRect.data.id = items.length + 1
-          newRect.data.type = 'box'
+          addBox(event.downPoint, event.point, this.classification[0], undefined, 'newAnnotation', this.strokeWidth)
+
+          // const items = paper.project.getItems({
+          //   data: {
+          //     type: 'box'
+          //   }
+          // })
+          // // console.log(items)
+          // const newRect = new paper.Path.Rectangle(event.downPoint, event.point)
+          // newRect.strokeColor = colorToRGBA(this.classification[0].strokeColor)// new paper.Color(getDefaultColor().stroke)
+          // newRect.fillColor = colorToRGBA(this.classification[0].fillColor) // new paper.Color(getDefaultColor().fill)
+          // newRect.strokeWidth = this.strokeWidth
+          // newRect.data.status = 'newAnnotation'
+          // newRect.data.class = this.classification[0].value
+          // newRect.data.id = items.length + 1
+          // newRect.data.type = 'box'
+          //
+          // const textRect = new paper.Path.Rectangle(event.downPoint, new paper.Size(14, 10))
+          // textRect.strokeColor = colorToRGBA(this.classification[0].strokeColor)// new paper.Color(getDefaultColor().stroke)
+          // textRect.fillColor = textRect.strokeColor // new paper.Color(getDefaultColor().fill)
+          // textRect.strokeWidth = this.strokeWidth
+          // textRect.data.status = 'newAnnotation'
+          // textRect.data.class = this.classification[0].value
+          // textRect.data.id = items.length + 1
+          // textRect.data.type = 'background'
+          // textRect.locked = true
+          //
+          // const text = new paper.PointText({
+          //   point: [newRect.bounds.topLeft.x + 2, newRect.bounds.topLeft.y + 10],
+          //   content: newRect.data.id,
+          //   fillColor: 'black',
+          //   // strokeColor: newRect.strokeColor,
+          //   fontFamily: 'Normal',
+          //   // fontWeight: 'bold',
+          //   fontSize: 14
+          // })
+          // text.locked = true
+          //
+          // // Create a group from the two paths:
+          // const group = new paper.Group({
+          //   children: [newRect, textRect, text]
+          // })
+
           this.setAnnotationEditsFlag(true)
         }
       }

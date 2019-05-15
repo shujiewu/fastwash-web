@@ -33,9 +33,12 @@ export default {
       this.selectionGroup.bounds.selected = false
       if (hitResult) {
         if (this.state === 'edit') {
+          // console.log(hitResult)
           if (hitResult.type === 'bounds') {
+            // 放大缩小
             this.toolMode = 'transform'
           } else {
+            // 移动
             paper.project.deselectAll()
             hitResult.item.selected = true
             this.toolMode = 'move'
@@ -48,6 +51,21 @@ export default {
       } else {
         paper.project.deselectAll()
         this.toolMode = 'select'
+      }
+    }
+
+    // 鼠标抬起事件
+    const toolUp = event => {
+      // console.log(paper.project.selectedItems)
+      if (paper.project.selectedItems.length > 0) {
+        this.selectionGroup = paper.project.selectedItems[0].parent// new paper.Group(paper.project.selectedItems)
+        if (!this.selectionGroup.isEmpty()) {
+          this.selectionGroup.bounds.selected = true
+        }
+        this.setSelectedItems(paper.project.selectedItems)
+      } else {
+        this.selectionGroup = new paper.Group([])
+        this.setSelectedItems([])
       }
     }
 
@@ -98,19 +116,12 @@ export default {
             paper.project.selectedItems[0].data.status = 'editAnnotation'
           }
         }
-
+        // this.selectionGroup.children[1].translate(event.delta)
+        // this.selectionGroup.children[2].translate(event.delta)
         this.selectionGroup.scale(horizScaleFactor, vertScaleFactor, transfromCenter)
+
         this.setAnnotationEditsFlag(true)
       }
-    }
-
-    // 鼠标抬起事件
-    const toolUp = event => {
-      this.selectionGroup = new paper.Group(paper.project.selectedItems)
-      if (!this.selectionGroup.isEmpty()) {
-        this.selectionGroup.bounds.selected = true
-      }
-      this.setSelectedItems(paper.project.selectedItems)
     }
 
     // 鼠标移动事件
@@ -138,12 +149,33 @@ export default {
         if (event.key === 'delete') {
           if (paper.project.selectedItems) {
             this.selectionGroup.bounds.selected = false
-            paper.project.selectedItems.forEach(item => {
-              if (item.className !== 'Layer') {
-                item.remove()
+            var id = ''
+            paper.project.selectedItems.forEach(box => {
+              if (box.data.type === 'box') {
+                id = box.data.id
               }
+              box.parent.remove()
             })
-            this.setSelectedItems(paper.project.selectedItems)
+            if (id !== '') {
+              const items = paper.project.getItems({
+                className: 'Path'
+              })
+              const textItems = paper.project.getItems({
+                className: 'PointText'
+              })
+              textItems.forEach(item => {
+                if (item.content > id) {
+                  item.content = item.content - 1
+                }
+              })
+              items.forEach(item => {
+                if (item.data.id > id) {
+                  item.data.id = item.data.id - 1
+                }
+              })
+            }
+            this.setSelectedItems([])
+            // this.setSelectedItems([paper.project.selectedItems])
             this.setAnnotationEditsFlag(true)
           }
         }
@@ -166,6 +198,10 @@ export default {
     prepareCanvas() {
 
     },
+    resetSelection() {
+      this.selectionGroup.bounds.selected = false
+    },
+
     initialiseTool() {
       this.prepareCanvas()
       this.toolMove.activate()

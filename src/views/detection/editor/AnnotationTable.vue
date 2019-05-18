@@ -10,47 +10,31 @@
       size="mini"
       @current-change="handleCurrentChange">
 
-      <!--      <el-table-column align="center" label="Tag" min-width="5">-->
-      <!--        <template slot-scope="scope">-->
-      <!--          <div />-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
       <el-table-column align="center" label="Id" min-width="10">
         <template slot-scope="scope">
-          <div :style="{ background: tagFilter(scope.row.tag), color:'#FFFFFF'}">[{{ scope.row.id }}]</div>
+          <div :style="{ background: tagFilter(scope.row.tag), color:'#FFFFFF'}">{{ scope.row.id }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Position" min-width="40">
+      <el-table-column align="center" label="Position" min-width="45">
         <template slot-scope="scope">
           <span>{{ scope.row.box }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Status" min-width="30">
+      <el-table-column align="center" label="Status" min-width="25">
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
             {{ row.status | statusNameFilter }}
           </el-tag>
         </template>
       </el-table-column>
-      <!--      <el-table-column align="center" label="tag" min-width="20">-->
-      <!--        <template slot-scope="scope">-->
-      <!--          <span>{{ scope.row.tag }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-
-      <!--      <el-table-column align="center" label="Class">-->
-      <!--        <template slot-scope="scope">-->
-      <!--          <span>{{ scope.row.tag }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-
-      <!--      <el-table-column align="center" label="Property">-->
-      <!--        <template slot-scope="scope">-->
-      <!--          <span>{{ scope.row.prop }}</span>-->
-      <!--        </template>-->
-      <!--      </el-table-column>-->
-
+      <el-table-column
+        fixed="right"
+        min-width="15">>
+        <template slot-scope="scope">
+          <el-button type="text" size="small" @click="handleDelete(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -81,11 +65,7 @@ export default {
   data() {
     return {
       list: [],
-      listLoading: true,
-      listQuery: {
-        page: 1,
-        limit: 10
-      },
+      listLoading: false,
       showHeader: false,
       currentRow: null
     }
@@ -129,14 +109,14 @@ export default {
           var select = this.list.filter(item => item.id === this.selectedItems[0].data.id)
           this.$refs.annotationTable.setCurrentRow(select[0])
         }
+      } else {
+        this.$refs.annotationTable.setCurrentRow(null)
       }
     }
   },
-  created() {
-    this.getList()
-  },
   methods: {
     ...mapActions({
+      setSelectedItems: 'detection/setSelectedItems',
       setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
     }),
     tagFilter(tag) {
@@ -170,17 +150,47 @@ export default {
         })
         if (items.length > 0) {
           paper.project.deselectAll()
-          // this.$refs.toolMove.resetSelection()
           items[0].selected = true
           this.setSelectedItems(paper.project.selectedItems)
         }
-        // paper.project.selectedItems = items.filter(item => item.data.id === val.id)
-        // console.log(paper.project.selectedItems)
       }
     },
-    async getList() {
-      this.listLoading = true
-      this.listLoading = false
+    handleDelete(val) {
+      if (val !== null) {
+        var id = val.id
+        const items = paper.project.getItems({
+          data: {
+            type: 'box',
+            id: id
+          }
+        })
+        items.forEach(box => {
+          if (box.data.type === 'box') {
+            id = box.data.id
+          }
+          box.parent.remove()
+        })
+        if (id !== '') {
+          const items = paper.project.getItems({
+            className: 'Path'
+          })
+          const textItems = paper.project.getItems({
+            className: 'PointText'
+          })
+          textItems.forEach(item => {
+            if (item.content > id) {
+              item.content = item.content - 1
+            }
+          })
+          items.forEach(item => {
+            if (item.data.id > id) {
+              item.data.id = item.data.id - 1
+            }
+          })
+        }
+        this.setSelectedItems([])
+        this.setAnnotationEditsFlag(true)
+      }
     },
     Abs2rel(pt) {
       return {

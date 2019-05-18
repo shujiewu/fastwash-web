@@ -17,7 +17,7 @@
             :value="item.value"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="边框颜色">
+      <el-form-item label="边框颜色" style="font-size: 28px">
         <el-col :span="8">
           <el-color-picker
             :disabled="!hasSelection"
@@ -157,6 +157,7 @@ export default {
 
 <style scoped>
   .component-item {
-    /*min-height: 100px;*/
+    margin-left: 20px;
+    margin-top: 10px;
   }
 </style>

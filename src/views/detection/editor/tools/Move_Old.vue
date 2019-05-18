@@ -17,33 +17,20 @@ export default {
       toolMove: null,
       hitOptions: null,
       strokeWidth: 2,
-      selectionItem: null,
+      selectionGroup: null,
       toolMode: ''
     }
   },
   computed: {
     ...mapState({
-      state: state => state.detection.state,
-      selectedItems: state => state.detection.selectedItems
+      state: state => state.detection.state
     })
-  },
-  watch: {
-    selectedItems: function(val) {
-      if (this.selectedItems.length > 0) {
-        if (this.selectedItems[0] !== this.selectionItem) {
-          this.selectionItem = this.selectedItems[0]
-          this.toolMode = 'move'
-        }
-        // console.log(1111)
-      } else {
-        this.selectionItem = null
-      }
-    }
   },
   created() {
     let hitResult = null
     const toolDown = event => {
       hitResult = paper.project.hitTest(event.point, this.hitOptions)
+      this.selectionGroup.bounds.selected = false
       if (hitResult) {
         if (this.state === 'edit') {
           if (hitResult.type === 'bounds') {
@@ -55,25 +42,24 @@ export default {
             hitResult.item.selected = true
             this.toolMode = 'move'
           }
+
           if (paper.project.selectedItems.length > 0) {
-            this.selectionItem = paper.project.selectedItems[0]
+            this.selectionGroup = paper.project.selectedItems[0].parent// new paper.Group(paper.project.selectedItems)
+            if (!this.selectionGroup.isEmpty()) {
+              this.selectionGroup.bounds.selected = true
+            }
             this.setSelectedItems(paper.project.selectedItems)
           } else {
-            this.selectionItem = null
+            this.selectionGroup = new paper.Group([])
             this.setSelectedItems([])
           }
-          // console.log(hitResult)
         } else {
           paper.project.deselectAll()
           hitResult.item.selected = true
-          this.selectionItem = hitResult.item
-          this.setSelectedItems(paper.project.selectedItems)
           this.toolMode = 'select'
         }
       } else {
         paper.project.deselectAll()
-        this.selectionItem = null
-        this.setSelectedItems([])
         this.toolMode = 'select'
       }
     }
@@ -86,10 +72,8 @@ export default {
     // 鼠标拖动事件
     const toolDrag = event => {
       if (this.toolMode === 'move') {
-        if (this.selectionItem.parent.children.length > 0) {
-          this.selectionItem.parent.children.forEach(item => {
-            item.position = item.position.add(event.delta)
-          })
+        if (this.selectionGroup.children.length > 0) {
+          this.selectionGroup.position = this.selectionGroup.position.add(event.delta)
         } else {
           hitResult.item.position = hitResult.item.position.add(event.delta)
         }
@@ -104,55 +88,49 @@ export default {
         let newWidth = null
         let newHeight = null
         let transfromCenter = null
-
         if (hitResult && hitResult.name === 'top-left') {
-          newWidth = event.point.x - this.selectionItem.bounds.topRight.x
-          newHeight = event.point.y - this.selectionItem.bounds.bottomLeft.y
-          transfromCenter = this.selectionItem.bounds.bottomRight
+          newWidth = event.point.x - this.selectionGroup.bounds.topRight.x
+          newHeight = event.point.y - this.selectionGroup.bounds.bottomLeft.y
+          transfromCenter = this.selectionGroup.bounds.bottomRight
         } else if (hitResult && hitResult.name === 'top-right') {
-          newWidth = event.point.x - this.selectionItem.bounds.topLeft.x
-          newHeight = event.point.y - this.selectionItem.bounds.bottomRight.y
-          transfromCenter = this.selectionItem.bounds.bottomLeft
+          newWidth = event.point.x - this.selectionGroup.bounds.topLeft.x
+          newHeight = event.point.y - this.selectionGroup.bounds.bottomRight.y
+          transfromCenter = this.selectionGroup.bounds.bottomLeft
         } else if (hitResult && hitResult.name === 'bottom-right') {
-          newWidth = event.point.x - this.selectionItem.bounds.bottomLeft.x
-          newHeight = event.point.y - this.selectionItem.bounds.topRight.y
-          transfromCenter = this.selectionItem.bounds.topLeft
+          newWidth = event.point.x - this.selectionGroup.bounds.bottomLeft.x
+          newHeight = event.point.y - this.selectionGroup.bounds.topRight.y
+          transfromCenter = this.selectionGroup.bounds.topLeft
         } else if (hitResult && hitResult.name === 'bottom-left') {
-          newWidth = event.point.x - this.selectionItem.bounds.bottomRight.x
-          newHeight = event.point.y - this.selectionItem.bounds.topLeft.y
-          transfromCenter = this.selectionItem.bounds.topRight
+          newWidth = event.point.x - this.selectionGroup.bounds.bottomRight.x
+          newHeight = event.point.y - this.selectionGroup.bounds.topLeft.y
+          transfromCenter = this.selectionGroup.bounds.topRight
         }
 
-        const horizScaleFactor = Math.abs(newWidth / this.selectionItem.bounds.width)
-        const vertScaleFactor = Math.abs(newHeight / this.selectionItem.bounds.height)
+        const horizScaleFactor = Math.abs(newWidth / this.selectionGroup.bounds.width)
+        const vertScaleFactor = Math.abs(newHeight / this.selectionGroup.bounds.height)
 
         // hitResult.item.position = hitResult.item.position.add(event.delta)
         // if (hitResult.item.data.status === 'originalAnnotation') {
         //   hitResult.item.data.status = 'editAnnotation'
         // }
 
-        if (this.selectionItem.data.status === 'originalAnnotation') {
-          this.selectionItem.data.status = 'editAnnotation'
+        if (paper.project.selectedItems.length > 0) {
+          if (paper.project.selectedItems[0].data.status === 'originalAnnotation') {
+            paper.project.selectedItems[0].data.status = 'editAnnotation'
+          }
         }
+        // this.selectionGroup.children[1].translate(event.delta)
+        // this.selectionGroup.children[2].translate(event.delta)
+        this.selectionGroup.scale(horizScaleFactor, vertScaleFactor, transfromCenter)
 
-        if (this.selectionItem.parent.children.length > 0) {
-          this.selectionItem.parent.children.filter(item => item !== this.selectionItem).forEach(item => {
-            if (item.className === 'PointText') {
-              item.position = new paper.Point(this.selectionItem.bounds.x + item.bounds.width / 2 + 4, this.selectionItem.bounds.y + item.bounds.height / 2)
-            } else {
-              item.position = new paper.Point(this.selectionItem.bounds.x + item.bounds.width / 2, this.selectionItem.bounds.y + item.bounds.height / 2)
-            }
-          })
-        }
-        this.selectionItem.scale(horizScaleFactor, vertScaleFactor, transfromCenter)
         this.setAnnotationEditsFlag(true)
       }
     }
 
     // 鼠标移动事件
     const toolMove = event => {
-      if (this.selectionItem && this.selectionItem.hitTest(event.point, this.hitOptions) && this.state === 'edit') {
-        const hit = this.selectionItem.hitTest(event.point, this.hitOptions)
+      if (this.selectionGroup && this.selectionGroup.hitTest(event.point, this.hitOptions) && this.state === 'edit') {
+        const hit = this.selectionGroup.hitTest(event.point, this.hitOptions)
         if (hit.name === 'bottom-right' || hit.name === 'top-left') {
           paper.view.element.style.cursor = 'nwse-resize'
         } else if (hit.name === 'bottom-left' || hit.name === 'top-right') {
@@ -172,9 +150,8 @@ export default {
     const toolKeyUp = event => {
       if (this.active) {
         if (event.key === 'delete') {
-          if (paper.project.selectedItems.length > 0) {
-            this.selectionItem = paper.project.selectedItems[0]
-            this.selectionItem.bounds.selected = false
+          if (paper.project.selectedItems) {
+            this.selectionGroup.bounds.selected = false
             var id = ''
             paper.project.selectedItems.forEach(box => {
               if (box.data.type === 'box') {
@@ -201,7 +178,6 @@ export default {
               })
             }
             this.setSelectedItems([])
-            this.selectionItem = null
             // this.setSelectedItems([paper.project.selectedItems])
             this.setAnnotationEditsFlag(true)
           }
@@ -226,16 +202,16 @@ export default {
 
     },
     resetSelection() {
-      this.selectionItem.bounds.selected = false
+      this.selectionGroup.bounds.selected = false
     },
     setSelection() {
-      this.selectionItem.bounds.selected = false
+      this.selectionGroup.bounds.selected = false
     },
     initialiseTool() {
       this.prepareCanvas()
       this.toolMove.activate()
       this.strokeWidth = 2
-      const hitTolerance = 6
+      const hitTolerance = 4
       this.hitOptions = {
         bounds: true,
         handles: true,
@@ -243,7 +219,7 @@ export default {
         tolerance: hitTolerance,
         match: this.matchFilter
       }
-      this.selectionItem = paper.project.selectedItems.length > 0 ? paper.project.selectedItems[0] : null
+      this.selectionGroup = new paper.Group(paper.project.selectedItems)
     },
 
     matchFilter(itemToCheck) {

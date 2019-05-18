@@ -20,13 +20,13 @@
         :active="(activeTool === 'extreme-click')"
         @click.native="activeTool = 'extreme-click'"/>
     </el-radio-group>
-    <el-select v-model="selectBox" :disabled="(activeTool !== 'move')" placeholder="选择框" width="10" @change="onSelectBoxChange">
-      <el-option
-        v-for="item in boxCount"
-        :key="item"
-        :label="item"
-        :value="item"/>
-    </el-select>
+    <!--    <el-select v-model="selectBox" :disabled="(activeTool !== 'move')" placeholder="选择框" width="10" @change="onSelectBoxChange">-->
+    <!--      <el-option-->
+    <!--        v-for="item in boxCount"-->
+    <!--        :key="item"-->
+    <!--        :label="item"-->
+    <!--        :value="item"/>-->
+    <!--    </el-select>-->
     <div style="float: right">
 
       <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
@@ -43,7 +43,7 @@
         <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
       </el-button-group>
       <el-button type="text" style="margin: 0px 40px ;font-size: 20px;">标注进度：{{ total-remain }}/{{ total }}</el-button>
-<!--      <div style="font-size: 20px;white-space: nowrap;"></div>-->
+      <!--      <div style="font-size: 20px;white-space: nowrap;"></div>-->
     </div>
 
   </div>
@@ -105,13 +105,43 @@ export default {
       }
     }
   },
+  mounted() {
+    document.addEventListener('keydown', this.handleEvent)
+  },
   methods: {
     ...mapActions({
       setState: 'detection/setState',
       saveAnnotation: 'detection/saveAnnotation',
       setSelectedItems: 'detection/setSelectedItems'
     }),
-
+    handleEvent(event) {
+      // console.log(event)
+      if (event.key === 's' && event.ctrlKey) {
+        this.setActiveTool('move')
+        event.preventDefault()
+        event.returnValue = false
+        return false
+      } else if (event.keyCode === 'm' && event.ctrlKey) {
+        this.setActiveTool('zoom')
+        event.preventDefault()
+        event.returnValue = false
+        return false
+      } else if (event.keyCode === ',' && event.ctrlKey) {
+        this.setActiveTool('rectangle')
+        event.preventDefault()
+        event.returnValue = false
+        return false
+      } else if (event.keyCode === '.' && event.ctrlKey) {
+        this.setActiveTool('extreme-click')
+        event.preventDefault()
+        event.returnValue = false
+        return false
+      }
+    },
+    setActiveTool(val) {
+      console.log(val)
+      this.activeTool = val
+    },
     onSelectBoxChange() {
       const items = paper.project.getItems({
         data: {
@@ -126,7 +156,6 @@ export default {
         this.setSelectedItems(paper.project.selectedItems)
       }
     },
-
     nextItem() {
       this.$emit('nextItem')
       this.setState('edit')

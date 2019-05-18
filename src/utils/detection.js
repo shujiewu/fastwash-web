@@ -18,7 +18,18 @@ export function addBox(downPoint, point, classification, prop, status, strokeWid
   newRect.data.prop = prop
 
   const leftTopPoint = new paper.Point(newRect.bounds.topLeft.x + 2, newRect.bounds.topLeft.y + 2)
-  const textRect = new paper.Path.Rectangle(leftTopPoint, new paper.Size(14, 14))
+
+  const text = new paper.PointText({
+    point: [leftTopPoint.x + 2, leftTopPoint.y + 10],
+    content: newRect.data.id,
+    fillColor: 'black',
+    // strokeColor: newRect.strokeColor,
+    fontFamily: 'Normal',
+    fontSize: 14
+  })
+  text.locked = true
+
+  const textRect = new paper.Path.Rectangle(leftTopPoint, new paper.Point(text.bounds.bottomRight.x + 4, text.bounds.bottomRight.y))
   textRect.strokeColor = colorToRGBA(classification.strokeColor)
   textRect.fillColor = textRect.strokeColor
   textRect.strokeWidth = strokeWidth
@@ -27,17 +38,6 @@ export function addBox(downPoint, point, classification, prop, status, strokeWid
   textRect.data.id = items.length + 1
   textRect.data.type = 'background'
   textRect.locked = true
-
-  const text = new paper.PointText({
-    point: [leftTopPoint.x + 2, leftTopPoint.y + 10],
-    content: newRect.data.id,
-    fillColor: 'black',
-    // strokeColor: newRect.strokeColor,
-    fontFamily: 'Normal',
-    // fontWeight: 'bold',
-    fontSize: 14
-  })
-  text.locked = true
 
   // Create a group from the two paths:
   new paper.Group({

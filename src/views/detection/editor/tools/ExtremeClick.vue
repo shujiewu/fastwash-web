@@ -124,6 +124,7 @@ export default {
       this.toolCircle.activate()
       this.radius = 2
       this.strokeWidth = 2
+      paper.view.element.style.cursor = 'auto'
     }
   }
 }

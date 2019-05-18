@@ -7,9 +7,6 @@ export function addBox(downPoint, point, classification, prop, status, strokeWid
       type: 'box'
     }
   })
-
-  // console.log(downPoint)
-  // console.log(point)
   const newRect = new paper.Path.Rectangle(downPoint, point)
   newRect.strokeColor = colorToRGBA(classification.strokeColor)
   newRect.fillColor = colorToRGBA(classification.fillColor)

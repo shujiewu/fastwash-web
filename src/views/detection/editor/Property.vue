@@ -125,6 +125,6 @@ export default {
 
 <style scoped>
   .component-item{
-    min-height: 250px;
+    /*min-height: 250px;*/
   }
 </style>

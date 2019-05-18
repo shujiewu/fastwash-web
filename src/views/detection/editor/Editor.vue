@@ -1,17 +1,14 @@
 <template>
-  <div class="editor">
-    <div v-loading="loading" class="editor_container">
-      <img
-        id="bg_img"
-        src=" "
-        class="img2">
+  <div class="editor" @mousewheel.prevent>
+    <div v-loading="loading" id="bg_img" class="editor_container">
+      <!--      <img-->
+      <!--        -->
+      <!--        src=" "-->
+      <!--        class="img2">-->
       <canvas
         id="detection_canvas"
+        resize="true"
         class="annotation_canvas"/>
-    </div>
-    <div style="margin-top: 10px">
-      <span>画布大小</span>
-      <el-slider v-model="zoom" @change="onZoomChange"/>
     </div>
   </div>
 </template>
@@ -19,7 +16,6 @@
 <script>
 import { getItem } from '@/api/detection'
 import paper from 'paper'
-// import { getDefaultColor } from '@/utils/color'
 import { transformResponse } from '@/utils/proto'
 import { mapState, mapActions } from 'vuex'
 import { uint8ToString } from '@/utils/utils'
@@ -29,13 +25,12 @@ export default {
   name: 'Editor',
   data() {
     return {
-      zoom: 0,
       flag: true,
       loading: true,
-      // 背景图片缓存
-      img: new Image(),
       bg_dom: null,
       cvs_dom: null
+      // img: new Image(),
+      // zoomVal: 50
     }
   },
   computed: {
@@ -55,10 +50,12 @@ export default {
       } else {
         this.drawSaveAnnotation()
       }
-    },
-    zoom: function(val) {
-      console.log(val)
     }
+    // zoomVal: function(val) {
+    //   if (val !== 0) {
+    //     paper.view.zoom = val / 50
+    //   }
+    // }
   },
   mounted() {
     this.load()
@@ -85,16 +82,12 @@ export default {
     setProgress(remain, total) {
       this.$emit('setProgress', remain, total)
     },
-    onZoomChange(val) {
-      console.log(val)
-    },
     resetCanvas() {
       this.bg_dom = document.getElementById('bg_img')
       this.cvs_dom = document.getElementById('detection_canvas')
       getItem().then(response => {
         this.setProgress(response.unannotated_nums, response.all_nums)
         const frameResult = transformResponse(response.data)
-
         this.drawBackground(frameResult)
       })
     },
@@ -102,21 +95,22 @@ export default {
       if (this.originalAnnotation != null) {
         // 保存当前
         this.saveAnnotation()
-        paper.project.clear()
+        paper.project.activeLayer.removeChildren()
         this.drawBoxes(this.originalAnnotation)
         this.setAnnotationEditsFlag(true)
       }
     },
     deleteAnnotation() {
       if (this.currentAnnotation != null) {
-        paper.project.clear()
+        paper.project.activeLayer.removeChildren()
+        // paper.project.clear()
         this.saveAnnotation()
         this.setAnnotationEditsFlag(true)
       }
     },
     resetAnnotation() {
       if (this.originalAnnotation != null) {
-        paper.project.clear()
+        paper.project.activeLayer.removeChildren()
         this.drawBoxes(this.originalAnnotation)
         this.saveAnnotation()
         this.setAnnotationEditsFlag(true)
@@ -124,7 +118,7 @@ export default {
     },
     drawSaveAnnotation() {
       if (this.currentAnnotation != null) {
-        paper.project.clear()
+        paper.project.activeLayer.removeChildren()
         for (const index in this.currentAnnotation) {
           this.drawItem(this.currentAnnotation[index], 'current', index)
         }
@@ -132,30 +126,64 @@ export default {
       }
     },
     drawBackground(frameResult) {
-      this.bg_dom.src = 'data:image/png;base64,' + btoa(uint8ToString(frameResult.detImg.blob)) // 'data:image/png;base64,' + data.img
+      var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
+      this.setShape(shape)
+
+      // this.cvs_dom.width = this.bg_dom.offsetWidth
+      this.bg_dom.style.height = (shape[0] * this.bg_dom.offsetWidth / shape[1]) + 'px'
+      this.cvs_dom.width = this.bg_dom.offsetWidth
+      this.cvs_dom.height = this.bg_dom.offsetHeight
+      paper.view.viewSize.width = this.cvs_dom.offsetWidth
+      paper.view.viewSize.height = this.cvs_dom.offsetHeight
+      var raster = new paper.Raster('data:image/png;base64,' + btoa(uint8ToString(frameResult.detImg.blob)))
+      raster.position = paper.view.center
       const load = () => {
-        paper.view.viewSize.width = this.bg_dom.width
-        paper.view.viewSize.height = this.bg_dom.height
-
-        var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
-        this.setShape(shape)
-        console.log(shape)
+        raster.width = paper.view.viewSize.width
+        raster.height = paper.view.viewSize.height
+        raster.locked = true
+        var boxLayer = new paper.Layer()
+        paper.project.addLayer(boxLayer)
+        boxLayer.activate()
         this.drawBoxes(frameResult)
-
         frameResult.detImg = {}
         this.setOriginalAnnotation(frameResult)
         this.saveAnnotation()
         this.setAnnotationEditsFlag(true)
         this.loading = false
       }
-      this.bg_dom.onload = load
-      const resize = event => {
-        // 修改所有item
-        // raster.position = paper.view.center
-        // raster.size = new paper.Size(paper.view.viewSize.width, paper.view.viewSize.height)
-        // paper.view.center = new paper.Point(paper.view.center.x + event.delta.x, paper.view.center.y + event.delta.y)
-      }
-      paper.view.onResize = resize
+      raster.onLoad = load
+
+      // console.log(shape[0])
+      // console.log(shape[1])
+      // console.log(this.cvs_dom.height)
+      // console.log(this.cvs_dom.width)
+      // console.log(this.bg_dom.offsetHeight)
+      // console.log(this.cvs_dom.width)
+      // console.log(paper.view.center)
+      // var raster = new paper.Raster({
+      //   source: this.bg_dom,
+      //   position: paper.view.center
+      // })
+
+      // this.bg_dom.src = ''
+      // console.log(frameResult)
+      // this.setImage('data:image/png;base64,' + btoa(uint8ToString(frameResult.detImg.blob)))
+      // this.bg_dom.src = 'data:image/png;base64,' + btoa(uint8ToString(frameResult.detImg.blob)) // 'data:image/png;base64,' + data.img
+      // const load = () => {
+      //
+      // }
+      // this.bg_dom.onload = load
+      // const resize = event => {
+      //   // 修改所有item
+      //   // raster.position = paper.view.center
+      //   // raster.size = new paper.Size(paper.view.viewSize.width, paper.view.viewSize.height)
+      //   // paper.view.center = new paper.Point(paper.view.center.x + event.delta.x, paper.view.center.y + event.delta.y)
+      // }
+      // paper.view.onResize = resize
+
+      // paper.view.onMouseDown = event => {
+      //   console.log(event)
+      // }
     },
     drawBoxes(frameResult) {
       if ('items' in frameResult) {
@@ -295,8 +323,8 @@ export default {
     // },
     Rel2abs(pt) {
       return {
-        x: Math.round(pt.x * this.bg_dom.width),
-        y: Math.round(pt.y * this.bg_dom.height)
+        x: Math.round(pt.x * paper.view.viewSize.width),
+        y: Math.round(pt.y * paper.view.viewSize.height)
       }
     }
     // var text = new paper.PointText(new paper.Point(30, 30))
@@ -326,10 +354,11 @@ export default {
 
 <style scoped>
   .annotation_canvas {
-    position: absolute;
+    /*position: absolute;*/
     /*flex: 1 1 auto;*/
     /*margin: 10px;*/
-    height: auto;
+    /*height: 100%;*/
+    height: 100%;
     width: 100%;
   }
   .pointers-no {
@@ -344,6 +373,8 @@ export default {
     display: flex;
     flex: 1 1 auto;
     pointer-events: auto;
+    height: 100%;
+    width: 100%;
   }
   .img2 {
     height: 100%;

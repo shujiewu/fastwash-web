@@ -110,6 +110,7 @@ export default {
       this.prepareCanvas()
       this.toolRect.activate()
       this.strokeWidth = 2
+      paper.view.element.style.cursor = 'auto'
     }
   }
 }

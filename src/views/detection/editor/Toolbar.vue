@@ -7,6 +7,10 @@
         ref="toolMove"
         :active="(activeTool === 'move')"
         @click.native="activeTool = 'move'"/>
+      <tool-zoom
+        id="tool-zoom"
+        :active="(activeTool === 'zoom')"
+        @click.native="activeTool = 'zoom'"/>
       <tool-rectangle
         id="tool-rectangle"
         :active="(activeTool === 'rectangle')"
@@ -16,15 +20,15 @@
         :active="(activeTool === 'extreme-click')"
         @click.native="activeTool = 'extreme-click'"/>
     </el-radio-group>
-    <el-select v-model="selectBox" :disabled="(activeTool !== 'move')" placeholder="选择框" @change="onSelectBoxChange">
+    <el-select v-model="selectBox" :disabled="(activeTool !== 'move')" placeholder="选择框" width="10" @change="onSelectBoxChange">
       <el-option
         v-for="item in boxCount"
         :key="item"
         :label="item"
         :value="item"/>
     </el-select>
-
     <div style="float: right">
+
       <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
         <el-option
           v-for="item in options"
@@ -32,11 +36,14 @@
           :label="item.label"
           :value="item.value"/>
       </el-select>
+
       <el-button-group >
         <el-button type="primary" icon="el-icon-delete-solid" @click="deleteItem">清空</el-button>
         <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
         <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
       </el-button-group>
+      <el-button type="text" style="margin: 0px 40px ;font-size: 20px;">标注进度：{{ total-remain }}/{{ total }}</el-button>
+<!--      <div style="font-size: 20px;white-space: nowrap;"></div>-->
     </div>
 
   </div>
@@ -48,6 +55,7 @@ import toolRectangle from './tools/Rectangle.vue'
 import extremeClick from './tools/ExtremeClick.vue'
 import toolMove from './tools/Move.vue'
 import toolSubmit from './tools/Submit.vue'
+import toolZoom from './tools/Zoom'
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
 import { transformSubmit } from '@/utils/proto'
@@ -59,7 +67,8 @@ export default {
     'toolRectangle': toolRectangle,
     'toolMove': toolMove,
     'toolSubmit': toolSubmit,
-    'extremeClick': extremeClick
+    'extremeClick': extremeClick,
+    'toolZoom': toolZoom
   },
   data() {
     return {
@@ -72,7 +81,10 @@ export default {
         label: '当前标注'
       }],
       state: 'edit',
-      selectBox: ''
+      selectBox: '',
+      remain: 0,
+      total: 0,
+      percentage: 0
       // boxList: []
     }
   },
@@ -143,6 +155,13 @@ export default {
       }).catch(() => {
       })
     },
+    setProgress(remain, total) {
+      this.remain = remain
+      this.total = total
+      if (remain !== undefined && total !== undefined && remain > 0 && total > 0) {
+        this.percentage = Math.round((total - remain) / total * 100)
+      }
+    },
     onSubmit() {
       // 先保存当前再提交
       this.saveAnnotation()
@@ -200,6 +219,8 @@ export default {
 
 <style scoped>
   .header {
+    /*border-right: solid 1px rgba(255,255,255,0.10);*/
+    /*padding-right: 10px;*/
     /*box-shadow: 0 1px 3px 0 rgba(0,0,0,.12), 0 0 3px 0 rgba(0,0,0,.04);*/
     background-color:  #fff;
     /*padding: 3px;*/

@@ -1,51 +1,59 @@
 <template>
   <!--  <el-container>-->
   <div class="header">
-    <el-radio-group v-model="activeTool" fill="#67C23A">
-      <tool-move
-        id="tool-move"
-        ref="toolMove"
-        :active="(activeTool === 'move')"
-        @click.native="activeTool = 'move'"/>
-      <tool-zoom
-        id="tool-zoom"
-        :active="(activeTool === 'zoom')"
-        @click.native="activeTool = 'zoom'"/>
-      <tool-rectangle
-        id="tool-rectangle"
-        :active="(activeTool === 'rectangle')"
-        @click.native="activeTool = 'rectangle'"/>
-      <extreme-click
-        id="extreme-click"
-        :active="(activeTool === 'extreme-click')"
-        @click.native="activeTool = 'extreme-click'"/>
-    </el-radio-group>
-    <!--    <el-select v-model="selectBox" :disabled="(activeTool !== 'move')" placeholder="选择框" width="10" @change="onSelectBoxChange">-->
-    <!--      <el-option-->
-    <!--        v-for="item in boxCount"-->
-    <!--        :key="item"-->
-    <!--        :label="item"-->
-    <!--        :value="item"/>-->
-    <!--    </el-select>-->
-    <div style="float: right">
+    <el-col :lg="18">
+      <el-radio-group v-model="activeTool" fill="#67C23A">
+        <tool-move
+          id="tool-move"
+          ref="toolMove"
+          :active="(activeTool === 'move')"
+          @click.native="activeTool = 'move'"/>
+        <tool-zoom
+          id="tool-zoom"
+          :active="(activeTool === 'zoom')"
+          @click.native="activeTool = 'zoom'"/>
+        <tool-rectangle
+          id="tool-rectangle"
+          :active="(activeTool === 'rectangle')"
+          @click.native="activeTool = 'rectangle'"/>
+        <extreme-click
+          id="extreme-click"
+          :active="(activeTool === 'extreme-click')"
+          @click.native="activeTool = 'extreme-click'"/>
+      </el-radio-group>
+      <!--    <el-select v-model="selectBox" :disabled="(activeTool !== 'move')" placeholder="选择框" width="10" @change="onSelectBoxChange">-->
+      <!--      <el-option-->
+      <!--        v-for="item in boxCount"-->
+      <!--        :key="item"-->
+      <!--        :label="item"-->
+      <!--        :value="item"/>-->
+      <!--    </el-select>-->
+      <div style="float: right">
 
-      <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"/>
-      </el-select>
+        <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"/>
+        </el-select>
 
-      <el-button-group >
-        <el-button type="primary" icon="el-icon-delete-solid" @click="deleteItem">清空</el-button>
-        <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
-        <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
-      </el-button-group>
-      <el-button type="text" style="margin: 0px 40px ;font-size: 20px;">标注进度：{{ total-remain }}/{{ total }}</el-button>
-      <!--      <div style="font-size: 20px;white-space: nowrap;"></div>-->
-    </div>
+        <el-button-group >
+          <el-button type="primary" icon="el-icon-delete-solid" @click="deleteItem">清空</el-button>
+          <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
+          <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
+        </el-button-group>
 
+        <!--      <div style="font-size: 20px;white-space: nowrap;"></div>-->
+      </div>
+    </el-col>
+    <el-col :lg="6">
+      <div style="float: right">
+        <el-button type="text" style="margin-right:5px; font-size: 18px;">标注进度：{{ total-remain }}/{{ total }}</el-button>
+        <el-button type="primary" @click="onExport">导出<i class="el-icon-download el-icon--right"/></el-button>
+      </div>
+
+    </el-col>
   </div>
 <!--  </el-container>-->
 </template>
@@ -191,6 +199,9 @@ export default {
         this.percentage = Math.round((total - remain) / total * 100)
       }
     },
+    onExport() {
+
+    },
     onSubmit() {
       // 先保存当前再提交
       this.saveAnnotation()
@@ -252,6 +263,7 @@ export default {
     /*padding-right: 10px;*/
     /*box-shadow: 0 1px 3px 0 rgba(0,0,0,.12), 0 0 3px 0 rgba(0,0,0,.04);*/
     background-color:  #fff;
+    height: 60px;
     /*padding: 3px;*/
   }
 </style>

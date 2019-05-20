@@ -215,6 +215,7 @@ export default {
           status = item.status === undefined ? 'originalAnnotation' : item.status
           iclass = this.classification.filter(c => c.value === item.class)[0]
         }
+        // console.log(item)
         addBox([tl.x, tl.y], [wh.x, wh.y], iclass, item.prop, status, 2)
 
         //

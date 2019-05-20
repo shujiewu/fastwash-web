@@ -66,12 +66,12 @@ export default {
       }
     },
     selectedItems: function(val) {
-      // bug
       if (this.selectedItems.length > 0) {
-        // console.log(this.selectedItems[0])
         if (this.selectedItems[0].data.prop !== undefined) {
+          console.log(this.selectedItems[0].data.prop)
           this.form = this.selectedItems[0].data.prop
         } else {
+          console.log('initForm')
           this.initForm()
         }
       }
@@ -80,10 +80,11 @@ export default {
   mounted() {
   },
   methods: {
-    ...mapActions({
-      setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
-    }),
+    // ...mapActions({
+    //   setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
+    // }),
     initForm() {
+      this.form = {}
       if (this.input.length !== 0) {
         this.input.forEach(item => {
           this.$set(this.form, item.id, item.default)
@@ -109,7 +110,7 @@ export default {
     onSubmit() {
       if (this.selectedItems.length > 0) {
         this.selectedItems[0].data.prop = JSON.parse(JSON.stringify(this.form))
-        this.setAnnotationEditsFlag(true)
+        // this.setAnnotationEditsFlag(true)
       }
     },
     onReset() {

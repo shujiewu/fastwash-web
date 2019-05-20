@@ -44,7 +44,7 @@ export default {
       //   type: 'Binary Classification',
       //   options: ['0', '1'],
       //   default: '0'
-      // }
+      // }]
     })
     return {
       code: 200,

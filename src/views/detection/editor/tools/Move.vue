@@ -18,6 +18,7 @@ export default {
       hitOptions: null,
       strokeWidth: 2,
       selectionItem: null,
+      hitResult: null,
       toolMode: ''
     }
   },
@@ -34,30 +35,30 @@ export default {
           this.selectionItem = this.selectedItems[0]
           this.toolMode = 'move'
         }
-        // console.log(1111)
       } else {
+        this.hitResult = null
         this.selectionItem = null
       }
     }
   },
   created() {
-    let hitResult = null
+    // let hitResult = this.hitResult
     const toolDown = event => {
       if (this.selectionItem !== null) {
-        hitResult = this.selectionItem.hitTest(event.point, this.hitOptions)
+        this.hitResult = this.selectionItem.hitTest(event.point, this.hitOptions)
       }
-      if (!hitResult) {
-        hitResult = paper.project.hitTest(event.point, this.hitOptions)
+      if (this.hitResult === null) {
+        this.hitResult = paper.project.hitTest(event.point, this.hitOptions)
       }
-      if (hitResult) {
+      if (this.hitResult) {
         if (this.state === 'edit') {
-          if (hitResult.type === 'bounds') {
+          if (this.hitResult.type === 'bounds') {
             // 放大缩小
             this.toolMode = 'transform'
           } else {
             // 移动
             paper.project.deselectAll()
-            hitResult.item.selected = true
+            this.hitResult.item.selected = true
             this.toolMode = 'move'
           }
           if (paper.project.selectedItems.length > 0) {
@@ -67,11 +68,10 @@ export default {
             this.selectionItem = null
             this.setSelectedItems([])
           }
-          // console.log(hitResult)
         } else {
           paper.project.deselectAll()
-          hitResult.item.selected = true
-          this.selectionItem = hitResult.item
+          this.hitResult.item.selected = true
+          this.selectionItem = this.hitResult.item
           this.setSelectedItems(paper.project.selectedItems)
           this.toolMode = 'select'
         }
@@ -90,19 +90,19 @@ export default {
 
     // 鼠标拖动事件
     const toolDrag = event => {
-      if (this.toolMode === 'move') {
+      if (this.toolMode === 'move' && this.selectionItem !== null) {
         if (this.selectionItem.parent.children.length > 0) {
           this.selectionItem.parent.children.forEach(item => {
             item.position = item.position.add(event.delta)
           })
         } else {
-          hitResult.item.position = hitResult.item.position.add(event.delta)
+          this.hitResult.item.position = this.hitResult.item.position.add(event.delta)
         }
-        if (hitResult.item.data.status === 'originalAnnotation') {
-          hitResult.item.data.status = 'editAnnotation'
+        if (this.hitResult.item.data.status === 'originalAnnotation') {
+          this.hitResult.item.data.status = 'editAnnotation'
         }
         this.setAnnotationEditsFlag(true)
-      } else if (this.toolMode === 'transform') {
+      } else if (this.toolMode === 'transform' && this.selectionItem !== null) {
         // if (event.point.x < 0 || event.point.y < 0) {
         //   paper.view.center = new paper.Point(paper.view.center.x + event.delta.x, paper.view.center.y + event.delta.y)
         // }
@@ -110,19 +110,19 @@ export default {
         let newHeight = null
         let transfromCenter = null
 
-        if (hitResult && hitResult.name === 'top-left') {
+        if (this.hitResult && this.hitResult.name === 'top-left') {
           newWidth = event.point.x - this.selectionItem.bounds.topRight.x
           newHeight = event.point.y - this.selectionItem.bounds.bottomLeft.y
           transfromCenter = this.selectionItem.bounds.bottomRight
-        } else if (hitResult && hitResult.name === 'top-right') {
+        } else if (this.hitResult && this.hitResult.name === 'top-right') {
           newWidth = event.point.x - this.selectionItem.bounds.topLeft.x
           newHeight = event.point.y - this.selectionItem.bounds.bottomRight.y
           transfromCenter = this.selectionItem.bounds.bottomLeft
-        } else if (hitResult && hitResult.name === 'bottom-right') {
+        } else if (this.hitResult && this.hitResult.name === 'bottom-right') {
           newWidth = event.point.x - this.selectionItem.bounds.bottomLeft.x
           newHeight = event.point.y - this.selectionItem.bounds.topRight.y
           transfromCenter = this.selectionItem.bounds.topLeft
-        } else if (hitResult && hitResult.name === 'bottom-left') {
+        } else if (this.hitResult && this.hitResult.name === 'bottom-left') {
           newWidth = event.point.x - this.selectionItem.bounds.bottomRight.x
           newHeight = event.point.y - this.selectionItem.bounds.topLeft.y
           transfromCenter = this.selectionItem.bounds.topRight

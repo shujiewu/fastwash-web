@@ -28,15 +28,15 @@
             :key="option"/>
         </el-select>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">保存</el-button>
-        <el-button @click="onReset">重置</el-button>
-      </el-form-item>
+      <!--      <el-form-item>-->
+      <!--        <el-button type="primary" @click="onSubmit">保存</el-button>-->
+      <!--        <el-button @click="onReset">重置</el-button>-->
+      <!--      </el-form-item>-->
     </el-form>
   </div>
 </template>
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 export default {
   name: 'Property',
   data() {
@@ -68,14 +68,29 @@ export default {
     selectedItems: function(val) {
       if (this.selectedItems.length > 0) {
         if (this.selectedItems[0].data.prop !== undefined) {
-          console.log(this.selectedItems[0].data.prop)
+          // console.log(this.selectedItems[0].data.prop)
           this.form = this.selectedItems[0].data.prop
         } else {
-          console.log('initForm')
+          // console.log('initForm')
           this.initForm()
         }
       }
+    },
+    form: {
+      deep: true,
+      handler: function(newVal) {
+        if (this.selectedItems.length > 0) {
+          this.selectedItems[0].data.prop = JSON.parse(JSON.stringify(newVal))
+        }
+      }
     }
+    // form: function(val) {
+    //   console.log(val)
+    //   if (this.selectedItems.length > 0) {
+    //     this.selectedItems[0].data.prop = JSON.parse(JSON.stringify(this.form))
+    //     // this.setAnnotationEditsFlag(true)
+    //   }
+    // }
   },
   mounted() {
   },
@@ -126,6 +141,8 @@ export default {
 
 <style scoped>
   .component-item{
+    margin-left: 20px;
+    margin-top: 10px;
     /*min-height: 250px;*/
   }
 </style>

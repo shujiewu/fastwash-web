@@ -1,146 +1,261 @@
 <template>
   <div>
-    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
-      <el-form-item label="项目名称" prop="name">
-        <el-input v-model="ruleForm.name"/>
-      </el-form-item>
-      <el-form-item label="类型" prop="region">
-        <el-select v-model="ruleForm.region" placeholder="请选择标注类型">
-          <el-option label="Detection" value="Detection"/>
-          <el-option label="Video" value="Video"/>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="类别设置" prop="classification">
-        <div>
-          <el-tag
-            v-for="tag in dynamicTags"
-            :key="tag"
-            :disable-transitions="false"
-            closable
-            @close="handleClose(tag)">
-            {{ tag }}
-          </el-tag>
-          <el-input
-            v-if="inputVisible"
-            ref="saveTagInput"
-            v-model="inputValue"
-            class="input-new-tag"
-            size="small"
-            @keyup.enter.native="handleInputConfirm"
-            @blur="handleInputConfirm"
-          />
-          <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
-        </div>
-      </el-form-item>
-      <el-form-item
-        v-for="(domain, index) in ruleForm.domains"
-        :label="'属性' + index"
-        :key="domain.key"
-        :prop="'domains.' + index + '.value'"
-        :rules="{
-          required: true, message: '域名不能为空', trigger: 'blur'
-        }"
-      >
-        <el-select v-model="ruleForm.region" placeholder="请选择属性类型">
-          <el-option label="输入" value="input"/>
-          <el-option label="二分类" value="Video"/>
-          <el-option label="多分类" value="Detection"/>
-          <el-option label="多标签" value="Video"/>
-        </el-select>
-        <el-input v-model="domain.value"/><el-button @click.prevent="removeDomain(domain)">删除</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="addDomain">添加属性</el-button>
-      </el-form-item>
-      <el-form-item label="数据来源" required>
-        <!--        <el-col :span="11">-->
-        <!--          <el-form-item prop="date1">-->
-        <!--            <el-date-picker v-model="ruleForm.date1" type="date" placeholder="选择日期" style="width: 100%;"/>-->
-        <!--          </el-form-item>-->
-        <!--        </el-col>-->
-        <!--        <el-col :span="2" class="line">-</el-col>-->
-        <!--        <el-col :span="11">-->
-        <!--          <el-form-item prop="date2">-->
-        <!--            <el-time-picker v-model="ruleForm.date2" placeholder="选择时间" style="width: 100%;"/>-->
-        <!--          </el-form-item>-->
-        <!--        </el-col>-->
-      </el-form-item>
+    <el-col :span="20">
+      <el-form v-show="!jsonMode" ref="projectForm" :model="projectForm" :rules="rules" label-width="100px">
+        <el-form-item label="项目名称" prop="name">
+          <el-input v-model="projectForm.name"/>
+        </el-form-item>
+        <el-form-item label="类型" prop="type">
+          <el-select v-model="projectForm.type" placeholder="请选择标注类型">
+            <el-option label="Detection" value="Detection"/>
+            <el-option label="Video" value="Video"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="类别设置" prop="classification">
+          <div>
+            <el-row>
+              <el-input
+                v-if="inputVisible"
+                ref="saveTagInput"
+                v-model="inputValue"
+                class="input-new-class"
+                size="small"
+                @keyup.enter.native="handleInputConfirm"
+                @blur="handleInputConfirm"
+              />
+              <el-button v-else class="button-new-class" size="small" @click="showInput">+ New Class</el-button>
+              <el-col :span="8">
+                <el-col :span="8" class="line" style="text-align: center">选择边框颜色:</el-col>
+                <el-col :span="4">
+                  <el-color-picker
+                    v-model="strokeColor"
+                    show-alpha/>
+                </el-col>
+                <el-col :span="8" class="line" style="text-align: center">选择覆盖颜色:</el-col>
+                <el-col :span="4">
+                  <el-color-picker
+                    v-model="fillColor"
+                    show-alpha/>
+                </el-col>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-tag
+                v-for="tag in projectForm.classification"
+                :key="tag.value"
+                :disable-transitions="false"
+                :color = "tag.strokeColor"
+                closable
+                type="info"
+                style="font-size: 20px;color:#fff"
+                @close="handleRemoveTag(tag)">
+                {{ tag.value }}
+              </el-tag>
+            </el-row>
+          </div>
 
-      <el-form-item>
-        <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
-        <el-button @click="resetForm('ruleForm')">重置</el-button>
-      </el-form-item>
-    </el-form>
+        </el-form-item>
+        <el-form-item
+          v-for="(property, index) in projectForm.properties"
+          :label="'属性' + (index+1)"
+          :key="index"
+          :prop="'properties.' + index + '.value'"
+        >
+          <el-select v-model="property.type" placeholder="请选择属性类型">
+            <el-option label="Input" value="Input"/>
+            <el-option label="Binary Classification" value="Binary Classification"/>
+            <el-option label="Multiple Classification" value="Multiple Classification"/>
+            <el-option label="Multiple Choice" value="Multiple Choice"/>
+          </el-select>
+          <el-button type="danger" @click.prevent="removeProperty(property)">删除</el-button>
+          <el-input v-model="property.name" style="margin-top: 10px" placeholder="请输入属性名称"/>
 
+          <div v-if="property.type!=='Input'&& property.type!==''">
+            <el-tag
+              v-for="option in property.options"
+              :key="option"
+              :disable-transitions="false"
+              closable
+              @close="handleRemoveOptions(property,option)">
+              {{ option }}
+            </el-tag>
+            <el-select v-model="property.default" :multiple="property.type ==='Multiple Choice'" clearable placeholder="请选择属性默认值">
+              <el-option
+                v-for="item in property.options"
+                :key="item"
+                :label="item"
+                :value="item"/>
+            </el-select>
+            <el-input
+              v-if="property.inputVisible"
+              :ref="'property' + index"
+              v-model="property.inputValue"
+              class="input-new-tag"
+              @keyup.enter.native="handleAddOptions(property,property.inputValue,property.type)"
+              @blur="handleAddOptions(property,property.inputValue,property.type)"
+            />
+            <el-button v-else type="primary" class="button-new-tag" @click="showOptionInput(property, index)">+ New Option</el-button>
+          </div>
+          <el-input v-else-if="property.type ==='Input'" v-model="property.default" style="margin-top: 10px" placeholder="请输入属性默认值"/>
+
+        </el-form-item>
+        <el-form-item>
+          <el-button type="success" @click="addProperty">添加属性</el-button>
+        </el-form-item>
+
+        <el-form-item style="float: right">
+          <el-button type="primary" @click="submitForm('projectForm')">立即创建</el-button>
+          <el-button @click="resetForm('projectForm')">重置</el-button>
+        </el-form-item>
+      </el-form>
+
+    </el-col>
+    <json-editor v-show="jsonMode" ref="jsonEditor" v-model="jsonData" />
   </div>
 </template>
 
 <script>
+import jsonData from '@/utils/project'
+import JsonEditor from '@/components/JsonEditor'
 export default {
   name: 'Settings',
+  components: { JsonEditor },
   data() {
     return {
-      dynamicTags: ['标签一', '标签二', '标签三'],
+      jsonMode: false,
+      jsonData: {},
       inputVisible: false,
       inputValue: '',
-      ruleForm: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: '',
-        domains: [{
-          value: ''
-        }]
+      strokeColor: 'rgba(19, 206, 102, 1)',
+      fillColor: 'rgba(19, 206, 102, 0.5)',
+      projectForm: {
+        name: 'Fast Wash Test',
+        type: 'Detection',
+        classification: [{
+          value: 'target',
+          fillColor: 'rgba(19, 206, 102, 0.2)',
+          strokeColor: 'rgba(19, 206, 102, 1)'
+        }, {
+          value: 'ignore',
+          fillColor: 'rgba(30, 195, 201, 0.2)',
+          strokeColor: 'rgba(30, 195, 201, 1)'
+        }],
+        properties: []
+        //   [{
+        //   name: '',
+        //   type: '',
+        //   options: [],
+        //   default: '',
+        //   inputVisible: false,
+        //   inputValue: ''
+        // }]
       },
       rules: {
         name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-        ],
-        region: [
-          { required: true, message: '请选择活动区域', trigger: 'change' }
-        ],
-        date1: [
-          { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-        ],
-        date2: [
-          { type: 'date', required: true, message: '请选择时间', trigger: 'change' }
+          { required: true, message: '请输入项目名称', trigger: 'blur' }
         ],
         type: [
-          { type: 'array', required: true, message: '请至少选择一个活动性质', trigger: 'change' }
-        ],
-        resource: [
-          { required: true, message: '请选择活动资源', trigger: 'change' }
+          { required: true, message: '请选择标注类型', trigger: 'change' }
         ],
         classification: [
-          { required: true, message: '请填写活动形式', trigger: 'blur' }
+          { type: 'array', required: true, message: '请至少添加一个类别', trigger: 'change' }
         ]
       }
     }
   },
+  created() {
+    this.setDefaultValue(jsonData)
+    this.getRandomColor()
+  },
   methods: {
-    removeDomain(item) {
-      var index = this.ruleForm.domains.indexOf(item)
-      if (index !== -1) {
-        this.ruleForm.domains.splice(index, 1)
+    setJsonMode(val) {
+      if (val) {
+        this.jsonData = this.projectForm
+        // this.jsonData.properties.forEach(item => {
+        //   item.inputVisible = undefined
+        //   item.inputValue = undefined
+        // })
+        this.jsonMode = val
+      } else {
+        try {
+          this.projectForm = JSON.parse(this.jsonData)
+          // this.projectForm.properties.forEach(item => {
+          //   item.inputVisible = false
+          //   item.inputValue = ''
+          // })
+          this.jsonMode = val
+        } catch (e) {
+          console.log(e)
+          this.$message({
+            message: 'JSON格式错误',
+            type: 'warning'
+          })
+        }
       }
     },
-    addDomain() {
-      this.ruleForm.domains.push({
-        value: '',
-        key: Date.now()
+    setDefaultValue(value) {
+      try {
+        var defaultValue = JSON.parse(value)
+        if (defaultValue !== null) {
+          this.projectForm.name = defaultValue.projectName
+          this.projectForm.type = defaultValue.projectType
+          this.projectForm.classification = defaultValue.classification
+          // console.log(defaultValue)
+          if (defaultValue.properties !== undefined) {
+            defaultValue.properties.forEach(item => {
+              this.projectForm.properties.push({
+                name: item.name,
+                type: item.type,
+                options: item.options,
+                default: item.default,
+                inputVisible: false,
+                inputValue: ''
+              })
+            })
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    removeProperty(item) {
+      var index = this.projectForm.properties.indexOf(item)
+      if (index !== -1) {
+        this.projectForm.properties.splice(index, 1)
+      }
+    },
+    addProperty() {
+      this.projectForm.properties.push({
+        name: '',
+        type: '',
+        options: [],
+        default: '',
+        inputVisible: false,
+        inputValue: ''
       })
     },
+    // saveForm(formName) {
+    //   this.$refs[formName].validate((valid) => {
+    //     if (valid) {
+    //       console.log(this.projectForm)
+    //       alert('submit!')
+    //     } else {
+    //       console.log('error submit!!')
+    //       return false
+    //     }
+    //   })
+    // },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
+          this.projectForm.properties.forEach(item => {
+            item.inputVisible = undefined
+            item.inputValue = undefined
+          })
+          // console.log(this.projectForm)
+          // alert('submit!')
         } else {
-          console.log('error submit!!')
+          // console.log('error submit!!')
           return false
         }
       })
@@ -149,8 +264,15 @@ export default {
       this.$refs[formName].resetFields()
     },
 
-    handleClose(tag) {
-      this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1)
+    handleRemoveTag(tag) {
+      this.projectForm.classification.splice(this.projectForm.classification.indexOf(tag), 1)
+    },
+
+    handleRemoveOptions(property, option) {
+      property.options.splice(property.options.indexOf(option), 1)
+      if (property.default === option) {
+        property.default = ''
+      }
     },
 
     showInput() {
@@ -160,13 +282,76 @@ export default {
       })
     },
 
+    showOptionInput(property, index) {
+      property.inputVisible = true
+      console.log(property)
+      this.$nextTick(_ => {
+        // console.log(this.$refs)
+        // console.log(this.$refs['property' + index])
+        this.$refs['property' + index][0].focus()
+      })
+    },
+
+    getRandomColor() {
+      const r = Math.floor(Math.random() * 255)
+      const g = Math.floor(Math.random() * 255)
+      const b = Math.floor(Math.random() * 255)
+      this.fillColor = 'rgba(' + r + ',' + g + ',' + b + ',0.3)'
+      this.strokeColor = 'rgba(' + r + ',' + g + ',' + b + ',1)'
+    },
+
     handleInputConfirm() {
       const inputValue = this.inputValue
       if (inputValue) {
-        this.dynamicTags.push(inputValue)
+        let exist = false
+        this.projectForm.classification.forEach(item => {
+          if (item.value === inputValue) {
+            exist = true
+          }
+        })
+        if (exist) {
+          this.inputVisible = false
+          this.inputValue = ''
+          this.$message({
+            message: '类别已存在',
+            type: 'warning'
+          })
+          return
+        }
+        this.projectForm.classification.push({
+          value: inputValue,
+          fillColor: this.fillColor,
+          strokeColor: this.strokeColor
+        })
+        this.getRandomColor()
       }
       this.inputVisible = false
       this.inputValue = ''
+    },
+
+    handleAddOptions(property, option, type) {
+      if (option) {
+        let error = false
+        if (property.options.length >= 2 && type === 'Binary Classification') {
+          this.$message({
+            message: '只能有两个选项',
+            type: 'warning'
+          })
+          error = true
+        }
+        if (property.options.indexOf(option) !== -1) {
+          this.$message({
+            message: '选项已存在',
+            type: 'warning'
+          })
+          error = true
+        }
+        if (!error) {
+          property.options.push(option)
+        }
+      }
+      property.inputVisible = false
+      property.inputValue = ''
     }
   }
 }
@@ -176,16 +361,29 @@ export default {
   .el-tag + .el-tag {
     margin-left: 10px;
   }
-  .button-new-tag {
+  .button-new-class {
     margin-left: 10px;
     height: 32px;
     line-height: 30px;
     padding-top: 0;
     padding-bottom: 0;
   }
-  .input-new-tag {
-    width: 90px;
+  .input-new-class {
+    width: 120px;
     margin-left: 10px;
+    vertical-align: bottom;
+  }
+  .button-new-tag {
+    margin-top: 10px;
+    height: 40px;
+    /*line-height: 30px;*/
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .input-new-tag {
+    height: 40px;
+    width: 120px;
+    margin-top: 10px;
     vertical-align: bottom;
   }
 </style>

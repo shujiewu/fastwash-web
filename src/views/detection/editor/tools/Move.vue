@@ -168,8 +168,8 @@ export default {
           paper.view.element.style.cursor = 'move'
         }
       } else {
-        const canvas = document.getElementById('detection_canvas')
-        canvas.style.cursor = 'auto'
+        // const canvas = document.getElementById('detection_canvas')
+        // canvas.style.cursor = 'auto'
       }
     }
 

@@ -61,7 +61,7 @@
           :key="index"
           :prop="'properties.' + index + '.value'"
         >
-          <el-select v-model="property.type" placeholder="请选择属性类型">
+          <el-select v-model="property.type" placeholder="请选择属性类型" @change="onPropertyTypeChange(property)">
             <el-option label="Input" value="Input"/>
             <el-option label="Binary Classification" value="Binary Classification"/>
             <el-option label="Multiple Classification" value="Multiple Classification"/>
@@ -352,6 +352,15 @@ export default {
       }
       property.inputVisible = false
       property.inputValue = ''
+    },
+
+    onPropertyTypeChange(property) {
+      property.options = []
+      if (property.type === 'Multiple Choice') {
+        property.default = []
+      } else {
+        property.default = ''
+      }
     }
   }
 }

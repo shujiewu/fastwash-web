@@ -101,6 +101,14 @@ export default {
             prop: item.data.prop
           })
         }
+        if (this.selectedItems.length > 0) {
+          if (this.selectedItems[0].data.id !== undefined) {
+            var select = this.list.filter(item => item.id === this.selectedItems[0].data.id)
+            this.$refs.annotationTable.setCurrentRow(select[0])
+          }
+        } else {
+          this.$refs.annotationTable.setCurrentRow(null)
+        }
       }
     },
     selectedItems: function(val) {

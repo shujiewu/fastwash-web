@@ -13,7 +13,8 @@ const detection = {
     currentAnnotation: null,
     annotationEditsFlag: false,
     shape: [],
-    boxCount: 0
+    boxCount: 0,
+    tableSelect: true
   },
   mutations: {
     setSelectedItems: (state, selectedItems) => {

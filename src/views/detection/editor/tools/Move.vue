@@ -43,7 +43,12 @@ export default {
   created() {
     let hitResult = null
     const toolDown = event => {
-      hitResult = paper.project.hitTest(event.point, this.hitOptions)
+      if (this.selectionItem !== null) {
+        hitResult = this.selectionItem.hitTest(event.point, this.hitOptions)
+      }
+      if (!hitResult) {
+        hitResult = paper.project.hitTest(event.point, this.hitOptions)
+      }
       if (hitResult) {
         if (this.state === 'edit') {
           if (hitResult.type === 'bounds') {
@@ -55,6 +60,7 @@ export default {
             hitResult.item.selected = true
             this.toolMode = 'move'
           }
+          console.log(hitResult)
           if (paper.project.selectedItems.length > 0) {
             this.selectionItem = paper.project.selectedItems[0]
             this.setSelectedItems(paper.project.selectedItems)

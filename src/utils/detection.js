@@ -1,12 +1,24 @@
 import paper from 'paper'
 import { colorToRGBA } from '@/utils/color'
-
+import store from '@/store'
 export function addBox(downPoint, point, classification, prop, status, strokeWidth) {
   const items = paper.project.getItems({
     data: {
       type: 'box'
     }
   })
+  if (prop === undefined) {
+    var propertyList = store.state.detection.property
+    // console.log(propertyList)
+    if (propertyList.length > 0) {
+      var form = {}
+      propertyList.forEach(item => {
+        form[item.id] = item.default
+      })
+      prop = form
+    }
+  }
+
   const newRect = new paper.Path.Rectangle(downPoint, point)
   newRect.strokeColor = colorToRGBA(classification.strokeColor)
   newRect.fillColor = colorToRGBA(classification.fillColor)
@@ -39,7 +51,8 @@ export function addBox(downPoint, point, classification, prop, status, strokeWid
   textRect.data.type = 'background'
   textRect.locked = true
 
-  // Create a group from the two paths:
+  // paper.project.deselectAll()
+  // newRect.selected = true
   new paper.Group({
     children: [newRect, textRect, text]
   })

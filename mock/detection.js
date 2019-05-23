@@ -18,8 +18,8 @@ export default {
         id: '1',
         name: '是否跌倒',
         type: 'Binary Classification',
-        options: ['是', '否'],
-        default: '否'
+        options: ['true', 'false'],
+        default: 'false'
       }]
       // , {
       //   id: '2',

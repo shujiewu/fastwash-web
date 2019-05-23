@@ -52,7 +52,7 @@ export default {
       }
       if (this.hitResult) {
         if (this.state === 'edit') {
-          if (this.hitResult.type === 'bounds') {
+          if (this.hitResult.type === 'bounds' || this.hitResult.type === 'stroke') {
             // 放大缩小
             this.toolMode = 'transform'
           } else {
@@ -126,7 +126,31 @@ export default {
           newWidth = event.point.x - this.selectionItem.bounds.bottomRight.x
           newHeight = event.point.y - this.selectionItem.bounds.topLeft.y
           transfromCenter = this.selectionItem.bounds.topRight
+        } else if (this.hitResult && this.hitResult.type === 'stroke' && this.hitResult.location.index === 0) {
+          console.log(this.selectionItem.bounds)
+          newWidth = event.point.x - this.selectionItem.bounds.rightCenter.x
+          newHeight = this.selectionItem.bounds.height
+          transfromCenter = this.selectionItem.bounds.rightCenter
+        } else if (this.hitResult && this.hitResult.type === 'stroke' && this.hitResult.location.index === 2) {
+          newWidth = event.point.x - this.selectionItem.bounds.leftCenter.x
+          newHeight = this.selectionItem.bounds.height
+          transfromCenter = this.selectionItem.bounds.leftCenter
+        } else if (this.hitResult && this.hitResult.type === 'stroke' && this.hitResult.location.index === 1) {
+          newWidth = this.selectionItem.bounds.width
+          newHeight = event.point.y - this.selectionItem.bounds.bottomCenter.y
+          transfromCenter = this.selectionItem.bounds.bottomCenter
+        } else if (this.hitResult && this.hitResult.type === 'stroke' && this.hitResult.location.index === 3) {
+          newWidth = this.selectionItem.bounds.width
+          newHeight = event.point.y - this.selectionItem.bounds.topCenter.y
+          transfromCenter = this.selectionItem.bounds.topCenter
         }
+
+        // else if (this.hitResult && this.hitResult.name === 'bottom-center') {
+        //   console.log(this.selectionItem.bounds)
+        //   newWidth = this.selectionItem.bounds.width
+        //   newHeight = event.point.y - this.selectionItem.bounds.topCenter.y
+        //   transfromCenter = this.selectionItem.bounds.topCenter
+        // }
 
         const horizScaleFactor = Math.abs(newWidth / this.selectionItem.bounds.width)
         const vertScaleFactor = Math.abs(newHeight / this.selectionItem.bounds.height)
@@ -162,14 +186,22 @@ export default {
           paper.view.element.style.cursor = 'nwse-resize'
         } else if (hit.name === 'bottom-left' || hit.name === 'top-right') {
           paper.view.element.style.cursor = 'nesw-resize'
-        } else if (hit.name === 'bottom' || hit.name === 'top') {
-          paper.view.element.style.cursor = 'nesw-resize'
+        } else if (hit.type === 'stroke' && (hit.location.index === 0 || hit.location.index === 2)) {
+          paper.view.element.style.cursor = 'ew-resize'
+        } else if (hit.type === 'stroke' && (hit.location.index === 1 || hit.location.index === 3)) {
+          paper.view.element.style.cursor = 'ns-resize'
         } else if (hit.type === 'fill') {
           paper.view.element.style.cursor = 'move'
         }
+
+        // else if (hit.name === 'right-center' || hit.name === 'left-center') {
+        //   paper.view.element.style.cursor = 'ew-resize'
+        // } else if (hit.name === 'top-center' || hit.name === 'bottom-center') {
+        //   paper.view.element.style.cursor = 'ns-resize'
+        // }
       } else {
-        // const canvas = document.getElementById('detection_canvas')
-        // canvas.style.cursor = 'auto'
+        const canvas = document.getElementById('detection_canvas')
+        canvas.style.cursor = 'auto'
       }
     }
 
@@ -243,6 +275,7 @@ export default {
       const hitTolerance = 6
       this.hitOptions = {
         bounds: true,
+        stroke: true,
         handles: true,
         fill: true,
         tolerance: hitTolerance,

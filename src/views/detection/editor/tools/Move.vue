@@ -127,7 +127,6 @@ export default {
           newHeight = event.point.y - this.selectionItem.bounds.topLeft.y
           transfromCenter = this.selectionItem.bounds.topRight
         } else if (this.hitResult && this.hitResult.type === 'stroke' && this.hitResult.location.index === 0) {
-          console.log(this.selectionItem.bounds)
           newWidth = event.point.x - this.selectionItem.bounds.rightCenter.x
           newHeight = this.selectionItem.bounds.height
           transfromCenter = this.selectionItem.bounds.rightCenter
@@ -144,21 +143,22 @@ export default {
           newHeight = event.point.y - this.selectionItem.bounds.topCenter.y
           transfromCenter = this.selectionItem.bounds.topCenter
         }
+        // if (!isNaN(newWidth) && !isNaN(newHeight) && !isNaN(this.selectionItem.bounds.width) && !isNaN(this.selectionItem.bounds.height)) {
 
-        // else if (this.hitResult && this.hitResult.name === 'bottom-center') {
-        //   console.log(this.selectionItem.bounds)
-        //   newWidth = this.selectionItem.bounds.width
-        //   newHeight = event.point.y - this.selectionItem.bounds.topCenter.y
-        //   transfromCenter = this.selectionItem.bounds.topCenter
+        if (Math.abs(newWidth) < 2 || Math.abs(newHeight) < 2) {
+          return
+        }
+
+        const width = this.selectionItem.bounds.width
+        const height = this.selectionItem.bounds.height
+        // if (width < 1) {
+        //   width = 1
         // }
-
-        const horizScaleFactor = Math.abs(newWidth / this.selectionItem.bounds.width)
-        const vertScaleFactor = Math.abs(newHeight / this.selectionItem.bounds.height)
-
-        // hitResult.item.position = hitResult.item.position.add(event.delta)
-        // if (hitResult.item.data.status === 'originalAnnotation') {
-        //   hitResult.item.data.status = 'editAnnotation'
+        // if (height < 1) {
+        //   height = 1
         // }
+        const horizScaleFactor = Math.abs(newWidth / width)
+        const vertScaleFactor = Math.abs(newHeight / height)
 
         if (this.selectionItem.data.status === 'originalAnnotation') {
           this.selectionItem.data.status = 'editAnnotation'
@@ -173,8 +173,29 @@ export default {
             }
           })
         }
-        this.selectionItem.scale(horizScaleFactor, vertScaleFactor, transfromCenter)
+        if (horizScaleFactor !== Infinity && vertScaleFactor !== Infinity) {
+          this.selectionItem.scale(horizScaleFactor, vertScaleFactor, transfromCenter)
+        }
+
         this.setAnnotationEditsFlag(true)
+
+        // console.log(newWidth, newHeight)
+        // console.log(this.selectionItem.bounds.width, this.selectionItem.bounds.height)
+        // newWidth = 10
+        // newHeight = 10
+        // this.selectionItem.bounds.width = 10
+        // this.selectionItem.bounds.height = 10
+
+        // else if (this.hitResult && this.hitResult.name === 'bottom-center') {
+        //   console.log(this.selectionItem.bounds)
+        //   newWidth = this.selectionItem.bounds.width
+        //   newHeight = event.point.y - this.selectionItem.bounds.topCenter.y
+        //   transfromCenter = this.selectionItem.bounds.topCenter
+        // }
+        // hitResult.item.position = hitResult.item.position.add(event.delta)
+        // if (hitResult.item.data.status === 'originalAnnotation') {
+        //   hitResult.item.data.status = 'editAnnotation'
+        // }
       }
     }
 

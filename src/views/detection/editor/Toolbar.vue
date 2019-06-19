@@ -67,7 +67,7 @@ import toolZoom from './tools/Zoom'
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
 import { transformSubmit } from '@/utils/proto'
-import { submitItem } from '@/api/detection'
+import { submitItem, exportResult } from '@/api/detection'
 import { uint8ToString } from '@/utils/utils'
 export default {
   name: 'Toolbar',
@@ -200,7 +200,20 @@ export default {
       }
     },
     onExport() {
-
+      exportResult().then(response => {
+        if (response.success) {
+          this.$notify({
+            title: '成功',
+            message: '导出成功',
+            type: 'success'
+          })
+        } else {
+          this.$notify.error({
+            title: '错误',
+            message: '导出失败'
+          })
+        }
+      })
     },
     onSubmit() {
       // 先保存当前再提交

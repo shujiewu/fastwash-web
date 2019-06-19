@@ -22,3 +22,10 @@ export function getConfig() {
   })
 }
 
+export function exportResult() {
+  return request({
+    url: '/export_result',
+    method: 'get'
+  })
+}
+

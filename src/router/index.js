@@ -93,6 +93,13 @@ export const constantRouterMap = [
         name: 'Annotation',
         component: () => import('@/views/detection/index'),
         meta: { title: 'Annotation', icon: 'table' }
+      },
+      {
+        path: 'annotation/:projectName',
+        name: 'annotation',
+        component: () => import('@/views/detection/annotation_future'),
+        meta: { title: 'Annotation', icon: 'table' },
+        hidden: true
       }
     ]
   },

@@ -197,7 +197,9 @@ export default {
         }
       } else {
         const canvas = document.getElementById('detection_canvas')
-        canvas.style.cursor = 'auto'
+        if (canvas !== null) {
+          canvas.style.cursor = 'auto'
+        }
       }
     }
 

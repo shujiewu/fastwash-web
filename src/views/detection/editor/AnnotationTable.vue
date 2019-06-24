@@ -42,6 +42,8 @@
 <script>
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
+
+/** 标注列表 **/
 export default {
   name: 'AnnotationTable',
   filters: {
@@ -80,6 +82,7 @@ export default {
     })
   },
   watch: {
+    // 监听是否被修改的事件, 用于每一行的改变状态
     annotationEditsFlag: function(val) {
       if (val === true) {
         this.setAnnotationEditsFlag(false)
@@ -111,6 +114,7 @@ export default {
         }
       }
     },
+    // 监听是否被选中的事件
     selectedItems: function(val) {
       if (this.selectedItems.length > 0) {
         if (this.selectedItems[0].data.id !== undefined) {
@@ -163,6 +167,7 @@ export default {
         }
       }
     },
+    // 列表中删除box
     handleDelete(val) {
       if (val !== null) {
         var id = val.id
@@ -205,22 +210,6 @@ export default {
         x: Math.round(this.shape[1] * pt[0] / paper.view.viewSize.width),
         y: Math.round(this.shape[0] * pt[1] / paper.view.viewSize.height)
       }
-    },
-    cancelEdit(row) {
-      row.title = row.originalTitle
-      row.edit = false
-      this.$message({
-        message: 'The title has been restored to the original value',
-        type: 'warning'
-      })
-    },
-    confirmEdit(row) {
-      row.edit = false
-      row.originalTitle = row.title
-      this.$message({
-        message: 'The title has been edited',
-        type: 'success'
-      })
     }
   }
 }

@@ -1,9 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-// in development-env not use lazy-loading, because lazy-loading too many pages will cause webpack hot update too slow. so only in production use lazy-loading;
-// detail: https://panjiachen.github.io/vue-element-admin-site/#/lazy-loading
-
 Vue.use(Router)
 
 /* Layout */
@@ -37,6 +34,26 @@ export const constantRouterMap = [
       component: () => import('@/views/dashboard/index')
     }]
   },
+  // {
+  //   path: '/project',
+  //   component: Layout,
+  //   name: 'Project',
+  //   meta: { title: 'Project', icon: 'example' },
+  //   children: [
+  //     {
+  //       path: 'new',
+  //       name: 'New',
+  //       component: () => import('@/views/project/info'),
+  //       meta: { title: 'New', icon: 'table' }
+  //     },
+  //     {
+  //       path: 'manage',
+  //       name: 'Manage',
+  //       component: () => import('@/views/project/index'),
+  //       meta: { title: 'Manage', icon: 'table' }
+  //     }
+  //   ]
+  // },
   {
     path: '/project',
     component: Layout,
@@ -46,7 +63,7 @@ export const constantRouterMap = [
       {
         path: 'new',
         name: 'New',
-        component: () => import('@/views/project/info'),
+        component: () => import('@/views/project/new'),
         meta: { title: 'New', icon: 'table' }
       },
       {
@@ -54,6 +71,13 @@ export const constantRouterMap = [
         name: 'Manage',
         component: () => import('@/views/project/index'),
         meta: { title: 'Manage', icon: 'table' }
+      },
+      {
+        path: 'images/:projectName',
+        component: () => import('@/views/project/images'),
+        name: 'images',
+        meta: { title: 'images' }
+        // hidden: true
       }
     ]
   },
@@ -70,19 +94,6 @@ export const constantRouterMap = [
         component: () => import('@/views/detection/index'),
         meta: { title: 'Annotation', icon: 'table' }
       }
-      // ,
-      // {
-      //   path: 'table',
-      //   name: 'Table',
-      //   component: () => import('@/views/table/index'),
-      //   meta: { title: 'Table', icon: 'table' }
-      // },
-      // {
-      //   path: 'tree',
-      //   name: 'Tree',
-      //   component: () => import('@/views/tree/index'),
-      //   meta: { title: 'Tree', icon: 'tree' }
-      // }
     ]
   },
   { path: '*', redirect: '/404', hidden: true }

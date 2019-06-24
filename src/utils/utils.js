@@ -1,4 +1,4 @@
-
+/** unit8 数组转为string **/
 export function uint8ToString(u8a) {
   var CHUNK_SZ = 0x8000
   var c = []

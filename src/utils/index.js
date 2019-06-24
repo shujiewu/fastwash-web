@@ -12,16 +12,25 @@ export function parseTime(time, cFormat) {
   if (arguments.length === 0) {
     return null
   }
+  if (time === null || time === undefined) {
+    return null
+  }
   const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}'
   let date
+
   if (typeof time === 'object') {
     date = time
   } else {
     if ((typeof time === 'string') && (/^[0-9]+$/.test(time))) {
       time = parseInt(time)
     }
-    if ((typeof time === 'number') && (time.toString().length === 10)) {
-      time = time * 1000
+    if ((typeof time === 'number')) {
+      if (time.toString().length === 10) { time = time * 1000 }
+      if (time.toString().length > 10) {
+        // console.log(time)
+        time = parseInt(time)
+        time = time * 1000
+      }
     }
     date = new Date(time)
   }

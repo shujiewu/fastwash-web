@@ -7,6 +7,32 @@ export function isArrayBuffer(obj) {
   return Object.prototype.toString.call(obj) === '[object ArrayBuffer]'
 }
 
+export function transformSubmit(rawRequest, boxes) {
+  try {
+    var errMsg = MessageResponse.verify(rawRequest)
+    if (errMsg) { throw Error(errMsg) }
+    const encodeRequest = MessageResponse.encode(MessageResponse.create(rawRequest)).finish()
+    return encodeRequest
+  } catch (err) {
+    return err
+  }
+}
+
+export function transformResponse(rawResponse) {
+  rawResponse = new Uint8Array(atob(rawResponse).split('').map(function(c) {
+    return c.charCodeAt(0)
+  }))
+  try {
+    const buf = rawResponse // protobuf.util.newBuffer(rawResponse)
+    var errMsg = MessageResponse.verify(buf)
+    if (errMsg) { throw Error(errMsg) }
+    const decodedResponse = MessageResponse.decode(buf)
+    return decodedResponse
+  } catch (err) {
+    return err
+  }
+}
+
 // function utf2buffer(utfstr) {
 //   var buf = new ArrayBuffer(utfstr.length)
 //   var bufView = new Uint8Array(buf)
@@ -26,41 +52,3 @@ export function isArrayBuffer(obj) {
 //   }
 //   return u8arr
 // }
-
-export function transformSubmit(rawRequest, boxes) {
-  try {
-    var errMsg = MessageResponse.verify(rawRequest)
-    if (errMsg) { throw Error(errMsg) }
-    const encodeRequest = MessageResponse.encode(MessageResponse.create(rawRequest)).finish()
-    return encodeRequest
-  } catch (err) {
-    return err
-  }
-}
-
-export function transformResponse(rawResponse) {
-  rawResponse = new Uint8Array(atob(rawResponse).split('').map(function(c) {
-    return c.charCodeAt(0)
-  }))
-  // rawResponse = base64toBlob(rawResponse)
-  // console.log(rawResponse)
-  // 判断response是否是arrayBuffer
-  // if (rawResponse == null || !isArrayBuffer(rawResponse)) {
-  //   return rawResponse
-  // }
-  try {
-    // console.log(rawResponse)
-    // rawResponse = new Uint8Array(rawResponse)
-    // if (rawResponse == null || !isArrayBuffer(rawResponse)) {
-    //   console.log(1)
-    //   return rawResponse
-    // }
-    const buf = rawResponse // protobuf.util.newBuffer(rawResponse)
-    var errMsg = MessageResponse.verify(buf)
-    if (errMsg) { throw Error(errMsg) }
-    const decodedResponse = MessageResponse.decode(buf)
-    return decodedResponse
-  } catch (err) {
-    return err
-  }
-}

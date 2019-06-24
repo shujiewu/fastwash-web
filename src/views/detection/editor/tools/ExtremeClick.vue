@@ -7,7 +7,7 @@ import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
 import { getDefaultColor } from '@/utils/color'
 import { addBox } from '@/utils/detection'
-
+/** 极限点击的前端操作 **/
 export default {
   props: {
     active: {
@@ -33,11 +33,13 @@ export default {
   },
 
   created() {
+    // 鼠标按下的事件
     const toolDown = event => {
       if (this.state === 'edit') {
         this.toolCircle.minDistance = this.strokeWidth * 4
       }
     }
+    // 鼠标抬起的事件：绘制点，如果超过4个点，则添加框，并清空点
     const toolUp = event => {
       if (this.state === 'edit') {
         const newCircle = new paper.Path.Circle(event.downPoint, this.radius)
@@ -62,54 +64,14 @@ export default {
           var ltPoint = new paper.Point(left, top)
           var rbPoint = new paper.Point(right, bottom)
           addBox(ltPoint, rbPoint, this.classification[0], undefined, 'newAnnotation', this.strokeWidth)
-
-          // const items = paper.project.getItems({
-          //   data: {
-          //     type: 'box'
-          //   }
-          // })
-          // var ltPoint = new paper.Point(left, top)
-          // var rbPoint = new paper.Point(right, bottom)
-          //
-          // const newRect = new paper.Path.Rectangle(ltPoint, rbPoint)
-          // newRect.strokeColor = colorToRGBA(this.classification[0].strokeColor)
-          // newRect.fillColor = colorToRGBA(this.classification[0].fillColor)
-          // newRect.strokeWidth = 2
-          // newRect.data.status = 'newAnnotation'
-          // newRect.data.class = this.classification[0].value
-          // newRect.data.id = items.length + 1
-          // newRect.data.type = 'box'
           this.setAnnotationEditsFlag(true)
-          // newRect.data.id = items.length + 1
         }
       }
-
-      // Flag the annotation has been edited and the changes are not saved
-      // this.flagAnnotationEdits()
     }
 
-    // Add the defined functions to the tool object.
-    // UNSATISFACTORY: mutating PaperJS project state directly without
-    // dispatching view action.
     this.toolCircle = new paper.Tool()
     this.toolCircle.onMouseDown = toolDown
     this.toolCircle.onMouseUp = toolUp
-
-    // const toolUp1 = event => {
-    //   if (this.state === 'edit') {
-    //     if (Math.abs(event.delta.x) > 10 && Math.abs(event.delta.y) > 10) {
-    //       const items = paper.project.getItems({
-    //         className: function(className) {
-    //           return (className === 'Path')
-    //         }
-    //       })
-    //       newRect.data.status = 'newAnnotation'
-    //       newRect.data.class = 'target'
-    //       newRect.data.id = items.length + 1
-    //       this.setAnnotationEditsFlag(true)
-    //     }
-    //   }
-    // }
   },
 
   methods: {

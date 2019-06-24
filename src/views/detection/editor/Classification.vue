@@ -30,13 +30,6 @@
           <el-color-picker :disabled="!hasSelection" v-model="fillColor" show-alpha @change="handleFillColorChange"/>
         </el-col>
       </el-form-item>
-      <!--      <el-form-item label="显示">-->
-      <!--        <el-col :span="20">-->
-      <!--          <div class="block">-->
-      <!--            <el-slider v-model="alpha" :show-tooltip="false" @change="handleAlpha"/>-->
-      <!--          </div>-->
-      <!--        </el-col>-->
-      <!--      </el-form-item>-->
     </el-form>
   </div>
 </template>
@@ -44,6 +37,8 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import paper from 'paper'
+
+/** 类别和颜色的设置 **/
 export default {
   name: 'Classification',
   data() {
@@ -72,7 +67,6 @@ export default {
         this.fillColor = `rgba(${this.selectedItems[0].fillColor.red * 255},${this.selectedItems[0].fillColor.green * 255},${this.selectedItems[0].fillColor.blue * 255},${this.selectedItems[0].fillColor.alpha})`// this.selectedItems[0].fillColor
       } else {
         this.hasSelection = false
-        // this.selectedTag = []
       }
     }
   },

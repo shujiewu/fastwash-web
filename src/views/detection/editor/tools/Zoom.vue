@@ -5,6 +5,7 @@
 <script>
 import paper from 'paper'
 
+/** 图片放大缩小的前端操作 **/
 export default {
   props: {
     active: {

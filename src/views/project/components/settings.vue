@@ -11,6 +11,11 @@
             <el-option label="Video" value="Video"/>
           </el-select>
         </el-form-item>
+        <el-form-item label="数据来源" prop="data">
+          <el-select v-model="projectForm.data" placeholder="请选择数据来源" @change="handleDatasetChange">
+            <el-option v-for="item in dataset" :key="item" :label="item" :value="item"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="类别设置" prop="classification">
           <div>
             <el-row>
@@ -44,7 +49,7 @@
                 v-for="tag in projectForm.classification"
                 :key="tag.value"
                 :disable-transitions="false"
-                :color = "tag.strokeColor"
+                :color="tag.strokeColor"
                 closable
                 type="info"
                 style="font-size: 20px;color:#fff"
@@ -79,12 +84,12 @@
               @close="handleRemoveOptions(property,option)">
               {{ option }}
             </el-tag>
-            <el-select v-model="property.default" :multiple="property.type ==='Multiple Choice'" clearable placeholder="请选择属性默认值">
-              <el-option
-                v-for="item in property.options"
-                :key="item"
-                :label="item"
-                :value="item"/>
+            <el-select
+              v-model="property.default"
+              :multiple="property.type ==='Multiple Choice'"
+              clearable
+              placeholder="请选择属性默认值">
+              <el-option v-for="item in property.options" :key="item" :label="item" :value="item"/>
             </el-select>
             <el-input
               v-if="property.inputVisible"
@@ -94,9 +99,14 @@
               @keyup.enter.native="handleAddOptions(property,property.inputValue,property.type)"
               @blur="handleAddOptions(property,property.inputValue,property.type)"
             />
-            <el-button v-else type="primary" class="button-new-tag" @click="showOptionInput(property, index)">+ New Option</el-button>
+            <el-button v-else type="primary" class="button-new-tag" @click="showOptionInput(property, index)">+ New Option
+            </el-button>
           </div>
-          <el-input v-else-if="property.type ==='Input'" v-model="property.default" style="margin-top: 10px" placeholder="请输入属性默认值"/>
+          <el-input
+            v-else-if="property.type ==='Input'"
+            v-model="property.default"
+            style="margin-top: 10px"
+            placeholder="请输入属性默认值"/>
 
         </el-form-item>
         <el-form-item>
@@ -110,17 +120,32 @@
       </el-form>
 
     </el-col>
-    <json-editor v-show="jsonMode" ref="jsonEditor" v-model="jsonData" />
+    <json-editor v-show="jsonMode" ref="jsonEditor" v-model="jsonData"/>
   </div>
 </template>
 
 <script>
 import jsonData from '@/utils/project'
 import JsonEditor from '@/components/JsonEditor'
+import { valProjectName, createProject, fetchDataset } from '@/api/project'
+
 export default {
   name: 'Settings',
   components: { JsonEditor },
   data() {
+    var validateProjectName = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入项目名称'))
+      } else {
+        valProjectName(value).then(response => {
+          if (response.success) {
+            callback()
+          } else {
+            callback(new Error('项目名已存在'))
+          }
+        })
+      }
+    }
     return {
       jsonMode: false,
       jsonData: {},
@@ -128,9 +153,12 @@ export default {
       inputValue: '',
       strokeColor: 'rgba(19, 206, 102, 1)',
       fillColor: 'rgba(19, 206, 102, 0.5)',
+      dataset: [],
+      categories: {},
       projectForm: {
         name: 'Fast Wash Test',
         type: 'Detection',
+        data: '',
         classification: [{
           value: 'target',
           fillColor: 'rgba(19, 206, 102, 0.2)',
@@ -140,22 +168,19 @@ export default {
           fillColor: 'rgba(30, 195, 201, 0.2)',
           strokeColor: 'rgba(30, 195, 201, 1)'
         }],
-        properties: []
-        //   [{
-        //   name: '',
-        //   type: '',
-        //   options: [],
-        //   default: '',
-        //   inputVisible: false,
-        //   inputValue: ''
-        // }]
+        properties: [],
+        status: 'new',
+        progress: 0
       },
       rules: {
         name: [
-          { required: true, message: '请输入项目名称', trigger: 'blur' }
+          { validator: validateProjectName, trigger: 'blur' }
         ],
         type: [
           { required: true, message: '请选择标注类型', trigger: 'change' }
+        ],
+        data: [
+          { required: true, message: '请选择数据来源', trigger: 'change' }
         ],
         classification: [
           { type: 'array', required: true, message: '请至少添加一个类别', trigger: 'change' }
@@ -165,9 +190,42 @@ export default {
   },
   created() {
     this.setDefaultValue(jsonData)
+    this.getDataset()
     this.getRandomColor()
   },
   methods: {
+    getDataset() {
+      fetchDataset().then(response => {
+        if (response.success) {
+          response.items.forEach(item => {
+            this.dataset.push(item['dataset_name'])
+            item['categories'].forEach(ctg => {
+              this.getRandomColor()
+              ctg['fillColor'] = this.fillColor
+              ctg['strokeColor'] = this.strokeColor
+            })
+            this.categories[item['dataset_name']] = item['categories']
+          })
+        } else {
+          this.$message({
+            message: '获取数据集失败',
+            type: 'warning'
+          })
+        }
+      })
+    },
+    handleDatasetChange(val) {
+      if (val !== '') {
+        this.projectForm.classification = []
+        this.categories[val].forEach(ctg => {
+          this.projectForm.classification.push({
+            value: ctg.name,
+            fillColor: ctg.fillColor,
+            strokeColor: ctg.strokeColor
+          })
+        })
+      }
+    },
     setJsonMode(val) {
       if (val) {
         this.jsonData = this.projectForm
@@ -234,28 +292,30 @@ export default {
         inputValue: ''
       })
     },
-    // saveForm(formName) {
-    //   this.$refs[formName].validate((valid) => {
-    //     if (valid) {
-    //       console.log(this.projectForm)
-    //       alert('submit!')
-    //     } else {
-    //       console.log('error submit!!')
-    //       return false
-    //     }
-    //   })
-    // },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          var index = 0
           this.projectForm.properties.forEach(item => {
+            item.id = index++
             item.inputVisible = undefined
             item.inputValue = undefined
           })
-          // console.log(this.projectForm)
-          // alert('submit!')
+          createProject(this.projectForm).then(response => {
+            if (response.success) {
+              this.$notify({
+                title: '成功',
+                message: '创建成功',
+                type: 'success'
+              })
+            } else {
+              this.$notify.error({
+                title: '错误',
+                message: '创建失败'
+              })
+            }
+          })
         } else {
-          // console.log('error submit!!')
           return false
         }
       })
@@ -263,11 +323,9 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
-
     handleRemoveTag(tag) {
       this.projectForm.classification.splice(this.projectForm.classification.indexOf(tag), 1)
     },
-
     handleRemoveOptions(property, option) {
       property.options.splice(property.options.indexOf(option), 1)
       if (property.default === option) {
@@ -281,7 +339,6 @@ export default {
         this.$refs.saveTagInput.$refs.input.focus()
       })
     },
-
     showOptionInput(property, index) {
       property.inputVisible = true
       console.log(property)
@@ -299,7 +356,6 @@ export default {
       this.fillColor = 'rgba(' + r + ',' + g + ',' + b + ',0.3)'
       this.strokeColor = 'rgba(' + r + ',' + g + ',' + b + ',1)'
     },
-
     handleInputConfirm() {
       const inputValue = this.inputValue
       if (inputValue) {
@@ -353,7 +409,6 @@ export default {
       property.inputVisible = false
       property.inputValue = ''
     },
-
     onPropertyTypeChange(property) {
       property.options = []
       if (property.type === 'Multiple Choice') {
@@ -367,32 +422,36 @@ export default {
 </script>
 
 <style scoped>
-  .el-tag + .el-tag {
-    margin-left: 10px;
-  }
-  .button-new-class {
-    margin-left: 10px;
-    height: 32px;
-    line-height: 30px;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .input-new-class {
-    width: 120px;
-    margin-left: 10px;
-    vertical-align: bottom;
-  }
-  .button-new-tag {
-    margin-top: 10px;
-    height: 40px;
-    /*line-height: 30px;*/
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-  .input-new-tag {
-    height: 40px;
-    width: 120px;
-    margin-top: 10px;
-    vertical-align: bottom;
-  }
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+
+.button-new-class {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.input-new-class {
+  width: 120px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
+
+.button-new-tag {
+  margin-top: 10px;
+  height: 40px;
+  /*line-height: 30px;*/
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.input-new-tag {
+  height: 40px;
+  width: 120px;
+  margin-top: 10px;
+  vertical-align: bottom;
+}
 </style>

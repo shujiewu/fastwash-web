@@ -1,5 +1,4 @@
 <template>
-  <!--  <el-container>-->
   <div class="header">
     <el-col :lg="18">
       <el-radio-group v-model="activeTool" fill="#67C23A">
@@ -21,13 +20,6 @@
           :active="(activeTool === 'extreme-click')"
           @click.native="activeTool = 'extreme-click'"/>
       </el-radio-group>
-      <!--    <el-select v-model="selectBox" :disabled="(activeTool !== 'move')" placeholder="选择框" width="10" @change="onSelectBoxChange">-->
-      <!--      <el-option-->
-      <!--        v-for="item in boxCount"-->
-      <!--        :key="item"-->
-      <!--        :label="item"-->
-      <!--        :value="item"/>-->
-      <!--    </el-select>-->
       <div style="float: right">
 
         <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
@@ -44,7 +36,6 @@
           <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
         </el-button-group>
 
-        <!--      <div style="font-size: 20px;white-space: nowrap;"></div>-->
       </div>
     </el-col>
     <el-col :lg="6">
@@ -55,26 +46,25 @@
 
     </el-col>
   </div>
-<!--  </el-container>-->
 </template>
 
 <script>
 import toolRectangle from './tools/Rectangle.vue'
 import extremeClick from './tools/ExtremeClick.vue'
 import toolMove from './tools/Move.vue'
-import toolSubmit from './tools/Submit.vue'
 import toolZoom from './tools/Zoom'
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
 import { transformSubmit } from '@/utils/proto'
 import { submitItem, exportResult } from '@/api/detection'
 import { uint8ToString } from '@/utils/utils'
+
+/** 工具栏 **/
 export default {
   name: 'Toolbar',
   components: {
     'toolRectangle': toolRectangle,
     'toolMove': toolMove,
-    'toolSubmit': toolSubmit,
     'extremeClick': extremeClick,
     'toolZoom': toolZoom
   },
@@ -113,6 +103,14 @@ export default {
       }
     }
   },
+  /** in the future **/
+  // created() {
+  //   this.projectName = this.$route.params && this.$route.params.projectName
+  //   this.dataset = this.$route.query.dataset
+  //   this.fileName = this.$route.query.fileName
+  //   this.action =  this.$route.query.action
+  // },
+
   mounted() {
     document.addEventListener('keydown', this.handleEvent)
   },
@@ -123,7 +121,6 @@ export default {
       setSelectedItems: 'detection/setSelectedItems'
     }),
     handleEvent(event) {
-      // console.log(event)
       if (event.key === 's' && event.ctrlKey) {
         this.setActiveTool('move')
         event.preventDefault()
@@ -147,7 +144,6 @@ export default {
       }
     },
     setActiveTool(val) {
-      console.log(val)
       this.activeTool = val
     },
     onSelectBoxChange() {
@@ -249,7 +245,6 @@ export default {
       const data = {
         data: btoa(uint8ToString(frameResult))
       }
-      // console.log(data)
       submitItem(data).then(response => {
         if (response.success) {
           this.$notify({
@@ -265,6 +260,23 @@ export default {
           })
         }
       })
+
+      /** in the future **/
+      // submitAnnotation(data, this.action, this.projectName).then(response => {
+      //   if (response.success) {
+      //     this.$notify({
+      //       title: '成功',
+      //       message: '提交成功',
+      //       type: 'success'
+      //     })
+      //     // this.nextItem()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '错误',
+      //       message: '提交失败'
+      //     })
+      //   }
+      // })
     }
   }
 }
@@ -272,11 +284,7 @@ export default {
 
 <style scoped>
   .header {
-    /*border-right: solid 1px rgba(255,255,255,0.10);*/
-    /*padding-right: 10px;*/
-    /*box-shadow: 0 1px 3px 0 rgba(0,0,0,.12), 0 0 3px 0 rgba(0,0,0,.04);*/
     background-color:  #fff;
     height: 60px;
-    /*padding: 3px;*/
   }
 </style>

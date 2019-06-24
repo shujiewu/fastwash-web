@@ -1,10 +1,6 @@
 <template>
   <div class="editor" @mousewheel.prevent>
     <div v-loading="loading" id="bg_img" class="editor_container">
-      <!--      <img-->
-      <!--        -->
-      <!--        src=" "-->
-      <!--        class="img2">-->
       <canvas
         id="detection_canvas"
         resize="true"
@@ -21,6 +17,7 @@ import { mapState, mapActions } from 'vuex'
 import { uint8ToString } from '@/utils/utils'
 import { addBox } from '@/utils/detection'
 
+/** 图片操作界面 **/
 export default {
   name: 'Editor',
   data() {
@@ -29,8 +26,6 @@ export default {
       loading: true,
       bg_dom: null,
       cvs_dom: null
-      // img: new Image(),
-      // zoomVal: 50
     }
   },
   computed: {
@@ -51,11 +46,6 @@ export default {
         this.drawSaveAnnotation()
       }
     }
-    // zoomVal: function(val) {
-    //   if (val !== 0) {
-    //     paper.view.zoom = val / 50
-    //   }
-    // }
   },
   mounted() {
     this.load()
@@ -68,6 +58,7 @@ export default {
       setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag',
       setShape: 'detection/setShape'
     }),
+    // 加载数据
     load() {
       if (this.flag) {
         this.loading = true
@@ -79,9 +70,11 @@ export default {
         this.resetCanvas()
       }
     },
+    // 设置进度, 调用父组件的方法
     setProgress(remain, total) {
       this.$emit('setProgress', remain, total)
     },
+    // 重置当前标注界面
     resetCanvas() {
       this.bg_dom = document.getElementById('bg_img')
       this.cvs_dom = document.getElementById('detection_canvas')
@@ -91,6 +84,7 @@ export default {
         this.drawBackground(frameResult)
       })
     },
+    // 绘制原始的标注
     drawOriginAnnotation() {
       if (this.originalAnnotation != null) {
         // 保存当前
@@ -100,6 +94,7 @@ export default {
         this.setAnnotationEditsFlag(true)
       }
     },
+    // 清空所有标注
     deleteAnnotation() {
       if (this.currentAnnotation != null) {
         paper.project.activeLayer.removeChildren()
@@ -108,6 +103,7 @@ export default {
         this.setAnnotationEditsFlag(true)
       }
     },
+    // 重置为原始标注
     resetAnnotation() {
       if (this.originalAnnotation != null) {
         paper.project.activeLayer.removeChildren()
@@ -116,6 +112,7 @@ export default {
         this.setAnnotationEditsFlag(true)
       }
     },
+    // 切换回当前标注
     drawSaveAnnotation() {
       if (this.currentAnnotation != null) {
         paper.project.activeLayer.removeChildren()
@@ -125,6 +122,7 @@ export default {
         this.setAnnotationEditsFlag(true)
       }
     },
+    // 绘制背景
     drawBackground(frameResult) {
       var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
       this.setShape(shape)
@@ -144,6 +142,7 @@ export default {
         var boxLayer = new paper.Layer()
         paper.project.addLayer(boxLayer)
         boxLayer.activate()
+        // 绘制box
         this.drawBoxes(frameResult)
         frameResult.detImg = {}
         this.setOriginalAnnotation(frameResult)
@@ -152,39 +151,8 @@ export default {
         this.loading = false
       }
       raster.onLoad = load
-
-      // console.log(shape[0])
-      // console.log(shape[1])
-      // console.log(this.cvs_dom.height)
-      // console.log(this.cvs_dom.width)
-      // console.log(this.bg_dom.offsetHeight)
-      // console.log(this.cvs_dom.width)
-      // console.log(paper.view.center)
-      // var raster = new paper.Raster({
-      //   source: this.bg_dom,
-      //   position: paper.view.center
-      // })
-
-      // this.bg_dom.src = ''
-      // console.log(frameResult)
-      // this.setImage('data:image/png;base64,' + btoa(uint8ToString(frameResult.detImg.blob)))
-      // this.bg_dom.src = 'data:image/png;base64,' + btoa(uint8ToString(frameResult.detImg.blob)) // 'data:image/png;base64,' + data.img
-      // const load = () => {
-      //
-      // }
-      // this.bg_dom.onload = load
-      // const resize = event => {
-      //   // 修改所有item
-      //   // raster.position = paper.view.center
-      //   // raster.size = new paper.Size(paper.view.viewSize.width, paper.view.viewSize.height)
-      //   // paper.view.center = new paper.Point(paper.view.center.x + event.delta.x, paper.view.center.y + event.delta.y)
-      // }
-      // paper.view.onResize = resize
-
-      // paper.view.onMouseDown = event => {
-      //   console.log(event)
-      // }
     },
+    // 绘制box
     drawBoxes(frameResult) {
       if ('items' in frameResult) {
         for (const index in frameResult['items']) {
@@ -215,150 +183,38 @@ export default {
           status = item.status === undefined ? 'originalAnnotation' : item.status
           iclass = this.classification.filter(c => c.value === item.class)[0]
         }
-        // console.log(item)
-        addBox([tl.x, tl.y], [wh.x, wh.y], iclass, item.prop, status, 2)
 
-        //
-        // const newPaperItem = new paper.Path.Rectangle({
-        //   point: [tl.x, tl.y],
-        //   size: [wh.x, wh.y],
-        //   data: {
-        //     id: index,
-        //     status: status,
-        //     // 这里需要修改
-        //     class: iclass,
-        //     prop: item.prop,
-        //     type: 'box'
-        //   },
-        //   locked: false
-        // })
-        // newPaperItem.strokeWidth = 2
-        // this.drawItemColor(newPaperItem, item)
+        /** property **/
+        /**
+          var status = ''
+          var iclass = {}
+          var cls_prop = eval('(' + item.itemTextUtf8 + ')')
+          item.class = cls_prop['class']
+          item.prop = cls_prop['prop']
+          if (type === 'original') {
+            status = 'originalAnnotation'
+            iclass = this.classification.filter(c => c.value === item.class)[0] //this.classification[0]
+          } else {
+            status = item.status === undefined ? 'originalAnnotation' : item.status
+            iclass = this.classification.filter(c => c.value === item.class)[0]
+          }
+        **/
+
+        addBox([tl.x, tl.y], [wh.x, wh.y], iclass, item.prop, status, 2)
       }
     },
-    // drawItem(item, type, index) {
-    //   if (item) {
-    //     var tl = this.Rel2abs(
-    //       {
-    //         x: item.box.x / this.shape[1],
-    //         y: item.box.y / this.shape[0]
-    //       }
-    //     )
-    //     var wh = this.Rel2abs(
-    //       {
-    //         x: item.box.w / this.shape[1],
-    //         y: item.box.h / this.shape[0]
-    //       }
-    //     )
-    //     var status = ''
-    //     var iclass = ''
-    //     if (type === 'original') {
-    //       status = 'originalAnnotation'
-    //       iclass = 'target'
-    //     } else {
-    //       status = item.status === undefined ? 'originalAnnotation' : item.status
-    //       iclass = item.class
-    //     }
-    //
-    //     const newPaperItem = new paper.Path.Rectangle({
-    //       point: [tl.x, tl.y],
-    //       size: [wh.x, wh.y],
-    //       data: {
-    //         id: index,
-    //         status: status,
-    //         // 这里需要修改
-    //         class: iclass,
-    //         prop: item.prop,
-    //         type: 'box'
-    //       },
-    //       locked: false
-    //     })
-    //     newPaperItem.strokeWidth = 2
-    //     this.drawItemColor(newPaperItem, item)
-    //   }
-    // },
-    // drawItemColor(paperItem, stateItem) {
-    //   if (stateItem.color && stateItem.color.stroke) {
-    //     if (typeof stateItem.color.stroke === 'string') {
-    //       paperItem.strokeColor = stateItem.color.stroke
-    //     } else {
-    //       paperItem.strokeColor = new paper.Color({
-    //         hue: stateItem.color.stroke.hue,
-    //         saturation: stateItem.color.stroke.saturation,
-    //         lightness: stateItem.color.stroke.lightness,
-    //         alpha: stateItem.color.stroke.alpha
-    //       })
-    //     }
-    //   } else {
-    //     const defaultColors = this.classColors(paperItem.data.class)
-    //     paperItem.fillColor = defaultColors.fill
-    //     paperItem.strokeColor = defaultColors.stroke
-    //   }
-    // },
-    // classColors(tag) {
-    //   if (this.classification.length > 0) {
-    //     const item = this.classification.filter(i => i.value === tag)
-    //     if (item.length > 0) {
-    //       const fillColor = item[0].fillColor.replace(/rgba|rgb|\(|\)/gm, '')
-    //         .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
-    //       const strokeColor = item[0].strokeColor.replace(/rgba|rgb|\(|\)/gm, '')
-    //         .split(/\s|,/g).filter((val) => val !== '').map((val, index) => index > 2 ? val : val / 255)
-    //       return {
-    //         fill: {
-    //           red: fillColor[0],
-    //           green: fillColor[1],
-    //           blue: fillColor[2],
-    //           alpha: fillColor[3]
-    //         },
-    //         stroke: {
-    //           red: strokeColor[0],
-    //           green: strokeColor[1],
-    //           blue: strokeColor[2],
-    //           alpha: strokeColor[3]
-    //         }
-    //       }
-    //     } else {
-    //       return getDefaultColor()
-    //     }
-    //   }
-    // },
     Rel2abs(pt) {
       return {
         x: Math.round(pt.x * paper.view.viewSize.width),
         y: Math.round(pt.y * paper.view.viewSize.height)
       }
     }
-    // var text = new paper.PointText(new paper.Point(30, 30))
-    // text.fillColor = 'black'
-    // text.content = 'Hello world'
-    //
-    // var text2 = new paper.PointText({
-    //   point: [50, 50],
-    //   content: 'The contents of the point text',
-    //   fillColor: 'black',
-    //   strokColor: 'white',
-    //   fontFamily: 'Courier New',
-    //   fontWeight: 'bold',
-    //   fontSize: 25
-    // })
-
-    // const raster = new paper.Raster('data:image/png;base64,' + data.img)
-    // raster.position = paper.view.center
-    // const load = () => {
-    //   raster.size = new paper.Size(paper.view.viewSize.width, paper.view.viewSize.height)
-    //   console.log(raster)
-    // }
-    // raster.onLoad = load
   }
 }
 </script>
 
 <style scoped>
   .annotation_canvas {
-    /*position: absolute;*/
-    /*flex: 1 1 auto;*/
-    /*margin: 10px;*/
-    /*height: 100%;*/
     height: 100%;
     width: 100%;
   }

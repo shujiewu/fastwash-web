@@ -31,51 +31,6 @@
       </el-col>
     </el-row>
   </div>
-  <!--      <el-card :body-style="{ padding: '0px' }" class="box-card">-->
-  <!--        <div slot="header" class="clearfix">-->
-  <!--          <toolbar @nextItem="getItem" @resetItem="resetItem" @deleteItem="deleteItem"/>-->
-  <!--        </div>-->
-
-  <!--      </el-card>-->
-
-  <!--      </el-col>-->
-  <!--      <el-col :lg="6">-->
-
-  <!--        <el-card class="box-card">-->
-  <!--          <div slot="header" class="clearfix">-->
-  <!--            <span>设置</span>-->
-  <!--          </div>-->
-
-  <!--        </el-card>-->
-  <!--        <el-card class="box-card">-->
-  <!--          <div slot="header" class="clearfix">-->
-  <!--            <span>属性设置</span>-->
-  <!--          </div>-->
-
-  <!--        </el-card>-->
-  <!--        <el-card class="box-card">-->
-  <!--          <div slot="header" class="clearfix">-->
-  <!--            <span>所有标注</span>-->
-  <!--          </div>-->
-  <!--          <annotationTable/>-->
-  <!--        </el-card>-->
-  <!--      </el-col>-->
-
-  <!--    <div style="margin-bottom: 10px" >-->
-  <!--      <span class="title">标注进度：</span>-->
-  <!--      <span>{{ total-remain }}</span>-->
-  <!--      <span>/</span>-->
-  <!--      <span>{{ total }}</span>-->
-  <!--&lt;!&ndash;      <el-progress :percentage="percentage" :show-text="false" :stroke-width="14" style="margin-top: 10px"/>&ndash;&gt;-->
-  <!--    </div>-->
-  <!--    <el-row>-->
-  <!--      <el-card class="box-card">-->
-  <!--        <div slot="header" class="clearfix">-->
-  <!--          <span>当前标注</span>-->
-  <!--        </div>-->
-  <!--        <annotationTable/>-->
-  <!--      </el-card>-->
-  <!--    </el-row>-->
 </template>
 
 <script>
@@ -122,28 +77,28 @@ export default {
       setClassification: 'detection/setClassification',
       setProperty: 'detection/setProperty'
     }),
+    // 获取配置信息，将来可以用getProjectConfig代替
     fetchData() {
       getConfig().then(response => {
         this.setClassification(response.data.classification)
         this.setProperty(response.data.property)
       })
     },
+    // 调用子组件的load方法
     getItem() {
       this.$refs.editor.load()
     },
+    // 调用子组件的resetAnnotation方法
     resetItem() {
       this.$refs.editor.resetAnnotation()
     },
+    // 调用子组件的deleteAnnotation方法
     deleteItem() {
       this.$refs.editor.deleteAnnotation()
     },
+    // 调用子组件的setProgress方法
     setProgress(remain, total) {
       this.$refs.toolbar.setProgress(remain, total)
-      // this.remain = remain
-      // this.total = total
-      // if (remain !== undefined && total !== undefined && remain > 0 && total > 0) {
-      //   this.percentage = Math.round((total - remain) / total * 100)
-      // }
     }
   }
 }
@@ -176,13 +131,10 @@ export default {
     border-right: 1px solid rgba(0,0,0,.12);
     margin-top: 1px;
     padding:10px
-    /*box-shadow: 0 1px 1px 0 rgba(0,0,0,.12), 0 0 3px 0 rgba(0,0,0,.04);*/
   }
 
   .settings {
     margin-top:1px
-    /*border-left: 1px solid rgba(0,0,0,.12)*/
-    /*box-shadow: 0 1px 1px 0 rgba(0,0,0,.12), 0 0 3px 0 rgba(0,0,0,.04);*/
   }
   .title {
     margin-left: 10px;
@@ -194,6 +146,5 @@ export default {
   .toolbar-group {
     margin-top: 2px;
     padding: 10px;
-    /*border-bottom: 1px solid rgba(0,0,0,.12)*/
   }
 </style>

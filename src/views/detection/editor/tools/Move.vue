@@ -5,6 +5,8 @@
 <script>
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
+
+/** 拖拽操作 **/
 export default {
   props: {
     active: {
@@ -29,6 +31,7 @@ export default {
     })
   },
   watch: {
+    // 监听被选中的box变化
     selectedItems: function(val) {
       if (this.selectedItems.length > 0) {
         if (this.selectedItems[0] !== this.selectionItem) {
@@ -42,25 +45,29 @@ export default {
     }
   },
   created() {
-    // let hitResult = this.hitResult
+    // 鼠标按下事件
     const toolDown = event => {
+      // 如果已经有选中的box,判断该box的hit事件
       if (this.selectionItem !== null) {
         this.hitResult = this.selectionItem.hitTest(event.point, this.hitOptions)
       }
+      // 如果box时间未命中,则判断全局hit事件
       if (this.hitResult === null) {
         this.hitResult = paper.project.hitTest(event.point, this.hitOptions)
       }
+      // 如果hit事件存在
       if (this.hitResult) {
         if (this.state === 'edit') {
           if (this.hitResult.type === 'bounds' || this.hitResult.type === 'stroke') {
-            // 放大缩小
+            // 拖拽box的操作
             this.toolMode = 'transform'
           } else {
-            // 移动
+            // 移动box的操作
             paper.project.deselectAll()
             this.hitResult.item.selected = true
             this.toolMode = 'move'
           }
+          // 设置被选中的box
           if (paper.project.selectedItems.length > 0) {
             this.selectionItem = paper.project.selectedItems[0]
             this.setSelectedItems(paper.project.selectedItems)
@@ -103,9 +110,6 @@ export default {
         }
         this.setAnnotationEditsFlag(true)
       } else if (this.toolMode === 'transform' && this.selectionItem !== null) {
-        // if (event.point.x < 0 || event.point.y < 0) {
-        //   paper.view.center = new paper.Point(paper.view.center.x + event.delta.x, paper.view.center.y + event.delta.y)
-        // }
         let newWidth = null
         let newHeight = null
         let transfromCenter = null
@@ -151,12 +155,7 @@ export default {
 
         const width = this.selectionItem.bounds.width
         const height = this.selectionItem.bounds.height
-        // if (width < 1) {
-        //   width = 1
-        // }
-        // if (height < 1) {
-        //   height = 1
-        // }
+
         const horizScaleFactor = Math.abs(newWidth / width)
         const vertScaleFactor = Math.abs(newHeight / height)
 
@@ -178,24 +177,6 @@ export default {
         }
 
         this.setAnnotationEditsFlag(true)
-
-        // console.log(newWidth, newHeight)
-        // console.log(this.selectionItem.bounds.width, this.selectionItem.bounds.height)
-        // newWidth = 10
-        // newHeight = 10
-        // this.selectionItem.bounds.width = 10
-        // this.selectionItem.bounds.height = 10
-
-        // else if (this.hitResult && this.hitResult.name === 'bottom-center') {
-        //   console.log(this.selectionItem.bounds)
-        //   newWidth = this.selectionItem.bounds.width
-        //   newHeight = event.point.y - this.selectionItem.bounds.topCenter.y
-        //   transfromCenter = this.selectionItem.bounds.topCenter
-        // }
-        // hitResult.item.position = hitResult.item.position.add(event.delta)
-        // if (hitResult.item.data.status === 'originalAnnotation') {
-        //   hitResult.item.data.status = 'editAnnotation'
-        // }
       }
     }
 
@@ -214,19 +195,13 @@ export default {
         } else if (hit.type === 'fill') {
           paper.view.element.style.cursor = 'move'
         }
-
-        // else if (hit.name === 'right-center' || hit.name === 'left-center') {
-        //   paper.view.element.style.cursor = 'ew-resize'
-        // } else if (hit.name === 'top-center' || hit.name === 'bottom-center') {
-        //   paper.view.element.style.cursor = 'ns-resize'
-        // }
       } else {
         const canvas = document.getElementById('detection_canvas')
         canvas.style.cursor = 'auto'
       }
     }
 
-    // 删除事件
+    // 删除box事件
     const toolKeyUp = event => {
       if (this.active) {
         if (event.key === 'delete') {
@@ -260,7 +235,6 @@ export default {
             }
             this.setSelectedItems([])
             this.selectionItem = null
-            // this.setSelectedItems([paper.project.selectedItems])
             this.setAnnotationEditsFlag(true)
           }
         }
@@ -305,6 +279,7 @@ export default {
       this.selectionItem = paper.project.selectedItems.length > 0 ? paper.project.selectedItems[0] : null
     },
 
+    // 如果box被锁定,则不会被判断为选中
     matchFilter(itemToCheck) {
       if (!itemToCheck.locked) {
         return true

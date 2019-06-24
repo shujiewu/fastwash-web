@@ -16,7 +16,6 @@ import jsonData from '@/utils/project'
 //   '{ "id": 2,"name": "输入属性", "type": "Input","default": "Input default value"},' +
 //   '{ "id": 3,"name": "多分类", "type": "Multiple Classification","options": ["1", "2","3"], "default": "1"},' +
 //   '{ "id": 4,"name": "多项选择", "type": "Multiple Choice","options": ["One", "Two", "Three", "Four", "Five"], "default": "One"}]}'
-
 export default {
   name: 'JsonEditorDemo',
   components: { JsonEditor },

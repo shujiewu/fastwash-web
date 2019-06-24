@@ -1,18 +1,28 @@
 import paper from 'paper'
+/** 存储目标检测相关的信息 **/
 const detection = {
   namespaced: true,
   state: {
     activeLayer: 0,
+    // 记录选中的box
     selectedItems: [],
+    // 记录分类配置
     classification: [],
+    // 记录属性配置
     property: [],
     projectID: '',
     projectName: '',
+    // 保存原始标注
     originalAnnotation: null,
+    // 标识当前状态
     state: 'edit',
+    // 保存当前标注
     currentAnnotation: null,
+    // 标记当前是否修改
     annotationEditsFlag: false,
+    // 图片shape
     shape: [],
+    // 记录当前框数量
     boxCount: 0,
     tableSelect: true
   },
@@ -35,6 +45,7 @@ const detection = {
     setOriginalAnnotation: (state, playload) => {
       state.originalAnnotation = playload
     },
+    // 保存当前标注
     saveAnnotation: (state) => {
       const items = paper.project.getItems({
         data: {

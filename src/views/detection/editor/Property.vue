@@ -28,15 +28,13 @@
             :key="option"/>
         </el-select>
       </el-form-item>
-      <!--      <el-form-item>-->
-      <!--        <el-button type="primary" @click="onSubmit">保存</el-button>-->
-      <!--        <el-button @click="onReset">重置</el-button>-->
-      <!--      </el-form-item>-->
     </el-form>
   </div>
 </template>
 <script>
 import { mapState } from 'vuex'
+
+/** 属性设置 **/
 export default {
   name: 'Property',
   data() {
@@ -57,6 +55,7 @@ export default {
     })
   },
   watch: {
+    // 监听全局属性列表的变化
     propertyList: function(val) {
       if (this.propertyList.length > 0) {
         this.input = this.propertyList.filter(property => property.type === 'Input')
@@ -65,16 +64,17 @@ export default {
         this.multiChoice = this.propertyList.filter(property => property.type === 'Multiple Choice')
       }
     },
+    // 监听被选中的box变化
     selectedItems: function(val) {
       if (this.selectedItems.length > 0) {
         if (this.selectedItems[0].data.prop !== undefined) {
-          // console.log(this.selectedItems[0].data.prop)
           this.form = this.selectedItems[0].data.prop
         } else {
           this.initForm()
         }
       }
     },
+    // 监听form变化, 并修改box对应的属性
     form: {
       deep: true,
       handler: function(newVal) {
@@ -83,20 +83,10 @@ export default {
         }
       }
     }
-    // form: function(val) {
-    //   console.log(val)
-    //   if (this.selectedItems.length > 0) {
-    //     this.selectedItems[0].data.prop = JSON.parse(JSON.stringify(this.form))
-    //     // this.setAnnotationEditsFlag(true)
-    //   }
-    // }
   },
   mounted() {
   },
   methods: {
-    // ...mapActions({
-    //   setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag'
-    // }),
     initForm() {
       this.form = {}
       if (this.input.length !== 0) {
@@ -119,14 +109,10 @@ export default {
           this.$set(this.form, item.id, item.default)
         })
       }
-      // if (this.selectedItems.length > 0) {
-      //   this.selectedItems[0].data.prop = JSON.parse(JSON.stringify(this.form))
-      // }
     },
     onSubmit() {
       if (this.selectedItems.length > 0) {
         this.selectedItems[0].data.prop = JSON.parse(JSON.stringify(this.form))
-        // this.setAnnotationEditsFlag(true)
       }
     },
     onReset() {
@@ -144,6 +130,5 @@ export default {
   .component-item{
     margin-left: 20px;
     margin-top: 10px;
-    /*min-height: 250px;*/
   }
 </style>

@@ -11,7 +11,7 @@
     >
       <el-table-column label="Name" min-width="15px" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.nid }}</span>
+          <span class="link-type">{{ row.file_name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Size" min-width="10px" align="center">
@@ -51,22 +51,22 @@
       <el-table-column label="Actions" align="center" min-width="30" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <!--<router-link :to="'/detection/annotation/'+ projectName + '/' + scope.row.dataset + '/'+ scope.row.file_name">-->
-          <router-link v-if="scope.row.status=='Unannotated'" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.nid, action: 'annotate' }}" >
+          <router-link v-if="scope.row.status=='Unannotated'" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.file_name, action: 'annotate' }}" >
             <el-button type="primary" size="mini">
               Annotate
             </el-button>
           </router-link>
-          <router-link :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.nid,action: 'inference' }}" >
+          <router-link :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.file_name,action: 'inference' }}" >
             <el-button type="success" size="mini">
               Inference
             </el-button>
           </router-link>
-          <router-link v-if="scope.row.has_ground_truth==true" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.nid, action: 'groundtruth'}}" >
+          <router-link v-if="scope.row.has_ground_truth==true" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.file_name, action: 'groundtruth'}}" >
             <el-button type="primary" size="mini">
               GroudTruth
             </el-button>
           </router-link>
-          <router-link v-if="scope.row.lastUpdateTime!=null || scope.row.inferenceTime!=null" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.nid, action: 'improve' }}" >
+          <router-link v-if="scope.row.lastUpdateTime!=null || scope.row.inferenceTime!=null" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.file_name, action: 'improve' }}" >
             <el-button type="success" size="mini">
               Improve
             </el-button>

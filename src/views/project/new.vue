@@ -2,8 +2,8 @@
   <div>
     <el-row>
       <div class="header">
-        <i style="font-size: 26px" class="el-icon-setting"/>
-        <span style="font-size: 24px">新建项目</span>
+        <i style="font-size: 24px" class="el-icon-setting"/>
+        <span style="font-size: 20px">新建项目</span>
         <el-switch
           v-model="jsonMode"
           style="float: right"

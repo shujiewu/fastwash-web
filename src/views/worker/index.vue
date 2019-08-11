@@ -3,7 +3,7 @@
     <el-row>
       <div class="header">
         <i style="font-size: 24px" class="el-icon-setting"/>
-        <span style="font-size: 20px">项目列表</span>
+        <span style="font-size: 20px">项目选择</span>
       </div>
     </el-row>
     <el-row style="margin: 20px">

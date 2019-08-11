@@ -1,6 +1,6 @@
 import { login, logout, getInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
-
+import { getToken, setToken, removeToken, setUserName } from '@/utils/auth'
+import { resetRouter, router, workerRouterMap, requesterRouterMap } from '@/router'
 const user = {
   state: {
     token: getToken(),
@@ -30,9 +30,20 @@ const user = {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         login(username, userInfo.password).then(response => {
-          const data = response.data
+          const data = response
           setToken(data.token)
+          setUserName(data.name)
+          // if (data.role === 'admin' || data.role === 'requester') {
+          //   // resetRouter('requester')
+          //   router.addRoutes(requesterRouterMap)
+          // } else {
+          //   // resetRouter('worker')
+          //   router.addRoutes(workerRouterMap)
+          // }
           commit('SET_TOKEN', data.token)
+          commit('SET_ROLES', data.role)
+          commit('SET_NAME', data.name)
+          commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
           resolve()
         }).catch(error => {
           reject(error)
@@ -44,14 +55,14 @@ const user = {
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getInfo(state.token).then(response => {
-          const data = response.data
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+          const data = response
+          if (data.role) { // 验证返回的roles是否是一个非空数组
+            commit('SET_ROLES', data.role)
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
           commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
+          commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
           resolve(response)
         }).catch(error => {
           reject(error)

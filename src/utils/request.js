@@ -5,7 +5,8 @@ import { getToken, getUserName } from '@/utils/auth'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: process.env.API_ROOT, // 'http://10.159.0.60:5000/', // api 的 base_url
+  // headers: { 'Content-Type': 'application/json;charset=utf-8' },
+  // baseURL: process.env.API_ROOT, // 'http://10.159.0.60:5000/', // api 的 base_url
   timeout: 5000 // 请求超时时间
 })
 
@@ -13,9 +14,10 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     if (store.getters.token) {
-      config.headers['X-Token'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
-      config.headers['user'] = getUserName()
+      config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
+      // config.headers['user'] = getUserName()
     }
+    // config.headers['Access-Control-Allow-Origin'] = '*'
     return config
   },
   error => {

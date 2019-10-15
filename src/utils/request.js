@@ -6,7 +6,7 @@ import { getToken, getUserName } from '@/utils/auth'
 // 创建axios实例
 const service = axios.create({
   // headers: { 'Content-Type': 'application/json;charset=utf-8' },
-  // baseURL: process.env.API_ROOT, // 'http://10.159.0.60:5000/', // api 的 base_url
+  baseURL: process.env.API_ROOT, // 'http://10.159.0.60:5000/', // api 的 base_url
   timeout: 5000 // 请求超时时间
 })
 

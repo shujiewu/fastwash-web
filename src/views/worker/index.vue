@@ -139,9 +139,8 @@ export default {
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
-        // console.log(response)
-        this.list = response.items
-        this.total = parseInt(response.total)
+        this.list = response.data.rows
+        this.total = parseInt(response.data.total)
         this.listLoading = false
       })
     },

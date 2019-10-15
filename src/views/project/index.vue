@@ -30,7 +30,7 @@
         </el-table-column>
         <el-table-column label="Dataset" min-width="15px" align="center">
           <template slot-scope="{row}">
-            <span class="link-type">{{ row.data }}</span>
+            <span class="link-type">{{ row.dataSetName }}</span>
           </template>
         </el-table-column>
         <el-table-column label="CreateTime" min-width="15px" align="center">
@@ -60,13 +60,13 @@
             <el-button type="primary" size="mini">
               Edit
             </el-button>
-            <el-button v-if="row.status=='new'" size="mini" type="success" @click="handlePublish(row)">
+            <el-button v-if="row.status=='created'" size="mini" type="success" @click="handlePublish(row)">
               Publish
             </el-button>
             <el-button v-if="row.status=='published'" size="mini" type="success" @click="handleDetail(row)">
               Detail
             </el-button>
-            <router-link :to="'/project/images/'+row.name">
+            <router-link :to="'/project/'+row.name+'/images'">
               <el-button v-if="row.status=='published'" size="mini">
                 Images
               </el-button>
@@ -94,7 +94,7 @@ export default {
     statusFilter(status) {
       const statusMap = {
         published: 'success',
-        draft: 'new.vue',
+        // draft: 'new.vue',
         deleted: 'danger'
       }
       return statusMap[status]
@@ -140,8 +140,8 @@ export default {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         // console.log(response)
-        this.list = response.items
-        this.total = parseInt(response.total)
+        this.list = response.data.rows
+        this.total = parseInt(response.data.total)
         this.listLoading = false
       })
     },

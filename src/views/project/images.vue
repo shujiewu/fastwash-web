@@ -11,7 +11,7 @@
     >
       <el-table-column label="Name" min-width="15px" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.file_name }}</span>
+          <span class="link-type">{{ row.imageId }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Size" min-width="10px" align="center">
@@ -21,7 +21,7 @@
       </el-table-column>
       <el-table-column label="Dataset" min-width="15px" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ row.dataset }}</span>
+          <span class="link-type">{{ row.dataSetName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="GroundTruth" class-name="status-col" min-width="10" align="center">
@@ -126,9 +126,8 @@ export default {
     getList() {
       this.listLoading = true
       fetchImageList(this.projectName, this.listQuery).then(response => {
-        console.log(response)
-        this.list = response.items
-        this.total = parseInt(response.total)
+        this.list = response.data.rows
+        this.total = parseInt(response.data.total)
         this.listLoading = false
       })
     }

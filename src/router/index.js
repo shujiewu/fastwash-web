@@ -53,7 +53,7 @@ export const constantRouterMap = [
         meta: { title: '项目列表', icon: 'table' }
       },
       {
-        path: 'images/:projectName',
+        path: ':projectName/images',
         component: () => import('@/views/project/images'),
         name: 'images',
         meta: { title: 'images' },

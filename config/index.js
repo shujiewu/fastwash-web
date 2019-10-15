@@ -11,7 +11,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api':{
-        target: process.env.API_ROOT,
+        target:  process.env.API_ROOT,
         changeOrigin: true,  //是否跨域
         pathRewrite: {
           '^/api': '/api'

@@ -11,8 +11,8 @@
             <el-option label="Video" value="Video"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="数据来源" prop="data">
-          <el-select v-model="projectForm.data" placeholder="请选择数据来源" @change="handleDatasetChange">
+        <el-form-item label="数据来源" prop="dataSetName">
+          <el-select v-model="projectForm.dataSetName" placeholder="请选择数据来源" @change="handleDatasetChange">
             <el-option v-for="item in dataset" :key="item" :label="item" :value="item"/>
           </el-select>
         </el-form-item>
@@ -158,7 +158,7 @@ export default {
       projectForm: {
         name: 'Fast Wash Test',
         type: 'Detection',
-        data: '',
+        dataSetName: '',
         classification: [{
           value: 'target',
           fillColor: 'rgba(19, 206, 102, 0.2)',
@@ -179,7 +179,7 @@ export default {
         type: [
           { required: true, message: '请选择标注类型', trigger: 'change' }
         ],
-        data: [
+        dataSetName: [
           { required: true, message: '请选择数据来源', trigger: 'change' }
         ],
         classification: [
@@ -196,15 +196,16 @@ export default {
   methods: {
     getDataset() {
       fetchDataset().then(response => {
+        console.log(response)
         if (response.success) {
-          response.items.forEach(item => {
-            this.dataset.push(item['dataset_name'])
+          response.data.forEach(item => {
+            this.dataset.push(item['dataSetName'])
             item['categories'].forEach(ctg => {
               this.getRandomColor()
               ctg['fillColor'] = this.fillColor
               ctg['strokeColor'] = this.strokeColor
             })
-            this.categories[item['dataset_name']] = item['categories']
+            this.categories[item['dataSetName']] = item['categories']
           })
         } else {
           this.$message({

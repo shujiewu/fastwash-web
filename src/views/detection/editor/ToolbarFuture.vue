@@ -219,34 +219,22 @@ export default {
         const item = this.currentAnnotation[index]
         frameResult.items.push({
           box: item.box,
-          itemTextUtf8: JSON.stringify({
-            class: item.class,
-            prop: item.prop,
-            status: item.status
-          })
+          classification: { value: item.class },
+          property: item.prop,
+          status: item.status,
+          type:"crowdAnnotated"
+          // itemTextUtf8: JSON.stringify({
+          //
+          // })
         })
+        console.log(frameResult)
       }
-      frameResult = transformSubmit(frameResult)
-      const data = {
-        data: btoa(uint8ToString(frameResult))
-      }
-      // submitItem(data).then(response => {
-      //   if (response.success) {
-      //     this.$notify({
-      //       title: '成功',
-      //       message: '提交成功',
-      //       type: 'success'
-      //     })
-      //     this.nextItem()
-      //   } else {
-      //     this.$notify.error({
-      //       title: '错误',
-      //       message: '提交失败'
-      //     })
-      //   }
-      // })
+      // frameResult = transformSubmit(frameResult)
+      // const data = {
+      //  data: btoa(uint8ToString(frameResult))
+      // }
       /** in the future **/
-      submitAnnotation(data, this.action, this.projectName).then(response => {
+      submitAnnotation(frameResult, this.action, this.projectName).then(response => {
         if (response.success) {
           this.$notify({
             title: '成功',

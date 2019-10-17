@@ -38,7 +38,7 @@ export function fetchList(query) {
 // 获取存在的数据集
 export function fetchDataset(query) {
   return request({
-    url: '/api/fastwash/dataset/list',
+    url: '/api/fastwash/dataSet/list',
     method: 'get'
   })
 }

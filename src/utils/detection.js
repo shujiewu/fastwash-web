@@ -8,7 +8,7 @@ export function addBox(downPoint, point, classification, prop, status, strokeWid
       type: 'box'
     }
   })
-  if (prop === undefined) {
+  if (prop === undefined || prop === null) {
     var propertyList = store.state.detection.property
     // console.log(propertyList)
     if (propertyList.length > 0) {
@@ -19,6 +19,7 @@ export function addBox(downPoint, point, classification, prop, status, strokeWid
       prop = form
     }
   }
+  // console.log(prop)
 
   // 添加右上角的标识框
   const newRect = new paper.Path.Rectangle(downPoint, point)

@@ -27,7 +27,7 @@
       <el-table-column label="GroundTruth" class-name="status-col" min-width="10" align="center">
         <template slot-scope="{row}">
           <el-tag>
-            {{ row.has_ground_truth }}
+            {{ row.hasGroundTruth }}
           </el-tag>
         </template>
       </el-table-column>
@@ -45,28 +45,28 @@
       </el-table-column>
       <el-table-column label="LastUpdateTime" class-name="status-col" min-width="10" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.lastUpdateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ Number(row.lastUpdateTime)/1000 | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Actions" align="center" min-width="30" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <!--<router-link :to="'/detection/annotation/'+ projectName + '/' + scope.row.dataset + '/'+ scope.row.file_name">-->
-          <router-link v-if="scope.row.status=='Unannotated'" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.file_name, action: 'annotate' }}" >
+          <router-link v-if="scope.row.status=='unannotated'" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'annotate' }}" >
             <el-button type="primary" size="mini">
               Annotate
             </el-button>
           </router-link>
-          <router-link :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.file_name,action: 'inference' }}" >
+          <router-link :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId,action: 'inference' }}" >
             <el-button type="success" size="mini">
               Inference
             </el-button>
           </router-link>
-          <router-link v-if="scope.row.has_ground_truth==true" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.file_name, action: 'groundtruth'}}" >
+          <router-link v-if="scope.row.hasGroundTruth==true" :to="{path:'/detection/annotation/'+ projectName, query:{ dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'groundtruth'}}" >
             <el-button type="primary" size="mini">
               GroudTruth
             </el-button>
           </router-link>
-          <router-link v-if="scope.row.lastUpdateTime!=null || scope.row.inferenceTime!=null" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataset , fileName:scope.row.file_name, action: 'improve' }}" >
+          <router-link v-if="scope.row.status!='unannotated' || scope.row.lastUpdateTime!=null || scope.row.inferenceTime!=null" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'improve' }}" >
             <el-button type="success" size="mini">
               Improve
             </el-button>

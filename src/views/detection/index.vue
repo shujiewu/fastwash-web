@@ -1,35 +1,39 @@
 <template>
   <div>
-    <el-row>
-      <toolbar ref="toolbar" class="toolbar-group" @nextItem="getItem" @resetItem="resetItem" @deleteItem="deleteItem"/>
-    </el-row>
-    <el-row>
-      <el-col :lg="18">
-        <editor ref="editor" @setProgress="setProgress"/>
-      </el-col>
-      <el-col :lg="6" class="settings">
-        <el-collapse v-model="activeNames">
-          <el-collapse-item name="1">
-            <template slot="title">
-              <span class="title">所有标注</span>
-            </template>
-            <annotation-table class="content"/>
-          </el-collapse-item>
-          <el-collapse-item name="2">
-            <template slot="title">
-              <span class="title">类别设置</span>
-            </template>
-            <classification class="content"/>
-          </el-collapse-item>
-          <el-collapse-item name="3">
-            <template slot="title">
-              <span class="title">属性设置</span>
-            </template>
-            <property class="content"/>
-          </el-collapse-item>
-        </el-collapse>
-      </el-col>
-    </el-row>
+    <el-col :lg="6" class="settings">
+    </el-col>
+    <el-col :lg="18">
+      <el-row>
+        <toolbar ref="toolbar" class="toolbar-group" @nextItem="getItem" @resetItem="resetItem" @deleteItem="deleteItem"/>
+      </el-row>
+      <el-row>
+        <el-col :lg="18">
+          <editor ref="editor" @setProgress="setProgress"/>
+        </el-col>
+        <el-col :lg="6" class="settings">
+          <el-collapse v-model="activeNames">
+            <el-collapse-item name="1">
+              <template slot="title">
+                <span class="title">所有标注</span>
+              </template>
+              <annotation-table class="content"/>
+            </el-collapse-item>
+            <el-collapse-item name="2">
+              <template slot="title">
+                <span class="title">类别设置</span>
+              </template>
+              <classification class="content"/>
+            </el-collapse-item>
+            <el-collapse-item name="3">
+              <template slot="title">
+                <span class="title">属性设置</span>
+              </template>
+              <property class="content"/>
+            </el-collapse-item>
+          </el-collapse>
+        </el-col>
+      </el-row>
+    </el-col>
   </div>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="editor" @mousewheel.prevent>
+  <div id="editor_dom" class="editor" @mousewheel.prevent>
     <div v-loading="loading" id="bg_img" class="editor_container">
       <canvas
         id="detection_canvas"
@@ -24,6 +24,7 @@ export default {
       flag: true,
       loading: true,
       bg_dom: null,
+      editor_dom: null,
       cvs_dom: null
     }
   },
@@ -52,7 +53,7 @@ export default {
   created() {
     this.projectName = this.$route.params && this.$route.params.projectName
     this.dataset = this.$route.query.dataset
-    this.fileName = this.$route.query.fileName
+    this.imageId = this.$route.query.imageId
     this.action = this.$route.query.action
   },
   methods: {
@@ -79,10 +80,11 @@ export default {
     },
     resetCanvas() {
       this.bg_dom = document.getElementById('bg_img')
+      this.editor_dom = document.getElementById('editor_dom')
       this.cvs_dom = document.getElementById('detection_canvas')
-      getImage(this.projectName, this.dataset, this.fileName, this.action).then(response => {
+      getImage(this.projectName, this.dataset, this.imageId, this.action).then(response => {
         this.setProgress(response.unannotated_nums, response.all_nums)
-        const frameResult = transformResponse(response.data)
+        const frameResult = response.data// transformResponse(response.data)
         this.drawBackground(frameResult)
       })
     },
@@ -121,16 +123,29 @@ export default {
       }
     },
     drawBackground(frameResult) {
-      var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
+      // var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
+      var shape = []
+      shape[0] = frameResult.detImg.height
+      shape[1] = frameResult.detImg.width
       this.setShape(shape)
-
+      // console.log(this.bg_dom.offsetHeight)
       // this.cvs_dom.width = this.bg_dom.offsetWidth
-      this.bg_dom.style.height = (shape[0] * this.bg_dom.offsetWidth / shape[1]) + 'px'
+      // console.log(this.bg_dom.offsetWidth)
+      if(frameResult.detImg.height>frameResult.detImg.width)
+        this.bg_dom.style.width = (shape[1] * this.bg_dom.offsetHeight / shape[0]) + 'px'
+      else
+        this.bg_dom.style.height = (shape[0] * this.bg_dom.offsetWidth / shape[1]) + 'px'
       this.cvs_dom.width = this.bg_dom.offsetWidth
       this.cvs_dom.height = this.bg_dom.offsetHeight
+
       paper.view.viewSize.width = this.cvs_dom.offsetWidth
       paper.view.viewSize.height = this.cvs_dom.offsetHeight
-      var raster = new paper.Raster('data:image/png;base64,' + btoa(uint8ToString(frameResult.detImg.blob)))
+
+      var raster = new paper.Raster('data:image/png;base64,' + frameResult.detImg.blob)
+
+      if(frameResult.detImg.height>frameResult.detImg.width){
+        this.cvs_dom.style.left=(this.editor_dom.offsetWidth/2-this.bg_dom.offsetWidth/2)+'px'
+      }
       raster.position = paper.view.center
       const load = () => {
         raster.width = paper.view.viewSize.width
@@ -140,7 +155,7 @@ export default {
         paper.project.addLayer(boxLayer)
         boxLayer.activate()
         this.drawBoxes(frameResult)
-        frameResult.detImg = {}
+        frameResult.detImg.blob = ""
         this.setOriginalAnnotation(frameResult)
         this.saveAnnotation()
         this.setAnnotationEditsFlag(true)
@@ -172,15 +187,18 @@ export default {
         var status = ''
         var iclass = {}
 
-        var cls_prop = eval('(' + item.itemTextUtf8 + ')')
-        item.class = cls_prop['class']
-        item.prop = cls_prop['prop']
+        // var cls_prop = eval('(' + item.itemTextUtf8 + ')')
+        // item.class = cls_prop['class']
+        // item.prop = cls_prop['prop']
+        item.class = item.classification
+        item.prop = item.property
+
         if (type === 'original') {
           status = 'originalAnnotation'
-          iclass = this.classification.filter(c => c.value === item.class)[0]
+          iclass = this.classification.filter(c => c.value === item.class.value)[0]
         } else {
           status = item.status === undefined ? 'originalAnnotation' : item.status
-          iclass = this.classification.filter(c => c.value === item.class)[0]
+          iclass = this.classification.filter(c => c.value === item.class.value)[0]
         }
 
         addBox([tl.x, tl.y], [wh.x, wh.y], iclass, item.prop, status, 2)
@@ -198,7 +216,7 @@ export default {
 
 <style scoped>
   .annotation_canvas {
-    /*position: absolute;*/
+    position: relative;
     /*flex: 1 1 auto;*/
     /*margin: 10px;*/
     /*height: 100%;*/

@@ -32,21 +32,21 @@ export function exportResult() {
 
 /** in the future **/
 // 用于代替getItem(), 获取待标注的图像
-export function getImage(projectName, dataset, fileName, action) {
+export function getImage(projectName, dataSet, imageId, action) {
   return request({
-    url: '/api/fastwash/send_img_items/' + projectName,
+    url: '/api/fastwash/annotation/image/' + action,
     method: 'get',
-    params: { dataset: dataset, fileName: fileName, action: action }
+    params: { projectName: projectName, dataSetName: dataSet, imageId: imageId }
   })
 }
 
 // 用于代替submitItem(), 用于提交标注
 export function submitAnnotation(data, action, projectName) {
   return request({
-    url: '/api/fastwash/Post_Front_End_Framedata',
+    url: '/api/fastwash/annotation/submit',
     method: 'post',
     data: data,
-    params: { action: action, projectName: projectName }
+    params: { projectName: projectName }
   })
 }
 

@@ -33,29 +33,48 @@ service.interceptors.response.use(
     /**
      * code为非20000是抛错 可结合自己业务进行修改
      */
+    if (response.status === 401 || response.data.status === 40101) {
+      MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
+        confirmButtonText: '重新登录',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        store.dispatch('FedLogOut').then(() => {
+          location.reload()// 为了重新实例化vue-router对象 避免bug
+        })
+      })
+      return Promise.reject('error')
+    }
+    if (response.data.status === 40301) {
+      Message({
+        message: '当前用户无相关操作权限！',
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject('error')
+    }
     if (response.status !== 200) {
       Message({
         message: response.message,
         type: 'error',
         duration: 5 * 1000
       })
-
       // 50008:非法的token; 50012:其他客户端登录了;  50014:Token 过期了;
-      if (response.status === 50008 || response.status === 50012 || response.status === 50014) {
-        MessageBox.confirm(
-          '你已被登出，可以取消继续留在该页面，或者重新登录',
-          '确定登出',
-          {
-            confirmButtonText: '重新登录',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        ).then(() => {
-          store.dispatch('FedLogOut').then(() => {
-            location.reload() // 为了重新实例化vue-router对象 避免bug
-          })
-        })
-      }
+      // if (response.status === 50008 || response.status === 50012 || response.status === 50014) {
+      //   MessageBox.confirm(
+      //     '你已被登出，可以取消继续留在该页面，或者重新登录',
+      //     '确定登出',
+      //     {
+      //       confirmButtonText: '重新登录',
+      //       cancelButtonText: '取消',
+      //       type: 'warning'
+      //     }
+      //   ).then(() => {
+      //     store.dispatch('FedLogOut').then(() => {
+      //       location.reload() // 为了重新实例化vue-router对象 避免bug
+      //     })
+      //   })
+      // }
       return Promise.reject('error')
     } else {
       return response.data

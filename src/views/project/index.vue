@@ -74,6 +74,9 @@
             <el-button size="mini" type="danger" @click="handleDelete(row)">
               Delete
             </el-button>
+            <el-button size="mini" @click="handleTraining(row)">
+              Training
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -85,6 +88,7 @@
 
 <script>
 import { fetchList, publishProject, deleteProject } from '@/api/project'
+import { training } from '@/api/detection'
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
 export default {
@@ -163,6 +167,21 @@ export default {
     },
     handleDetail(row) {
 
+    },
+    handleTraining(row) {
+      training(row.name, row.dataSetName).then(response => {
+        if (response.success) {
+          this.$message({
+            message: '发送模型训练成功',
+            type: 'success'
+          })
+        } else {
+          this.$message({
+            message: '发送模型训练失败',
+            type: 'warning'
+          })
+        }
+      })
     },
     handleDelete(row) {
       deleteProject(row.name).then(response => {

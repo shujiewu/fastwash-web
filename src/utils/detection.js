@@ -28,6 +28,7 @@ export function addBox(downPoint, point, classification, prop, status, strokeWid
   newRect.strokeWidth = strokeWidth
   newRect.data.status = status
   newRect.data.class = classification.value
+  newRect.data.classId = classification.id
   newRect.data.id = items.length + 1
   newRect.data.type = 'box'
   newRect.data.prop = prop

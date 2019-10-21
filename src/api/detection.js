@@ -57,3 +57,22 @@ export function getProjectConfig(projectName) {
     method: 'get'
   })
 }
+
+// inference
+export function inference(projectName, dataSet, imageIdList) {
+  return request({
+    url: '/api/detection/annotation/model/inference',
+    method: 'post',
+    data: imageIdList,
+    params: { projectName: projectName, dataSetName: dataSet }
+  })
+}
+
+// training
+export function training(projectName, dataSet) {
+  return request({
+    url: '/api/detection/annotation/model/training',
+    method: 'get',
+    params: { projectName: projectName, dataSetName: dataSet }
+  })
+}

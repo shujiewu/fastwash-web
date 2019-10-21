@@ -123,6 +123,7 @@ export default {
       }
     },
     drawBackground(frameResult) {
+      console.log(frameResult)
       // var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
       var shape = []
       shape[0] = frameResult.detImg.height
@@ -195,10 +196,16 @@ export default {
 
         if (type === 'original') {
           status = 'originalAnnotation'
-          iclass = this.classification.filter(c => c.value === item.class.value)[0]
+          if(item.class.id === undefined)
+            iclass = this.classification.filter(c => c.value === item.class.value)[0]
+          else
+            iclass = this.classification.filter(c => c.id === item.class.id)[0]
         } else {
           status = item.status === undefined ? 'originalAnnotation' : item.status
-          iclass = this.classification.filter(c => c.value === item.class.value)[0]
+          if(item.class.id === undefined)
+            iclass = this.classification.filter(c => c.value === item.class.value)[0]
+          else
+            iclass = this.classification.filter(c => c.id === item.class.id)[0]
         }
 
         addBox([tl.x, tl.y], [wh.x, wh.y], iclass, item.prop, status, 2)

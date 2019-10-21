@@ -67,6 +67,7 @@ const detection = {
           box: { x: re_tl.x, y: re_tl.y, w: re_wh.x, h: re_wh.y },
           labeled: 'GT',
           id: item.data.id,
+          classId: item.data.classId,
           class: item.data.class,
           prop: item.data.prop,
           status: item.data.status,

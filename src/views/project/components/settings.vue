@@ -196,12 +196,12 @@ export default {
   methods: {
     getDataset() {
       fetchDataset().then(response => {
-        console.log(response)
         if (response.success) {
           response.data.forEach(item => {
             this.dataset.push(item['dataSetName'])
-            item['categories'].forEach(ctg => {
+            item['categories'].forEach((ctg,index) => {
               this.getRandomColor()
+              // ctg['id'] = (index+1).toString()
               ctg['fillColor'] = this.fillColor
               ctg['strokeColor'] = this.strokeColor
             })
@@ -220,6 +220,7 @@ export default {
         this.projectForm.classification = []
         this.categories[val].forEach(ctg => {
           this.projectForm.classification.push({
+            id: ctg.id,
             value: ctg.name,
             fillColor: ctg.fillColor,
             strokeColor: ctg.strokeColor
@@ -342,7 +343,6 @@ export default {
     },
     showOptionInput(property, index) {
       property.inputVisible = true
-      console.log(property)
       this.$nextTick(_ => {
         // console.log(this.$refs)
         // console.log(this.$refs['property' + index])

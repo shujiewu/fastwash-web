@@ -56,9 +56,9 @@
               Annotate
             </el-button>
           </router-link>
-          <router-link :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId,action: 'inference' }}" >
+          <router-link v-if="scope.row.status!='unannotated' || scope.row.lastUpdateTime!=null || scope.row.inferenceTime!=null" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'improve' }}" >
             <el-button type="success" size="mini">
-              Inference
+              Improve
             </el-button>
           </router-link>
           <router-link v-if="scope.row.hasGroundTruth==true" :to="{path:'/detection/annotation/'+ projectName, query:{ dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'groundtruth'}}" >
@@ -66,11 +66,11 @@
               GroudTruth
             </el-button>
           </router-link>
-          <router-link v-if="scope.row.status!='unannotated' || scope.row.lastUpdateTime!=null || scope.row.inferenceTime!=null" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'improve' }}" >
-            <el-button type="success" size="mini">
-              Improve
-            </el-button>
-          </router-link>
+          <el-button type="success" size="mini" @click="machineInference(scope.row)">
+            MachineInference
+          </el-button>
+          <!--<router-link :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId,action: 'inference' }}" >-->
+          <!--</router-link>-->
         </template>
       </el-table-column>
     </el-table>
@@ -81,6 +81,7 @@
 
 <script>
 import { fetchImageList } from '@/api/project'
+import { inference } from '@/api/detection'
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
 export default {
@@ -126,9 +127,27 @@ export default {
     getList() {
       this.listLoading = true
       fetchImageList(this.projectName, this.listQuery).then(response => {
+        console.log(response)
         this.list = response.data.rows
         this.total = parseInt(response.data.total)
         this.listLoading = false
+      })
+    },
+    machineInference(row){
+      var imageList = [row.imageId]
+      inference(this.projectName, row.dataSetName, imageList).then(response => {
+        if (response.success) {
+          this.$notify({
+            title: '成功',
+            message: '模型推断请求成功',
+            type: 'success'
+          })
+        } else {
+          this.$notify.error({
+            title: '错误',
+            message: '模型推断请求失败'
+          })
+        }
       })
     }
   }

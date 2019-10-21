@@ -219,7 +219,7 @@ export default {
         const item = this.currentAnnotation[index]
         frameResult.items.push({
           box: item.box,
-          classification: { value: item.class },
+          classification: { value: item.class, id: item.classId},
           property: item.prop,
           status: item.status,
           type:"crowdAnnotated"
@@ -227,7 +227,7 @@ export default {
           //
           // })
         })
-        console.log(frameResult)
+        // console.log(frameResult)
       }
       // frameResult = transformSubmit(frameResult)
       // const data = {

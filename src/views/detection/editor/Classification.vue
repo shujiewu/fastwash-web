@@ -79,6 +79,7 @@ export default {
     handleChange(value) {
       if (this.selectedItems.length > 0) {
         this.selectedItems[0].data.class = value
+        this.selectedItems[0].data.classId = (this.classification.filter(item => item.value === value))[0].id
         this.fillColor = (this.classification.filter(item => item.value === value))[0].fillColor
         this.strokeColor = (this.classification.filter(item => item.value === value))[0].strokeColor
         this.selectedItems[0].fillColor = this.colorToRGBA(this.fillColor)

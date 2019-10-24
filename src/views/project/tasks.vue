@@ -9,14 +9,19 @@
       highlight-current-row
       style="width: 100%;"
     >
-      <el-table-column label="Name" min-width="15px" align="center">
+      <el-table-column label="ImageId" min-width="10" align="center">
         <template slot-scope="{row}">
           <span class="link-type">{{ row.imageId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Size" min-width="10px" align="center">
+      <el-table-column label="ClassId" min-width="10" align="center">
         <template slot-scope="{row}">
-          <span class="link-type">{{ [row.height,row.width] }}</span>
+          <span class="link-type">{{ row.classId }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Iterations" min-width="10" align="center">
+        <template slot-scope="{row}">
+          <span class="link-type">{{ row.iterations }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Dataset" min-width="15px" align="center">
@@ -24,50 +29,30 @@
           <span class="link-type">{{ row.dataSetName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="GroundTruth" class-name="status-col" min-width="10" align="center">
-        <template slot-scope="{row}">
-          <el-tag>
-            {{ row.hasGroundTruth }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="Status" class-name="status-col" min-width="10" align="center">
+
+      <el-table-column label="Status" class-name="status-col" min-width="15px" align="center">
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
             {{ row.status }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="InferenceTime" class-name="status-col" min-width="10" align="center">
-        <template slot-scope="{row}">
-          {{ row.inferenceTime }}
-        </template>
-      </el-table-column>
+
       <el-table-column label="LastUpdateTime" class-name="status-col" min-width="10" align="center">
         <template slot-scope="{row}">
           <span>{{ Number(row.lastUpdateTime)/1000 | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="Actions" align="center" min-width="30" class-name="small-padding fixed-width">
+      <el-table-column label="Actions" align="center" min-width="10" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <!--<router-link :to="'/detection/annotation/'+ projectName + '/' + scope.row.dataset + '/'+ scope.row.file_name">-->
-          <router-link v-if="scope.row.status=='unannotated'" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'annotate' }}" >
+          <router-link :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName, imageId: scope.row.imageId, classId: scope.row.classId}}" >
             <el-button type="primary" size="mini">
               Annotate
             </el-button>
           </router-link>
-          <router-link v-if="scope.row.status!='unannotated' || scope.row.lastUpdateTime!=null || scope.row.inferenceTime!=null" :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'improve' }}" >
-            <el-button type="success" size="mini">
-              Improve
-            </el-button>
-          </router-link>
-          <router-link v-if="scope.row.hasGroundTruth==true" :to="{path:'/detection/annotation/'+ projectName, query:{ dataset:scope.row.dataSetName , imageId:scope.row.imageId, action: 'groundtruth'}}" >
-            <el-button type="primary" size="mini">
-              GroudTruth
-            </el-button>
-          </router-link>
           <el-button type="success" size="mini" @click="machineInference(scope.row)">
-            MachineInference
+            Inference
           </el-button>
           <!--<router-link :to="{path:'/detection/annotation/'+ projectName, query:{dataset:scope.row.dataSetName , imageId:scope.row.imageId,action: 'inference' }}" >-->
           <!--</router-link>-->
@@ -80,20 +65,21 @@
 </template>
 
 <script>
-import { fetchImageList } from '@/api/project'
+import { fetchTaskList } from '@/api/project'
 import { inference } from '@/api/detection'
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
 export default {
-  name: 'ProjectList',
+  name: 'Tasks',
   components: { Pagination },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        unannotated: 'info',
-        machineAnnotated: 'warning',
-        crowdAnnotated: '',
-        completed: 'success'
+        TASK_STATUS_UNANNOTATED: 'info',
+        TASK_STATUS_MACHINE_ANNOTATED: '',
+        TASK_STATUS_CROWD_ANNOTATED: 'danger',
+        TASK_STATUS_CROWD_RUNTIME: 'warning',
+        TASK_STATUS_COMPLETED: 'success'
       }
       return statusMap[status]
     },
@@ -127,7 +113,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchImageList(this.projectName, this.listQuery).then(response => {
+      fetchTaskList(this.projectName, this.listQuery).then(response => {
         this.list = response.data.rows
         this.total = parseInt(response.data.total)
         this.listLoading = false

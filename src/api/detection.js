@@ -40,10 +40,36 @@ export function getImage(projectName, dataSet, imageId, action) {
   })
 }
 
+export function getClassImage(projectName, dataSet, classId) {
+  return request({
+    url: '/api/fastwash/annotation/task/next',
+    method: 'get',
+    params: { projectName: projectName, dataSetName: dataSet, classId: classId }
+  })
+}
+
+export function getClassImageTask(projectName, dataSet, imageId, classId) {
+  return request({
+    url: '/api/fastwash/annotation/task',
+    method: 'get',
+    params: { projectName: projectName, dataSetName: dataSet, imageId: imageId, classId: classId }
+  })
+}
+
 // 用于代替submitItem(), 用于提交标注
 export function submitAnnotation(data, action, projectName) {
   return request({
     url: '/api/fastwash/annotation/submit',
+    method: 'post',
+    data: data,
+    params: { projectName: projectName }
+  })
+}
+
+// 用于代替submitItem(), 用于提交标注
+export function submitCrowdTask(data, projectName) {
+  return request({
+    url: '/api/fastwash/annotation/task/submit',
     method: 'post',
     data: data,
     params: { projectName: projectName }

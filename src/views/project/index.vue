@@ -60,29 +60,63 @@
             <el-button type="primary" size="mini">
               Edit
             </el-button>
-            <el-button v-if="row.status=='created'" size="mini" type="success" @click="handlePublish(row)">
+            <el-button size="mini" type="success" @click="handlePublish(row)">
               Publish
             </el-button>
-            <el-button v-if="row.status=='published'" size="mini" type="success" @click="handleDetail(row)">
-              Detail
+            <!--<el-button v-if="row.status=='published'" size="mini" type="success" @click="handleDetail(row)">-->
+              <!--Detail-->
+            <!--</el-button>-->
+            <el-button size="mini" type="success" @click="handleTraining(row)">
+              Training
             </el-button>
             <router-link :to="'/project/'+row.name+'/images'">
               <el-button v-if="row.status=='published'" size="mini">
                 Images
               </el-button>
             </router-link>
-            <el-button size="mini" type="danger" @click="handleDelete(row)">
-              Delete
-            </el-button>
-            <el-button size="mini" @click="handleTraining(row)">
-              Training
-            </el-button>
+            <router-link :to="'/project/'+row.name+'/tasks'">
+              <el-button v-if="row.status=='published'" size="mini">
+                Tasks
+              </el-button>
+            </router-link>
+            <!--<el-button size="mini" type="danger" @click="handleDelete(row)">-->
+              <!--Delete-->
+            <!--</el-button>-->
+
           </template>
         </el-table-column>
       </el-table>
 
       <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
     </el-row>
+
+
+    <el-dialog title="Publish Settings" :visible.sync="publishDlgVisible" >
+      <el-form :model="publishRequest" label-width="80px">
+        <el-form-item label="项目名">
+          <el-input v-model="currentProject" style="width: 200px" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="策略">
+          <el-select v-model="publishRequest.strategy" placeholder="请选择">
+            <el-option label="随机选择" value="random"></el-option>
+            <el-option label="固定策略" value="fixed"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="数量" v-if="publishRequest.strategy==='random'">
+          <el-input v-model="publishRequest.total" style="width: 200px"></el-input>
+        </el-form-item>
+        <el-form-item label="模型推断">
+          <el-radio-group v-model="publishRequest.inference">
+            <el-radio-button label="true"></el-radio-button>
+            <el-radio-button label="false"></el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="publishDlgVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handlePublishRequest">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -133,7 +167,15 @@ export default {
         page: 1,
         limit: 20,
         sort: '+id'
-      }
+      },
+      publishDlgVisible: false,
+      publishRequest: {
+        strategy:'random',
+        total: 0,
+        inference: true
+      },
+      currentProject: null,
+      currentDataSet: null
     }
   },
   created() {
@@ -150,18 +192,28 @@ export default {
       })
     },
     handlePublish(row) {
-      publishProject(row.name).then(response => {
+      this.currentProject = row.name
+      this.currentDataSet = row.dataSetName
+      this.publishDlgVisible = true
+    },
+
+    handlePublishRequest() {
+      console.log(this.publishRequest)
+
+      publishProject(this.currentProject,  this.currentDataSet, this.publishRequest).then(response => {
         if (response.success) {
-          row.status = 'published'
+          // row.status = 'published'
           this.$message({
             message: '项目启动成功',
             type: 'success'
           })
+          this.publishDlgVisible = false
         } else {
           this.$message({
             message: '项目启动失败',
             type: 'warning'
           })
+          this.publishDlgVisible = false
         }
       })
     },

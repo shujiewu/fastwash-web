@@ -75,7 +75,20 @@ const user = {
       const username = userInfo.username.trim()
       register(username, userInfo.password).then(response => {
         const data = response
-        console.log(data)
+        if (data.status === 40001) {
+          this.$notify({
+            title: '失败',
+            message: '用户名已经存在',
+            type: 'error'
+          })
+        } else {
+          this.$notify({
+            title: '成功',
+            message: '注册成功',
+            type: 'success'
+          })
+        }
+        // console.log(data)
         // setToken(data.token)
         // setUserName(data.name)
         // commit('SET_TOKEN', data.token)
@@ -83,8 +96,6 @@ const user = {
         // commit('SET_NAME', data.name)
         // commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
         // resolve()
-      }).catch(error => {
-        // reject(error)
       })
       // return new Promise((resolve, reject) => {
       //   register(username, userInfo.password).then(response => {

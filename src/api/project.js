@@ -44,10 +44,12 @@ export function fetchDataset(query) {
 }
 
 // 发布项目
-export function publishProject(projectName) {
+export function publishProject(projectName, dataSetName, body) {
   return request({
     url: '/api/fastwash/project/' + projectName + '/publish',
-    method: 'get'
+    method: 'post',
+    data: body,
+    params: { dataSetName: dataSetName }
   })
 }
 
@@ -55,6 +57,15 @@ export function publishProject(projectName) {
 export function fetchImageList(projectName, query) {
   return request({
     url: '/api/fastwash/project/' + projectName + '/images',
+    method: 'get',
+    params: query
+  })
+}
+
+// 获取项目的图像列表
+export function fetchTaskList(projectName, query) {
+  return request({
+    url: '/api/fastwash/project/' + projectName + '/tasks',
     method: 'get',
     params: query
   })

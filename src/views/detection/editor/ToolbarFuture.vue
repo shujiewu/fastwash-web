@@ -7,10 +7,6 @@
           ref="toolMove"
           :active="(activeTool === 'move')"
           @click.native="activeTool = 'move'"/>
-        <tool-zoom
-          id="tool-zoom"
-          :active="(activeTool === 'zoom')"
-          @click.native="activeTool = 'zoom'"/>
         <tool-rectangle
           id="tool-rectangle"
           :active="(activeTool === 'rectangle')"
@@ -19,9 +15,19 @@
           id="extreme-click"
           :active="(activeTool === 'extreme-click')"
           @click.native="activeTool = 'extreme-click'"/>
+        <tool-zoom
+          id="tool-zoom"
+          :active="(activeTool === 'zoom')"
+          @click.native="activeTool = 'zoom'"/>
       </el-radio-group>
+        <el-select v-model="currentClassId" clearable placeholder="切换类别" @change="onClassChange" style="margin-left: 10px">
+          <el-option
+            v-for="item in this.classification"
+            :key="item.id"
+            :label="item.value"
+            :value="item.id"/>
+        </el-select>
       <div style="float: right">
-
         <el-select v-model="state" placeholder="切换模式" @change="onStateChange">
           <el-option
             v-for="item in options"
@@ -35,13 +41,13 @@
           <el-button type="primary" icon="el-icon-warning" @click="resetItem">重置</el-button>
           <el-button type="primary" @click="onSubmit">提交<i class="el-icon-arrow-right el-icon--right"/></el-button>
         </el-button-group>
-
       </div>
     </el-col>
     <el-col :lg="6">
-      <div style="float: right">
-        <el-button type="text" style="margin-right:5px; font-size: 18px;">标注进度：{{ total-remain }}/{{ total }}</el-button>
-        <el-button type="primary" @click="onExport">导出<i class="el-icon-download el-icon--right"/></el-button>
+      <div style="margin-left: 10px">
+
+        <!--<el-button type="text" style="margin-right:5px; font-size: 18px;">标注进度：{{ total-remain }}/{{ total }}</el-button>-->
+        <!--<el-button type="primary" @click="onExport">导出<i class="el-icon-download el-icon&#45;&#45;right"/></el-button>-->
       </div>
 
     </el-col>
@@ -56,7 +62,7 @@ import toolZoom from './tools/Zoom'
 import paper from 'paper'
 import { mapState, mapActions } from 'vuex'
 import { transformSubmit } from '@/utils/proto'
-import { exportResult, submitAnnotation } from '@/api/detection'
+import { exportResult, submitAnnotation,submitCrowdTask } from '@/api/detection'
 import { uint8ToString } from '@/utils/utils'
 
 /** 工具栏 **/
@@ -82,7 +88,8 @@ export default {
       selectBox: '',
       remain: 0,
       total: 0,
-      percentage: 0
+      percentage: 0,
+      selectClass: this.currentClassId
       // boxList: []
     }
   },
@@ -91,7 +98,9 @@ export default {
       originalAnnotation: state => state.detection.originalAnnotation,
       currentAnnotation: state => state.detection.currentAnnotation,
       boxCount: state => state.detection.boxCount,
-      selectedItems: state => state.detection.selectedItems
+      selectedItems: state => state.detection.selectedItems,
+      classification: state => state.detection.classification,
+      currentClassId: state => state.detection.currentClassId,
     })
   },
   watch: {
@@ -109,6 +118,7 @@ export default {
     this.dataset = this.$route.query.dataset
     this.fileName = this.$route.query.fileName
     this.action = this.$route.query.action
+    this.classId = this.$route.query.classId
   },
   mounted() {
     document.addEventListener('keydown', this.handleEvent)
@@ -117,7 +127,8 @@ export default {
     ...mapActions({
       setState: 'detection/setState',
       saveAnnotation: 'detection/saveAnnotation',
-      setSelectedItems: 'detection/setSelectedItems'
+      setSelectedItems: 'detection/setSelectedItems',
+      setCurrentClassId: 'detection/setCurrentClassId'
     }),
     handleEvent(event) {
       if (event.key === 's' && event.ctrlKey) {
@@ -177,6 +188,10 @@ export default {
     onStateChange(value) {
       this.setState(value)
     },
+    onClassChange(value) {
+      this.setCurrentClassId(value)
+      // this.$router.push({path:'/detection/annotation/'+ this.projectName, query:{dataset:this.dataset, classId: this.selectClass===''?0:this.selectClass}})
+    },
     resetItem() {
       this.$confirm('此操作将重置当前标注, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -234,7 +249,7 @@ export default {
       //  data: btoa(uint8ToString(frameResult))
       // }
       /** in the future **/
-      submitAnnotation(frameResult, this.action, this.projectName).then(response => {
+      submitCrowdTask(frameResult,this.projectName).then(response => {
         if (response.success) {
           this.$notify({
             title: '成功',
@@ -249,6 +264,21 @@ export default {
           })
         }
       })
+      // submitAnnotation(frameResult, this.action, this.projectName).then(response => {
+      //   if (response.success) {
+      //     this.$notify({
+      //       title: '成功',
+      //       message: '提交成功',
+      //       type: 'success'
+      //     })
+      //     this.nextItem()
+      //   } else {
+      //     this.$notify.error({
+      //       title: '错误',
+      //       message: '提交失败'
+      //     })
+      //   }
+      // })
     }
   }
 }

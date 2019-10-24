@@ -24,7 +24,8 @@ const detection = {
     shape: [],
     // 记录当前框数量
     boxCount: 0,
-    tableSelect: true
+    tableSelect: true,
+    currentClassId: '1'
   },
   mutations: {
     setSelectedItems: (state, selectedItems) => {
@@ -92,6 +93,9 @@ const detection = {
     },
     setShape: (state, playload) => {
       state.shape = playload
+    },
+    setCurrentClassId: (state, playload) => {
+      state.currentClassId = playload
     }
   },
   actions: {
@@ -124,6 +128,9 @@ const detection = {
     },
     setShape: ({ commit }, playload) => {
       commit('setShape', playload)
+    },
+    setCurrentClassId: ({ commit }, playload) => {
+      commit('setCurrentClassId', playload)
     }
   }
 }

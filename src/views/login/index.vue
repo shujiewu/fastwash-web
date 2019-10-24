@@ -37,8 +37,8 @@
       </el-form-item>
     </el-form>
 
-    <el-dialog title="Registration" :visible.sync="showDialog">
-      <el-form ref="registerForm" :model="registerForm" :rules="registerRules" auto-complete="on" label-position="center" style="width: 50%">
+    <el-dialog title="Registration" :visible.sync="showDialog" width="600px">
+      <el-form ref="registerForm" :model="registerForm" :rules="registerRules" auto-complete="on" label-position="center" style="width: 100%">
         <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -86,6 +86,7 @@
 
 <script>
 // import { isvalidUsername } from '@/utils/validate'
+import { register } from '@/api/login'
 export default {
   name: 'Login',
   data() {
@@ -189,12 +190,29 @@ export default {
       this.$refs.registerForm.validate(valid => {
         if (valid) {
           this.registerLoading = true
-          this.$store.dispatch('Register', this.registerForm).then(() => {
+          register(this.registerForm.username, this.registerForm.password).then(response => {
+            const data = response
+            if (data.status === 40001) {
+              this.$notify({
+                title: '失败',
+                message: '用户名已经存在',
+                type: 'error'
+              })
+            } else {
+              this.$notify({
+                title: '成功',
+                message: '注册成功',
+                type: 'success'
+              })
+              this.showDialog = false
+            }
             this.registerLoading = false
-            this.showDialog = false
           }).catch(() => {
             this.registerLoading = false
           })
+          // this.$store.dispatch('Register', this.registerForm).then(() => {
+          //
+          // })
         } else {
           console.log('error submit!!')
           return false

@@ -22,6 +22,17 @@ export function register(username, password) {
   })
 }
 
+// export function valUserName(username) {
+//   return request({
+//     url: '/api/auth/user/register',
+//     method: 'post',
+//     data: {
+//       username,
+//       password
+//     }
+//   })
+// }
+
 export function getInfo(token) {
   return request({
     url: '/api/auth/user/info',

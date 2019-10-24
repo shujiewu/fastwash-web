@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { getImage } from '@/api/detection'
+import { getImage,getClassImage,getClassImageTask } from '@/api/detection'
 import paper from 'paper'
 import { transformResponse } from '@/utils/proto'
 import { mapState, mapActions } from 'vuex'
@@ -25,7 +25,11 @@ export default {
       loading: true,
       bg_dom: null,
       editor_dom: null,
-      cvs_dom: null
+      cvs_dom: null,
+      firstW: true,
+      firstH: true,
+      offsetHeight: 0,
+      offsetWidth: 0,
     }
   },
   computed: {
@@ -55,6 +59,7 @@ export default {
     this.dataset = this.$route.query.dataset
     this.imageId = this.$route.query.imageId
     this.action = this.$route.query.action
+    this.classId = this.$route.query.classId
   },
   methods: {
     ...mapActions({
@@ -62,7 +67,8 @@ export default {
       setOriginalAnnotation: 'detection/setOriginalAnnotation',
       saveAnnotation: 'detection/saveAnnotation',
       setAnnotationEditsFlag: 'detection/setAnnotationEditsFlag',
-      setShape: 'detection/setShape'
+      setShape: 'detection/setShape',
+      setCurrentClassId: 'detection/setCurrentClassId'
     }),
     load() {
       if (this.flag) {
@@ -82,11 +88,59 @@ export default {
       this.bg_dom = document.getElementById('bg_img')
       this.editor_dom = document.getElementById('editor_dom')
       this.cvs_dom = document.getElementById('detection_canvas')
-      getImage(this.projectName, this.dataset, this.imageId, this.action).then(response => {
-        this.setProgress(response.unannotated_nums, response.all_nums)
-        const frameResult = response.data// transformResponse(response.data)
-        this.drawBackground(frameResult)
-      })
+      if(this.classId!==null){
+        if(this.imageId==null){
+          getClassImage(this.projectName, this.dataset, this.classId).then(response => {
+            // this.setProgress(response.unannotated_nums, response.all_nums)
+            if(response.success){
+              console.log(response.data)
+              const frameResult = response.data// transformResponse(response.data)
+              this.drawBackground(frameResult)
+            }else {
+              this.loading = false
+              this.$confirm('此类别暂时没有任务，是否重新选择类别?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.$router.push({path:'/detection/project'})
+                // this.$emit('deleteItem')
+              }).catch(() => {
+              })
+            }
+          })
+        }else{
+          getClassImageTask(this.projectName, this.dataset, this.imageId, this.classId).then(response => {
+            this.setProgress(response.unannotated_nums, response.all_nums)
+            if(response.success){
+              const frameResult = response.data// transformResponse(response.data)
+              this.drawBackground(frameResult)
+            }else {
+              this.loading = false
+              this.$confirm('此类别暂时没有任务，是否重新选择类别?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.$router.push({path:'/detection/project'})
+                // this.$emit('deleteItem')
+              }).catch(() => {
+              })
+            }
+          })
+        }
+
+      }else{
+        getImage(this.projectName, this.dataset, this.imageId, this.action).then(response => {
+          // this.setProgress(response.unannotated_nums, response.all_nums)
+          if(response.success){
+            const frameResult = response.data// transformResponse(response.data)
+            this.drawBackground(frameResult)
+          }else {
+            this.loading = false
+          }
+        })
+      }
     },
     drawOriginAnnotation() {
       if (this.originalAnnotation != null) {
@@ -123,21 +177,49 @@ export default {
       }
     },
     drawBackground(frameResult) {
-      console.log(frameResult)
+      // console.log(frameResult)
       // var shape = frameResult.detImg.description.split('_').map(i => parseInt(i))
       var shape = []
       shape[0] = frameResult.detImg.height
       shape[1] = frameResult.detImg.width
       this.setShape(shape)
+      this.setCurrentClassId(frameResult.classId)
       // console.log(this.bg_dom.offsetHeight)
       // this.cvs_dom.width = this.bg_dom.offsetWidth
       // console.log(this.bg_dom.offsetWidth)
-      if(frameResult.detImg.height>frameResult.detImg.width)
-        this.bg_dom.style.width = (shape[1] * this.bg_dom.offsetHeight / shape[0]) + 'px'
-      else
-        this.bg_dom.style.height = (shape[0] * this.bg_dom.offsetWidth / shape[1]) + 'px'
-      this.cvs_dom.width = this.bg_dom.offsetWidth
-      this.cvs_dom.height = this.bg_dom.offsetHeight
+      if(this.firstW){
+        this.offsetWidth = this.bg_dom.offsetWidth-15
+        this.firstW = false
+      }
+
+      if(frameResult.detImg.height>frameResult.detImg.width){
+        if(this.offsetHeight<=0){
+          this.offsetHeight = this.offsetWidth/1.5
+        }
+        this.bg_dom.style.width = (shape[1] * this.offsetHeight / shape[0]) + 'px'
+        this.bg_dom.style.height = this.offsetHeight + 'px'
+        // if(this.firstH){
+        //   this.offsetWidth = this.bg_dom.offsetWidth
+        // }
+        // this.firstW = false
+        // this.firstH = false
+      }
+      else{
+        // if(this.firstW){
+        //   this.offsetWidth = this.bg_dom.offsetWidth-15
+        // }
+        this.bg_dom.style.width =  this.offsetWidth + 'px'
+        this.bg_dom.style.height = (shape[0] * this.offsetWidth / shape[1]) + 'px'
+        // if(this.firstW){
+        this.offsetHeight = this.bg_dom.offsetHeight
+        // }
+
+        // this.firstW = false
+        // this.firstH = false
+      }
+
+      this.cvs_dom.width = this.bg_dom.style.offsetWidth
+      this.cvs_dom.height = this.bg_dom.style.offsetHeight
 
       paper.view.viewSize.width = this.cvs_dom.offsetWidth
       paper.view.viewSize.height = this.cvs_dom.offsetHeight
@@ -146,6 +228,8 @@ export default {
 
       if(frameResult.detImg.height>frameResult.detImg.width){
         this.cvs_dom.style.left=(this.editor_dom.offsetWidth/2-this.bg_dom.offsetWidth/2)+'px'
+      }else{
+        this.cvs_dom.style.left=0+'px'
       }
       raster.position = paper.view.center
       const load = () => {
@@ -202,10 +286,10 @@ export default {
             iclass = this.classification.filter(c => c.id === item.class.id)[0]
         } else {
           status = item.status === undefined ? 'originalAnnotation' : item.status
-          if(item.class.id === undefined)
-            iclass = this.classification.filter(c => c.value === item.class.value)[0]
+          if(item.classId === undefined)
+            iclass = this.classification.filter(c => c.value === item.class)[0]
           else
-            iclass = this.classification.filter(c => c.id === item.class.id)[0]
+            iclass = this.classification.filter(c => c.id === item.classId)[0]
         }
 
         addBox([tl.x, tl.y], [wh.x, wh.y], iclass, item.prop, status, 2)

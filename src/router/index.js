@@ -58,6 +58,13 @@ export const constantRouterMap = [
         name: 'images',
         meta: { title: 'images' },
         hidden: true
+      },
+      {
+        path: ':projectName/tasks',
+        component: () => import('@/views/project/tasks'),
+        name: 'tasks',
+        meta: { title: 'tasks' },
+        hidden: true
       }
     ]
   },

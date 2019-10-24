@@ -26,7 +26,8 @@ export default {
   computed: {
     ...mapState({
       state: state => state.detection.state,
-      classification: state => state.detection.classification
+      classification: state => state.detection.classification,
+      currentClassId: state => state.detection.currentClassId
     })
   },
 
@@ -47,7 +48,7 @@ export default {
       if (this.state === 'edit') {
         // 防止过小的框被绘制, 只有x和y大于10个像素才会被绘制
         if (Math.abs(event.delta.x) > 10 && Math.abs(event.delta.y) > 10) {
-          addBox(event.downPoint, event.point, this.classification[0], undefined, 'newAnnotation', this.strokeWidth)
+          addBox(event.downPoint, event.point, this.classification[Number(this.currentClassId)-1], undefined, 'newAnnotation', this.strokeWidth)
           this.setAnnotationEditsFlag(true)
         }
       }

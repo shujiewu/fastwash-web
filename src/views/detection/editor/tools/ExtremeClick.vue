@@ -28,7 +28,8 @@ export default {
   computed: {
     ...mapState({
       state: state => state.detection.state,
-      classification: state => state.detection.classification
+      classification: state => state.detection.classification,
+      currentClassId: state => state.detection.currentClassId
     })
   },
 
@@ -63,7 +64,7 @@ export default {
 
           var ltPoint = new paper.Point(left, top)
           var rbPoint = new paper.Point(right, bottom)
-          addBox(ltPoint, rbPoint, this.classification[0], undefined, 'newAnnotation', this.strokeWidth)
+          addBox(ltPoint, rbPoint, this.classification[Number(this.currentClassId)-1], undefined, 'newAnnotation', this.strokeWidth)
           this.setAnnotationEditsFlag(true)
         }
       }

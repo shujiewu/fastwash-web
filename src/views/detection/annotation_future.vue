@@ -98,7 +98,7 @@ export default {
       remain: 0,
       total: 0,
       percentage: 0,
-      activeNames: ['2', '3']
+      activeNames: ['1','2', '3']
     }
   },
   mounted() {

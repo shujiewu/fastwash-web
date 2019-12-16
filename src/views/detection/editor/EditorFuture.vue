@@ -217,9 +217,10 @@ export default {
         // this.firstW = false
         // this.firstH = false
       }
-
-      this.cvs_dom.width = this.bg_dom.style.offsetWidth
-      this.cvs_dom.height = this.bg_dom.style.offsetHeight
+      // console.log(this.bg_dom.offsetWidth)
+      // console.log(this.bg_dom.offsetHeight)
+      this.cvs_dom.width = this.bg_dom.offsetWidth
+      this.cvs_dom.height = this.bg_dom.offsetHeight
 
       paper.view.viewSize.width = this.cvs_dom.offsetWidth
       paper.view.viewSize.height = this.cvs_dom.offsetHeight
@@ -251,6 +252,8 @@ export default {
     drawBoxes(frameResult) {
       if ('items' in frameResult) {
         for (const index in frameResult['items']) {
+          if(frameResult['items'][index].box.score!==null&&frameResult['items'][index].box.score!==undefined&&frameResult['items'][index].box.score>0&&frameResult['items'][index].box.score<0.2)
+            continue
           this.drawItem(frameResult['items'][index], 'original', index)
         }
       }

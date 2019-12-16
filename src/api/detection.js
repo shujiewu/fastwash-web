@@ -42,7 +42,7 @@ export function getImage(projectName, dataSet, imageId, action) {
 
 export function getClassImage(projectName, dataSet, classId) {
   return request({
-    url: '/api/fastwash/annotation/task/next',
+    url: '/api/fastwash/annotation/task/nexts',
     method: 'get',
     params: { projectName: projectName, dataSetName: dataSet, classId: classId }
   })
@@ -69,7 +69,7 @@ export function submitAnnotation(data, action, projectName) {
 // 用于代替submitItem(), 用于提交标注
 export function submitCrowdTask(data, projectName) {
   return request({
-    url: '/api/fastwash/annotation/task/submit',
+    url: '/api/fastwash/annotation/task/submits',
     method: 'post',
     data: data,
     params: { projectName: projectName }

@@ -15,10 +15,10 @@
           id="extreme-click"
           :active="(activeTool === 'extreme-click')"
           @click.native="activeTool = 'extreme-click'"/>
-        <tool-zoom
-          id="tool-zoom"
-          :active="(activeTool === 'zoom')"
-          @click.native="activeTool = 'zoom'"/>
+        <!--<tool-zoom-->
+          <!--id="tool-zoom"-->
+          <!--:active="(activeTool === 'zoom')"-->
+          <!--@click.native="activeTool = 'zoom'"/>-->
       </el-radio-group>
         <el-select v-model="currentClassId" clearable placeholder="切换类别" @change="onClassChange" style="margin-left: 10px">
           <el-option

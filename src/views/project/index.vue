@@ -92,20 +92,26 @@
 
 
     <el-dialog title="Publish Settings" :visible.sync="publishDlgVisible" >
-      <el-form :model="publishRequest" label-width="80px">
-        <el-form-item label="项目名">
+      <el-form :model="publishRequest" label-width="180px">
+        <el-form-item label="ProjectName">
           <el-input v-model="currentProject" style="width: 200px" :disabled="true"></el-input>
         </el-form-item>
-        <el-form-item label="策略">
+        <el-form-item label="Strategy">
           <el-select v-model="publishRequest.strategy" placeholder="请选择">
             <el-option label="随机选择" value="random"></el-option>
             <el-option label="固定策略" value="fixed"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="数量" v-if="publishRequest.strategy==='random'">
+        <el-form-item label="NumberOfImages" v-if="publishRequest.strategy==='random'">
           <el-input v-model="publishRequest.total" style="width: 200px"></el-input>
         </el-form-item>
-        <el-form-item label="模型推断">
+        <el-form-item label="MaxWorkerPerTask">
+          <el-input v-model="publishRequest.maxWorkerPerTask" style="width: 200px"></el-input>
+        </el-form-item>
+        <el-form-item label="MaxIterationsPerTask">
+          <el-input v-model="publishRequest.maxIterationsPerTask" style="width: 200px"></el-input>
+        </el-form-item>
+        <el-form-item label="Inference">
           <el-radio-group v-model="publishRequest.inference">
             <el-radio-button label="true"></el-radio-button>
             <el-radio-button label="false"></el-radio-button>
@@ -151,7 +157,7 @@ export default {
     typeFilter(type) {
       const typeMap = {
         Detection: 'success',
-        Video: 'new.vue'
+        MultiClassDetection: 'new.vue'
       }
       return typeMap[type]
     },
@@ -172,7 +178,9 @@ export default {
       publishRequest: {
         strategy:'random',
         total: 0,
-        inference: true
+        inference: true,
+        maxWorkerPerTask:1,
+        maxIterationsPerTask:1
       },
       currentProject: null,
       currentDataSet: null
@@ -198,8 +206,6 @@ export default {
     },
 
     handlePublishRequest() {
-      console.log(this.publishRequest)
-
       publishProject(this.currentProject,  this.currentDataSet, this.publishRequest).then(response => {
         if (response.success) {
           // row.status = 'published'

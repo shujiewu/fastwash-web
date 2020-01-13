@@ -7,8 +7,8 @@
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-select v-model="projectForm.type" placeholder="请选择标注类型">
-            <el-option label="Detection" value="Detection"/>
-            <el-option label="Video" value="Video"/>
+            <el-option label="单类别检测" value="Detection"/>
+            <el-option label="多类别检测" value="MultiClassDetection"/>
           </el-select>
         </el-form-item>
         <el-form-item label="数据来源" prop="dataSetName">

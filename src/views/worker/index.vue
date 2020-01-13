@@ -45,7 +45,7 @@
         <!--</el-table-column>-->
         <el-table-column label="Class" class-name="status-col" min-width="10" align="center">
           <template slot-scope="{row}">
-            <el-select v-model="row.selectClass" clearable placeholder="请选择标注类别">
+            <el-select v-model="row.selectClass" clearable placeholder="请选择标注类别" :disabled="row.type=='MultiClassDetection'">
               <el-option
                 v-for="item in row.classification"
                 :key="item.id"
@@ -93,7 +93,7 @@ export default {
     typeFilter(type) {
       const typeMap = {
         Detection: 'success',
-        Video: 'new.vue'
+        MultiClassDetection: 'new.vue'
       }
       return typeMap[type]
     },
